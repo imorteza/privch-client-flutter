@@ -1,0 +1,100 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new Exception("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def isXinlake = System.getProperty("user.name").toLowerCase().contains("xinlake")
+if (isXinlake) {
+    apply from: "../scripts/signing.gradle"
+}
+
+def versionMajor = 0 //12bit
+def versionMinor = 2 //10bit
+def versionRevision = 0 //10bit
+
+apply plugin: 'com.android.application'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+    buildToolsVersion "31.0.0"
+    ndkVersion "23.1.7779620"
+    compileSdkVersion 31
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    signingConfigs {
+        if (isXinlake) {
+            xinlake {
+                storeFile file(signingStoreFile)
+                storePassword signingStorePassword
+                keyAlias signingKeyAlias
+                keyPassword signingKeyPassword
+            }
+        }
+    }
+
+    defaultConfig {
+        applicationId "dev.xinlake.privch"
+        minSdkVersion 26
+        targetSdkVersion 31
+
+        versionCode = (versionMajor << 20) | (versionMinor << 10) | versionRevision
+        versionName "$versionMajor.$versionMinor.$versionRevision"
+
+        resValue "string", "gradle_build_host", "${InetAddress.localHost.hostName}"
+        resValue "string", "gradle_build_user", "${System.getProperty('user.name')}"
+        resValue "string", "gradle_build_time", new Date().format("yyyy-MM-dd")
+        // buildConfigField "String", "buildHost", buildHost
+        // buildConfigField "String", "buildUser", buildUser
+        // buildConfigField "String", "buildTime", buildTime
+
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
+        }
+    }
+
+    buildTypes {
+        release {
+            if (isXinlake) {
+                signingConfig signingConfigs.xinlake
+            } else {
+                // Signing with the debug keys for now, so `flutter run --release` works.
+                signingConfig signingConfigs.debug
+            }
+        }
+    }
+
+    // custom apk name and copy apk
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            if (output.outputFileName != null && output.outputFileName.endsWith('.apk')) {
+                // copy apk
+                variant.assembleProvider.get().doLast {
+                    def apkVersion = android.defaultConfig.versionName
+                    copy {
+                        from output.outputFile
+                        into "../../.apk"
+                        rename { String fileName ->
+                            return "${applicationId}-${apkVersion}.apk"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
