@@ -3,13 +3,23 @@ Modern VPN Client
 
 ## Screen
 Light theme
-
-![](.media/empty-light.jpg)
-![](.media/home-light.jpg)
-![](.media/setting-light.jpg)
+<p>
+<table>
+    <tr>
+        <td><img src=".lfs/screen-0.1.1/empty-light.jpg"/></td>
+        <td><img src=".lfs/screen-0.1.1/home-light.jpg"/></td>
+        <td><img src=".lfs/screen-0.1.1/setting-light.jpg"/></td>
+    </tr>
+</table>
+</p>
 
 Dark theme
-
-![](.media/empty-dark.jpg)
-![](.media/new-dark.jpg)
-![](.media/setting-dark.jpg)
+<p>
+<table>
+    <tr>
+        <td><img src=".lfs/screen-0.1.1/empty-dark.jpg"/></td>
+        <td><img src=".lfs/screen-0.1.1/new-dark.jpg"/></td>
+        <td><img src=".lfs/screen-0.1.1/setting-dark.jpg"/></td>
+    </tr>
+</table>
+</p>
