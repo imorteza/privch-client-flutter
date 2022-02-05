@@ -6,7 +6,8 @@ import 'package:privch/models/server_manager.dart';
 import 'package:privch/models/server_state.dart';
 import 'package:privch/models/setting_manager.dart';
 import 'package:privch/models/shadowsocks.dart';
-import 'package:privch/pages/shadowsocks_list.dart';
+import 'package:privch/pages/widgets/shadowsocks_list.dart';
+import 'package:privch/pages/widgets/service_panel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -44,7 +45,27 @@ class _HomeState extends State<HomePage> {
       return;
     }
 
-    await _servers.add(shadowsocks);
+    await _servers.add(
+      shadowsocks,
+      onUpdate: () {
+        // snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("${shadowsocks.name} updated"),
+              ],
+            ),
+          ),
+        );
+        return true;
+      },
+    );
+    // TODO: refresh widget when only date changed
   }
 
   Future<void> _importImage() async {
@@ -68,7 +89,46 @@ class _HomeState extends State<HomePage> {
       }
     });
 
-    await _servers.addAll(ssList);
+    var updated = 0;
+    await _servers.addAll(
+      ssList,
+      onUpdate: (shadowsocks) {
+        // snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("${shadowsocks.name} updated"),
+              ],
+            ),
+          ),
+        );
+
+        ++updated;
+        return true;
+      },
+
+      // TODO: refresh widget when only date changed
+    );
+
+    final added = ssList.length - updated;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("$added ${added > 1 ? 'servers' : 'server'} added"),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _createServer() async {
@@ -170,6 +230,21 @@ class _HomeState extends State<HomePage> {
               ],
             ),
           ),
+          // const PopupMenuItem<int>(
+          //   enabled: false,
+          //   height: 2,
+          //   child: Divider(),
+          // ),
+          // PopupMenuItem<int>(
+          //   value: 3,
+          //   child: Row(
+          //     children: [
+          //       Icon(Icons.settings, color: iconColor),
+          //       const SizedBox(width: 10),
+          //       const Text("Settings"),
+          //     ],
+          //   ),
+          // ),
         ];
       },
     );
@@ -196,9 +271,9 @@ class _HomeState extends State<HomePage> {
       child: SingleChildScrollView(
         child: Column(
           children: [
+            const SizedBox(height: 30),
             // TODO: header
-            const SizedBox(height: 100),
-            const Divider(height: 10),
+            // const Divider(height: 10),
             _buildDrawerItem(
               Icons.settings,
               "Setting",
@@ -221,10 +296,17 @@ class _HomeState extends State<HomePage> {
           _buildMoreMenu(),
         ],
       ),
-      body: ShadowsocksList(
-        onScanQrcode: () async => await _scanQrcode(),
-        onImportImage: () async => await _importImage(),
-        onCreateServer: () async => await _createServer(),
+      body: Column(
+        children: [
+          Expanded(
+            child: ShadowsocksList(
+              onScanQrcode: () async => await _scanQrcode(),
+              onImportImage: () async => await _importImage(),
+              onCreateServer: () async => await _createServer(),
+            ),
+          ),
+          const ServiceButton(),
+        ],
       ),
       drawer: _buildDrawer(),
     );

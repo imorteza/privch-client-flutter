@@ -8,7 +8,7 @@ description: Demonstrates how to use the xinlake_tunnel plugin.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: ">=2.15.1 <3.0.0"
+  sdk: ">=2.16.0 <3.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -20,7 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  window_interface: ^0.1.4
+  window_interface: ^0.2.0
   xinlake_text: ^0.1.6
   xinlake_tunnel:
     # When depending on this package from a real application you should use:

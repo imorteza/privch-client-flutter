@@ -233,7 +233,7 @@ class Shadowsocks extends HiveObject {
   @override
   Future<void> save() async {
     await super.save();
-    _onChange?.call();
+    _onChange?.call(); // TODO
   }
 
   @override

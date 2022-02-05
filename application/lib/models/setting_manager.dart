@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
+import 'package:window_interface/window_placement.dart';
+import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
-import 'package:privch/models/placement.dart';
+import 'package:privch/models/shadowsocks.dart';
 import 'package:privch/models/server_manager.dart';
 import 'package:privch/models/setting.dart';
 import 'package:privch/models/server_state.dart';
-import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
 class SettingManager {
   final Setting _data;
@@ -22,7 +23,7 @@ class SettingManager {
   int get dnsLocalPort => _data.dnsLocalPort;
   String get dnsRemoteAddress => _data.dnsRemoteAddress;
 
-  Placement windowPlacement() => Placement(
+  WindowPlacement windowPlacement() => WindowPlacement(
         offsetX: _data.windowX,
         offsetY: _data.windowY,
         width: _data.windowW,
@@ -34,8 +35,6 @@ class SettingManager {
     int? dnsLocalPort,
     String? dnsRemoteAddress,
   }) async {
-    // TODO: update vpn settings
-
     if (proxyPort != null) {
       _data.proxyPort = proxyPort;
     }
@@ -49,6 +48,11 @@ class SettingManager {
     }
 
     if (proxyPort != null || dnsLocalPort != null || dnsRemoteAddress != null) {
+      await XinlakeTunnel.updateSettings(
+        proxyPort: proxyPort,
+        dnsLocalPort: dnsLocalPort,
+        dnsRemoteAddress: dnsRemoteAddress,
+      );
       await _data.save();
     }
   }
@@ -56,22 +60,21 @@ class SettingManager {
   Future<void> _onStateChanged() async {
     bool save = false;
 
-    if (_data.serverSelId != onServerState.value.serverSelId) {
-      _data.serverSelId = onServerState.value.serverSelId;
-
-      // TODO: temp
-      final ss = ServerManager.instance.servers.firstWhere(
-        (element) => element.id == _data.serverSelId,
-      );
-      XinlakeTunnel.startShadowsocks(
-        ss.hashCode,
-        ss.port,
-        ss.address,
-        ss.password,
-        ss.encrypt,
-      );
-
+    if (_data.serverSelId != onServerState.value.currentServer?.id) {
+      _data.serverSelId = onServerState.value.currentServer?.id;
       save = true;
+
+      // update vpn server
+      final shadowsocks = onServerState.value.currentServer;
+      if (shadowsocks != null) {
+        await XinlakeTunnel.startShadowsocks(
+          shadowsocks.hashCode,
+          shadowsocks.port,
+          shadowsocks.address,
+          shadowsocks.password,
+          shadowsocks.encrypt,
+        );
+      }
     }
 
     if (_data.sortModeIndex != onServerState.value.sortMode.index) {
@@ -93,10 +96,11 @@ class SettingManager {
   ///
   SettingManager._constructor({
     required Setting setting,
+    required Shadowsocks? currentServer,
   })  : _data = setting,
         onServerState = ValueNotifier(ServerState(
+          currentServer: currentServer,
           serverCount: ServerManager.instance.servers.length,
-          serverSelId: setting.serverSelId,
           sortMode: ServerSortMode.values[setting.sortModeIndex],
         )),
         onThemeMode = ValueNotifier(
@@ -116,8 +120,14 @@ class SettingManager {
       settingBox.add(Setting());
     }
 
+    final setting = settingBox.values.first;
+    final Shadowsocks? currentServer = (setting.serverSelId != null)
+        ? ServerManager.instance.getServer(setting.serverSelId!)
+        : null;
+
     _instance = SettingManager._constructor(
       setting: settingBox.values.first,
+      currentServer: currentServer,
     );
   }
 }

@@ -28,7 +28,7 @@ if ($ssList.Count -le 1) {
 }
 
 # start privoxy daemon
-Write-Host "Start privoxy ..."
+Write-Host "`r`nStart privoxy ..."
 $privoxyConfig = "listen-address 127.0.0.1:$localHttpPort" +
 "`r`ntoggle 0" +
 "`r`nforward-socks5 / 127.0.0.1:$localSocksPort ." +
@@ -53,7 +53,7 @@ foreach ($shadowsocks in $ssList) {
     $encrypt = $encrypt.Trim();
 
     # start socks5
-    Write-Host "Check server: $address-$port ..."
+    Write-Host "`r`nCheck server: $address-$port ..."
     $ssProcess = Start-Process -FilePath $exeShadowsocksLocal -ArgumentList `
         '-s', $address, '-p', $port, `
         '-k', $password, '-m', $encrypt, `
@@ -93,20 +93,21 @@ if ($ssInvalid.Count -gt 0) {
 
 # done
 $message = 
-"`r`n  b: Open Chrome with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
-"`r`ncmd: Open PowerShell with http(s)_proxy=127.0.0.1:$localHttpPort" +
-"`r`n  q: Stop services and exit" +
+"`r`nB: open Browser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
+"`r`nC: open Cmd with http(s)_proxy=127.0.0.1:$localHttpPort" +
+"`r`nQ: stop processes and Quit" +
 "`r`nSELECTION"
 while ($true) {
-    $option = Read-Host $message    
-    switch ($option) {
+    $option = Read-Host $message
+    switch ($option.ToLower()) {
         "b" {
             & $exeChrome --proxy-server="socks5://127.0.0.1:$localSocksPort" 
         }
-        "cmd" {
+        "c" {
             Start-Process -FilePath "cmd.exe" -ArgumentList "/k", `
                 "set https_proxy=http://127.0.0.1:$localHttpPort&&", `
                 "set http_proxy=http://127.0.0.1:$localHttpPort&&", `
+                "set no_proxy=localhost,127.0.0.1,127.0.1.1,192.168.0.1,::1&&", `
                 "cls"
         }
         "q" {

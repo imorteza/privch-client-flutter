@@ -41,6 +41,7 @@ class XinlakeTunnel {
         }
       }
     });
+    _tunnelSubscription.resume();
   }
 
   /// cancel the tunnel events subscription
@@ -50,6 +51,16 @@ class XinlakeTunnel {
 
   // method channel --------------------------------------------------------------------------------
   static const _methodChannel = MethodChannel('xinlake_tunnel_method');
+
+  /// element 0: tx bytes, element 1: rx bytes
+  static Future<List<int>?> getTrafficBytes() async {
+    try {
+      final trafficTxRx = await _methodChannel.invokeListMethod<int>("getTrafficBytes");
+      return trafficTxRx;
+    } catch (exception) {
+      return null;
+    }
+  }
 
   static Future<void> startShadowsocks(
     int serverId,
@@ -81,17 +92,5 @@ class XinlakeTunnel {
       "dnsLocalPort": dnsLocalPort,
       "dnsRemoteAddress": dnsRemoteAddress,
     });
-  }
-
-  static Future<void> bindService(int proxyPort, int dnsLocalPort, String dnsRemoteAddress) async {
-    await _methodChannel.invokeMethod("bindService", {
-      "proxyPort": proxyPort,
-      "dnsLocalPort": dnsLocalPort,
-      "dnsRemoteAddress": dnsRemoteAddress,
-    });
-  }
-
-  static Future<void> unbindService() async {
-    await _methodChannel.invokeMethod("unbindService");
   }
 }

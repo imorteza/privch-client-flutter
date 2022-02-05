@@ -42,7 +42,7 @@ public final class TunnelCore {
 
         configureIntent = PendingIntent.getActivity(
             appContext, 0,
-            new Intent("xinlake.privch.flutter.ConfigVpn")
+            new Intent("xinlake.tunnel.ConfigVpn")
                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT),
             PendingIntent.FLAG_IMMUTABLE);
         noBackupFilesDir = appContext.getNoBackupFilesDir();

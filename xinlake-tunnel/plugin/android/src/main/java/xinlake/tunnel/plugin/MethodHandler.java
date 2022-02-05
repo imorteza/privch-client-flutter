@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.TrafficStats;
 import android.net.VpnService;
 import android.os.IBinder;
 
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -27,13 +29,17 @@ public class MethodHandler implements
     MethodChannel.MethodCallHandler {
     private static final int ACTION_ESTABLISH_VPN = 1;
 
-    // queue activity actions
+    // activity actions
     private int activityActionCode = 7039;
     private final HashMap<Integer, Pair<Integer, Consumer<Boolean>>> activityActions = new HashMap<>();
+
+    private int applicationUid;
+    private final ArrayList<Long> trafficBytes = new ArrayList<>(2);
 
     private ActivityPluginBinding binding;
     private EventHandler eventHandler;
 
+    // service
     private ITunnelMethod tunnelMethod;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -70,12 +76,36 @@ public class MethodHandler implements
     };
 
     public void attachedToActivity(ActivityPluginBinding binding, EventHandler eventHandler) {
+        // bind service
+        final Context context = binding.getActivity().getApplicationContext();
+        context.bindService(
+            new Intent(context, SSService.class),
+            serviceConnection, Context.BIND_AUTO_CREATE);
+
+        applicationUid = binding.getActivity().getApplicationInfo().uid;
         binding.addActivityResultListener(this);
+
         this.binding = binding;
         this.eventHandler = eventHandler;
     }
     public void detachedFromActivity() {
         binding.removeActivityResultListener(this);
+
+        // unbind and stop service
+        final Context context = binding.getActivity().getApplicationContext();
+        try {
+            context.unbindService(serviceConnection);
+            context.stopService(new Intent(context, SSService.class));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private void getTrafficBytes(MethodChannel.Result result) {
+        trafficBytes.clear();
+        trafficBytes.add(TrafficStats.getUidTxBytes(applicationUid));
+        trafficBytes.add(TrafficStats.getUidRxBytes(applicationUid));
+        result.success(trafficBytes);
     }
 
     private void startShadowsocks(MethodCall call, MethodChannel.Result result) {
@@ -176,55 +206,13 @@ public class MethodHandler implements
         result.success(null);
     }
 
-    private void bindService(MethodCall call, MethodChannel.Result result) {
-        final Integer proxyPort;
-        final Integer dnsLocalPort;
-        final String dnsRemoteAddress;
-
-        // check parameters
-        try {
-            proxyPort = call.argument("proxyPort");
-            dnsLocalPort = call.argument("dnsLocalPort");
-            dnsRemoteAddress = call.argument("dnsRemoteAddress");
-
-            if (proxyPort == null || dnsLocalPort == null || dnsRemoteAddress == null) {
-                throw new Exception();
-            }
-        } catch (Exception exception) {
-            result.error("Invalid parameters", null, null);
-            return;
-        }
-
-        // bind the vpn service and send initial data
-        final Activity activity = binding.getActivity();
-
-        Intent intent = new Intent(activity.getApplicationContext(), SSService.class);
-        intent.putExtra("proxyPort", proxyPort);
-        intent.putExtra("dnsLocalPort", dnsLocalPort);
-        intent.putExtra("dnsRemoteAddress", dnsRemoteAddress);
-
-        activity.getApplicationContext().bindService(intent, serviceConnection,
-            Context.BIND_AUTO_CREATE);
-        result.success(null);
-    }
-
-    private void unbindService(MethodChannel.Result result) {
-        final Context context = binding.getActivity().getApplicationContext();
-
-        // unbind and stop service
-        try {
-            context.unbindService(serviceConnection);
-            context.stopService(new Intent(context, SSService.class));
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        result.success(null);
-    }
-
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
         switch (call.method) {
+            case "getTrafficBytes":
+                getTrafficBytes(result);
+                break;
+
             case "startShadowsocks":
                 startShadowsocks(call, result);
                 break;
@@ -234,13 +222,6 @@ public class MethodHandler implements
 
             case "updateSettings":
                 updateSettings(call, result);
-                break;
-
-            case "bindService":
-                bindService(call, result);
-                break;
-            case "unbindService":
-                unbindService(result);
                 break;
             default:
                 result.notImplemented();

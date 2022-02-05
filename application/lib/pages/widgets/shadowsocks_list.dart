@@ -4,7 +4,7 @@ import 'package:privch/models/server_manager.dart';
 import 'package:privch/models/server_state.dart';
 import 'package:privch/models/setting_manager.dart';
 import 'package:privch/models/shadowsocks.dart';
-import 'package:privch/pages/shadowsocks_widget.dart';
+import 'package:privch/pages/widgets/shadowsocks_widget.dart';
 
 class ShadowsocksList extends StatefulWidget {
   const ShadowsocksList({
@@ -39,7 +39,7 @@ class ShadowsocksListState extends State<ShadowsocksList> {
   }
 
   void _onItemSelected(Shadowsocks shadowsocks) {
-    final newValue = _setting.onServerState.value.copyWith(serverSelId: shadowsocks.id);
+    final newValue = _setting.onServerState.value.copyWith(currentServer: shadowsocks);
     _setting.onServerState.value = newValue;
   }
 

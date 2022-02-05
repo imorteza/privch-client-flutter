@@ -23,7 +23,7 @@ class _ShadowsocksState extends State<ShadowsocksWidget> {
   @override
   Widget build(BuildContext context) {
     final shadowsocks = widget.shadowsocks;
-    final selected = (shadowsocks.id == _setting.onServerState.value.serverSelId);
+    final selected = (shadowsocks.id == _setting.onServerState.value.currentServer?.id);
     final themeData = Theme.of(context);
 
     return Container(
@@ -51,21 +51,20 @@ class _ShadowsocksState extends State<ShadowsocksWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(shadowsocks.name, textScaleFactor: 1.4),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // TODO: too long ...
-                        Text(
-                          shadowsocks.modified,
-                          style: themeData.textTheme.caption,
+                        Expanded(
+                          child: Text(
+                            shadowsocks.modified,
+                            style: themeData.textTheme.caption,
+                            softWrap: false,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         // TODO: "${ss.responseTime.value}ms",
-                        // Text(
-                        //   "${ss.hashCode}",
-                        //   style: isSelected ? themeData.textTheme.caption : null,
-                        // ),
                       ],
                     ),
                   ],

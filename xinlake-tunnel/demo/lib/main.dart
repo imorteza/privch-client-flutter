@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:xinlake_text/readable.dart';
 import 'package:xinlake_text/validator.dart';
+
 import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
 void main() {
@@ -20,12 +23,28 @@ class _MyAppState extends State<MyApp> {
   String _dnsRemoteAddress = "8.8.8.8";
 
   final int _serverId = 100;
-  int _port = 31131;
-  String _address = "107.148.200.42";
-  String _password = "dongtaiwang.com";
-  String _encrypt = "rc4";
+  int _port = 8090;
+  String _address = "46.29.218.6";
+  String _password = "PCnnH6SQSnfoS27";
+  String _encrypt = "aes-256-gcm";
 
-  bool _bind = false;
+  bool _update = true;
+  final _onTrafficTxRx = ValueNotifier<List<int>?>(null);
+
+  Future<void> _updateTraffic() async {
+    while (_update) {
+      for (int i = 0; i < 12; ++i) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (!_update) {
+          return;
+        }
+      }
+
+      final trafficTxRx = await XinlakeTunnel.getTrafficBytes();
+      _onTrafficTxRx.value = trafficTxRx;
+    }
+  }
+
   Widget _buildState() {
     return Card(
       child: Padding(
@@ -91,7 +110,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _buildStartStop(double maxEditHeight) {
+  Widget _buildStartStop() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -183,7 +202,7 @@ class _MyAppState extends State<MyApp> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: (_bind && value == XinlakeTunnel.stateStopped)
+                        onPressed: (value == XinlakeTunnel.stateStopped)
                             ? () async => await XinlakeTunnel.startShadowsocks(
                                 _serverId, _port, _address, _password, _encrypt)
                             : null,
@@ -193,7 +212,7 @@ class _MyAppState extends State<MyApp> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: (_bind && value == XinlakeTunnel.stateConnected)
+                        onPressed: (value == XinlakeTunnel.stateConnected)
                             ? () async => await XinlakeTunnel.stopService()
                             : null,
                         child: const Text("stopService"),
@@ -209,11 +228,12 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _buildBind() {
+  Widget _buildSettings() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -274,29 +294,20 @@ class _MyAppState extends State<MyApp> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await XinlakeTunnel.bindService(_proxyPort, _dnsLocalPort, _dnsRemoteAddress);
-                      setState(() => _bind = true);
-                    },
-                    child: const Text("bindService"),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await XinlakeTunnel.unbindService();
-                      setState(() => _bind = false);
-                    },
-                    child: const Text("unbindService"),
-                  ),
-                ),
-              ],
+            ValueListenableBuilder<int>(
+              valueListenable: XinlakeTunnel.onState,
+              builder: (context, value, child) {
+                return ElevatedButton(
+                  onPressed: (value == XinlakeTunnel.stateStopped)
+                      ? () async => await XinlakeTunnel.updateSettings(
+                            proxyPort: _proxyPort,
+                            dnsLocalPort: _dnsLocalPort,
+                            dnsRemoteAddress: _dnsRemoteAddress,
+                          )
+                      : null,
+                  child: const Text("updateSettings"),
+                );
+              },
             ),
           ],
         ),
@@ -304,10 +315,54 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  Widget _buildTraffic() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ValueListenableBuilder<List<int>?>(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.data_usage),
+              SizedBox(width: 10),
+              Text("NULL"),
+            ],
+          ),
+          valueListenable: _onTrafficTxRx,
+          builder: (context, value, child) {
+            // empty
+            if (value == null) {
+              return child!;
+            }
+
+            return Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.arrow_upward),
+                      Text(Readable.formatSize(value[0])),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.arrow_downward),
+                      Text(Readable.formatSize(value[1])),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final double maxEditHeight = (Theme.of(context).textTheme.bodyText1?.fontSize ?? 14) * 2 + 10;
-
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.teal,
@@ -316,15 +371,16 @@ class _MyAppState extends State<MyApp> {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('XinlakeTunnel Example'),
+          title: const Text('XinlakeTunnel Demo'),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(8),
           child: Column(
             children: [
+              _buildTraffic(),
               _buildState(),
-              _buildBind(),
-              _buildStartStop(maxEditHeight),
+              _buildSettings(),
+              _buildStartStop(),
             ],
           ),
         ),
@@ -336,10 +392,12 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     XinlakeTunnel.startListen();
+    _updateTraffic();
   }
 
   @override
   void dispose() {
+    _update = false;
     XinlakeTunnel.stopListen();
     super.dispose();
   }

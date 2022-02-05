@@ -15,68 +15,68 @@
 #include <sstream>
 
 namespace {
+    class XinlakeTunnelPlugin : public flutter::Plugin {
+    public:
+        static void RegisterWithRegistrar(flutter::PluginRegistrarWindows* registrar);
 
-class XinlakeTunnelPlugin : public flutter::Plugin {
- public:
-  static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
+        XinlakeTunnelPlugin();
+        virtual ~XinlakeTunnelPlugin();
 
-  XinlakeTunnelPlugin();
+    private:
+        // Called when a method is called on this plugin's channel from Dart.
+        void HandleMethodCall(
+            const flutter::MethodCall<flutter::EncodableValue>& method_call,
+            std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
+    };
 
-  virtual ~XinlakeTunnelPlugin();
+    // static
+    void XinlakeTunnelPlugin::RegisterWithRegistrar(
+        flutter::PluginRegistrarWindows* registrar) {
 
- private:
-  // Called when a method is called on this plugin's channel from Dart.
-  void HandleMethodCall(
-      const flutter::MethodCall<flutter::EncodableValue> &method_call,
-      std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
-};
+        auto channel = std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+            registrar->messenger(), "xinlake_tunnel",
+            &flutter::StandardMethodCodec::GetInstance());
 
-// static
-void XinlakeTunnelPlugin::RegisterWithRegistrar(
-    flutter::PluginRegistrarWindows *registrar) {
-  auto channel =
-      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
-          registrar->messenger(), "xinlake_tunnel",
-          &flutter::StandardMethodCodec::GetInstance());
+        auto plugin = std::make_unique<XinlakeTunnelPlugin>();
 
-  auto plugin = std::make_unique<XinlakeTunnelPlugin>();
+        channel->SetMethodCallHandler(
+            [plugin_pointer = plugin.get()](const auto& call, auto result) {
+            plugin_pointer->HandleMethodCall(call, std::move(result));
+        });
 
-  channel->SetMethodCallHandler(
-      [plugin_pointer = plugin.get()](const auto &call, auto result) {
-        plugin_pointer->HandleMethodCall(call, std::move(result));
-      });
-
-  registrar->AddPlugin(std::move(plugin));
-}
-
-XinlakeTunnelPlugin::XinlakeTunnelPlugin() {}
-
-XinlakeTunnelPlugin::~XinlakeTunnelPlugin() {}
-
-void XinlakeTunnelPlugin::HandleMethodCall(
-    const flutter::MethodCall<flutter::EncodableValue> &method_call,
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  if (method_call.method_name().compare("getPlatformVersion") == 0) {
-    std::ostringstream version_stream;
-    version_stream << "Windows ";
-    if (IsWindows10OrGreater()) {
-      version_stream << "10+";
-    } else if (IsWindows8OrGreater()) {
-      version_stream << "8";
-    } else if (IsWindows7OrGreater()) {
-      version_stream << "7";
+        registrar->AddPlugin(std::move(plugin));
     }
-    result->Success(flutter::EncodableValue(version_stream.str()));
-  } else {
-    result->NotImplemented();
-  }
-}
 
+    XinlakeTunnelPlugin::XinlakeTunnelPlugin() {}
+    XinlakeTunnelPlugin::~XinlakeTunnelPlugin() {}
+
+    void XinlakeTunnelPlugin::HandleMethodCall(
+        const flutter::MethodCall<flutter::EncodableValue>& method_call,
+        std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+
+        /*
+        if (method_call.method_name().compare("getPlatformVersion") == 0) {
+            std::ostringstream version_stream;
+            version_stream << "Windows ";
+            if (IsWindows10OrGreater()) {
+                version_stream << "10+";
+            } else if (IsWindows8OrGreater()) {
+                version_stream << "8";
+            } else if (IsWindows7OrGreater()) {
+                version_stream << "7";
+            }
+        } else {
+            result->NotImplemented();
+        }*/
+
+        // TODO: debug only
+        result->Success(nullptr);
+    }
 }  // namespace
 
 void XinlakeTunnelPluginRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar) {
-  XinlakeTunnelPlugin::RegisterWithRegistrar(
-      flutter::PluginRegistrarManager::GetInstance()
-          ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
+    XinlakeTunnelPlugin::RegisterWithRegistrar(
+        flutter::PluginRegistrarManager::GetInstance()
+        ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
 }

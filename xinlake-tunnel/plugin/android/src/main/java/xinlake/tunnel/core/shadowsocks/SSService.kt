@@ -48,14 +48,14 @@ import java.io.File
 import java.io.FileDescriptor
 import java.io.IOException
 
-/* This source code is form shadowsocks-android v5.2.6
+/* Some of these source code are copied form shadowsocks-android v5.2.6
     com/github/shadowsocks/bg/BaseService.kt,
     com/github/shadowsocks/bg/VpnService.kt,
  */
 
 /**
  * Must bind service and set `proxyPort`, `localDnsPort`, `remoteDnsAddress` extras
- * to the intent
+ * to the intent, Or update settings before startService
  *
  * 2021-11
  */
@@ -359,9 +359,9 @@ class SSService : VpnService() {
             return super.onBind(intent)
         }
 
-        val proxyPort: Int = intent.getIntExtra("proxyPort", -1)
-        val dnsLocalPort: Int = intent.getIntExtra("dnsLocalPort", -1)
-        val dnsRemoteAddress: String? = intent.getStringExtra("dnsRemoteAddress")
+        val proxyPort: Int = intent.getIntExtra("proxyPort", 1080)
+        val dnsLocalPort: Int = intent.getIntExtra("dnsLocalPort", 5450)
+        val dnsRemoteAddress: String? = intent.getStringExtra("8.8.8.8")
 
         TunnelCore.init(applicationContext, proxyPort, dnsLocalPort, dnsRemoteAddress)
         return ServiceBinder(this)

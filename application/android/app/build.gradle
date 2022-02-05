@@ -11,7 +11,7 @@ if (flutterRoot == null) {
     throw new Exception("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
-def isXinlake = System.getProperty("user.name").toLowerCase().contains("xinlake")
+def isXinlake = System.getProperty("user.name").toLowerCase().contentEquals("xinlake")
 if (isXinlake) {
     apply from: "../scripts/signing.gradle"
 }
@@ -24,9 +24,9 @@ apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    buildToolsVersion "31.0.0"
+    buildToolsVersion "32.0.0"
     ndkVersion "23.1.7779620"
-    compileSdkVersion 31
+    compileSdkVersion 32
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -47,7 +47,7 @@ android {
     defaultConfig {
         applicationId "dev.xinlake.privch"
         minSdkVersion 26
-        targetSdkVersion 31
+        targetSdkVersion 32
 
         versionCode = (versionMajor << 20) | (versionMinor << 10) | versionRevision
         versionName "$versionMajor.$versionMinor.$versionRevision"

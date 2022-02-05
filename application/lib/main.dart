@@ -1,10 +1,11 @@
 /*
+  TODO: language
+
   Xinlake Liu
   2022-01
  */
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
@@ -16,6 +17,7 @@ import 'package:privch/models/setting.dart';
 import 'package:privch/models/setting_manager.dart';
 import 'package:privch/models/shadowsocks.dart';
 import 'package:privch/models/server_manager.dart';
+import 'package:privch/pages/sorry_page.dart';
 import 'package:privch/pages/encrypt_list.dart';
 import 'package:privch/pages/setting_page.dart';
 import 'package:privch/pages/shadowsocks_detail.dart';
@@ -23,7 +25,7 @@ import 'package:privch/pages/home_page.dart';
 
 Future<bool> _initData() async {
   // init directory
-  String? appDir = await XinlakePlatform.getAppDir();
+  final appDir = await XinlakePlatform.getAppDir();
   if (appDir == null) {
     return false;
   }
@@ -39,29 +41,28 @@ Future<bool> _initData() async {
   await SettingManager.initialize();
   final settings = SettingManager.instance;
 
-  // init tunnel
-  XinlakeTunnel.bindService(
-    settings.proxyPort,
-    settings.dnsLocalPort,
-    settings.dnsRemoteAddress,
-  );
-
   // init window
   if (Platform.isWindows) {
-    final placement = settings.windowPlacement();
     await WindowInterface.setWindowMinSize(400, 600);
+    final placement = settings.windowPlacement();
     if (placement.isValid) {
-      // TODO: also restore the window position
-      await WindowInterface.setWindowSize(placement.width, placement.height);
+      await WindowInterface.setWindowPlacement(placement);
     }
   }
+
+  // init tunnel
+  await XinlakeTunnel.updateSettings(
+    proxyPort: settings.proxyPort,
+    dnsLocalPort: settings.dnsLocalPort,
+    dnsRemoteAddress: settings.dnsRemoteAddress,
+  );
 
   return true;
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  bool initSuccess = await _initData();
+  final initSuccess = await _initData();
   runApp(PrivChApp(initSuccess));
 }
 
@@ -69,14 +70,6 @@ class PrivChApp extends StatelessWidget {
   const PrivChApp(this.initSuccess, {Key? key}) : super(key: key);
 
   final bool initSuccess;
-
-  // TODO: contact dev
-  Widget _buildInitFail() {
-    return Container(
-      alignment: Alignment.center,
-      child: const Text("Unable to initialize, Sorry!"),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,9 +91,9 @@ class PrivChApp extends StatelessWidget {
           ),
           themeMode: value,
           // routers
-          initialRoute: initSuccess ? "/home" : "/init-fail",
+          initialRoute: initSuccess ? "/home" : "/sorry",
           routes: {
-            "/init-fail": (context) => _buildInitFail(),
+            "/sorry": (context) => const SorryPage(),
             "/home": (context) => const HomePage(title: "PrivCh"),
             "/home/setting": (context) => const SettingPage(),
           },
@@ -115,6 +108,8 @@ class PrivChApp extends StatelessWidget {
               return MaterialPageRoute(
                 builder: (context) => EncryptListPage(encrypt: encrypt),
               );
+            } else {
+              return null;
             }
           },
         );

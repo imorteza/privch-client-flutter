@@ -1,38 +1,40 @@
+import 'package:privch/models/shadowsocks.dart';
+
 /// shadowsocks sort methods
 enum ServerSortMode { modified, address, name }
 
 /// info about the server data changing
-/// * 2021-12-07
+/// * 2022-01-19
 class ServerState {
-  final int serverCount;
-  final String? serverSelId;
+  final Shadowsocks? currentServer;
   final ServerSortMode sortMode;
+  final int serverCount;
 
   ServerState({
-    required this.serverCount,
-    required this.serverSelId,
+    required this.currentServer,
     required this.sortMode,
+    required this.serverCount,
   });
 
   ServerState copyWith({
-    int? serverCount,
-    String? serverSelId,
+    Shadowsocks? currentServer,
     ServerSortMode? sortMode,
+    int? serverCount,
   }) =>
       ServerState(
-        serverCount: serverCount ?? this.serverCount,
-        serverSelId: serverSelId ?? this.serverSelId,
+        currentServer: currentServer ?? this.currentServer,
         sortMode: sortMode ?? this.sortMode,
+        serverCount: serverCount ?? this.serverCount,
       );
 
   @override
   bool operator ==(other) {
     return other is ServerState &&
-        other.serverCount == serverCount &&
-        other.serverSelId == serverSelId &&
-        other.sortMode == sortMode;
+        other.currentServer == currentServer &&
+        other.sortMode == sortMode &&
+        other.serverCount == serverCount;
   }
 
   @override
-  int get hashCode => Object.hash(serverCount, serverSelId, sortMode);
+  int get hashCode => Object.hash(currentServer, sortMode, serverCount);
 }

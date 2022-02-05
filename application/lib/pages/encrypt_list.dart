@@ -22,18 +22,20 @@ class _EncryptListState extends State<EncryptListPage> {
       spacing: 10,
       runSpacing: 10,
       children: ssEncryptMethods.map((item) {
-        return OutlinedButton(
-          onPressed: () => setState(() {
-            _encrypt = item;
-          }),
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Text(
-              item.toUpperCase(),
-              textAlign: TextAlign.center,
-            ),
+        // item pressed
+        void pressed() => setState(() => _encrypt = item);
+        // item child
+        final child = Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(
+            item.toUpperCase(),
+            textAlign: TextAlign.center,
           ),
         );
+        // item widget
+        return (_encrypt == item)
+            ? ElevatedButton(onPressed: pressed, child: child)
+            : OutlinedButton(onPressed: pressed, child: child);
       }).toList(),
     );
   }
@@ -69,7 +71,10 @@ class _EncryptListState extends State<EncryptListPage> {
           ),
         ],
       ),
-      body: _buildList(),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(10),
+        child: _buildList(),
+      ),
     );
   }
 
