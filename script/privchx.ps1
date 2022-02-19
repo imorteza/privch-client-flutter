@@ -1,5 +1,6 @@
 $ErrorActionPreference = "Stop"
 
+# configurations
 $exeChrome = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 $exePrivoxy = "D:\PrivChX\privoxy-x64\privoxy.exe"
 $exeShadowsocksLocal = "D:\PrivChX\shadowsocks-libev-x64\ss-local.exe"
@@ -7,16 +8,38 @@ $exeShadowsocksLocal = "D:\PrivChX\shadowsocks-libev-x64\ss-local.exe"
 $txtPrivoxyConfig = "D:\PrivChX\privoxy-x64\config.txt"
 $txtShadowsocksList = "D:\PrivChX\server-list.txt"
 
-# source and configuration
+$localHttpPort = 17039;
+$localSocksPort = 17029;
+
+# source and functions
 Set-Location -Path "E:\PrivateChannel\SourceCode\script"
 . .\fun-servers.ps1
 
-$localHttpPort = 7070;
-$localSocksPort = 33099;
+function RandomValidServer {
+    param (
+        [String[]]$ssList,
+        [String[]]$ssInvalid
+    )
+
+    while ($true) {
+        $shadowsocks = Get-Random -InputObject $ssList
+        $ssProcess = TestServer -ssLocal $exeShadowsocksLocal -shadowsocks $shadowsocks
+        if ($null -eq $ssProcess) {
+            $ssInvalid += $shadowsocks
+        } else {
+            return $ssProcess
+        }        
+    }
+}
+
+
+# start 
+"Private Channel X v0.1"
+"https://xinlake.dev"
 
 # load and fix server list
-Write-Host "Load servers"
-[System.Collections.ArrayList]$ssList = LoadServers -path $txtShadowsocksList
+Write-Host -ForegroundColor Magenta "`r`nLoad servers"
+[String[]]$ssList = LoadServers -path $txtShadowsocksList
 if ($ssList.Count -le 1) {
     Write-Host "Server not found. Exit"
     Exit;
@@ -26,7 +49,7 @@ if ($ssList.Count -le 1) {
 }
 
 # start privoxy daemon
-Write-Host "`r`nStart privoxy ..."
+Write-Host -ForegroundColor Magenta "`r`nStart privoxy ..."
 $privoxyConfig = "listen-address 127.0.0.1:$localHttpPort" +
 "`r`ntoggle 0" +
 "`r`nforward-socks5 / 127.0.0.1:$localSocksPort ." +
@@ -42,25 +65,18 @@ $privoxyProcess = Start-Process -FilePath $exePrivoxy -ArgumentList $txtPrivoxyC
 Start-Sleep -Milliseconds 100
 
 # check socks5 proxy
-[System.Collections.ArrayList]$ssInvalid = @();
-
-$shadowsocks = Get-Random -InputObject $ssList
-$ssProcess = TestServer -ssLocal $exeShadowsocksLocal -shadowsocks $shadowsocks
-if ($null -eq $ssProcess) {
-    Write-Host "Failed"
-    $ssInvalid += $shadowsocks
-} else {
-    Write-Host "Passed"
-}
+[String[]]$ssInvalid = @();
+$ssProcess = RandomValidServer -ssList $ssList -ssValid $ssInvalid
 
 # done
 $message = 
-"`r`nR: Random server" +
-"`r`nB: open Browser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
-"`r`nC: open Cmd with http(s)_proxy=127.0.0.1:$localHttpPort" +
-"`r`nS: remove invalid server and Save to file" +
-"`r`nQ: stop processes and Quit" +
+"`r`nR: [R]andom server" +
+"`r`nB: open [B]rowser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
+"`r`nC: open [C]md with http(s)_proxy=127.0.0.1:$localHttpPort" +
+"`r`nS: remove invalid server and [S]ave to file" +
+"`r`nQ: stop processes and [Q]uit" +
 "`r`nSELECTION"
+[Console]::TreatControlCAsInput = $True
 while ($true) {
     $option = Read-Host $message
     switch ($option.ToLower()) {
@@ -69,15 +85,7 @@ while ($true) {
                 Write-Host "`r`nStop socks server"
                 Stop-Process $ssProcess
             }
-
-            $shadowsocks = Get-Random -InputObject $ssList
-            $ssProcess = TestServer -ssLocal $exeShadowsocksLocal -shadowsocks $shadowsocks
-            if ($null -eq $ssProcess) {
-                Write-Host "Failed"
-                $ssInvalid += $shadowsocks
-            } else {
-                Write-Host "Passed"
-            }
+            $ssProcess = RandomValidServer -ssList $ssList -ssValid $ssInvalid
         }
         "b" {
             & $exeChrome --proxy-server="socks5://127.0.0.1:$localSocksPort" 
@@ -89,19 +97,24 @@ while ($true) {
                 "set no_proxy=localhost,127.0.0.1,127.0.1.1,192.168.0.1,::1&&", `
                 "cls"
         }
-        "d" {
+        "s" {
             if ($ssInvalid.Count -gt 0) {
-                Write-Host "Remove ${ssInvalid.Count} invalid servers"
+                Write-Host "Remove" $ssInvalid.Count "invalid servers"
                 foreach ($shadowsocks in $ssInvalid) {
                     $ssList.Remove($shadowsocks)
                 }
+
+                $ssInvalid.Clear()
                 $ssList | Out-File -FilePath $txtShadowsocksList -Encoding "UTF8"
             }
             Write-Host $ssList.Count "servers available"
         }
         "q" {
             Stop-Process $privoxyProcess
-            Stop-Process $ssProcess
+            if (-not($null -eq $ssProcess)) {
+                Stop-Process $ssProcess
+            }
+
             Write-Host "Exit"
             Exit
         }

@@ -1,48 +1,47 @@
-
 function LoadServers {
     param (
-        [string]$path
+        [String]$path
     )
     if (-not($path)) {
         return ""
     }
     
-    [System.Collections.ArrayList]$ssList = @();
+    $ssTable = @{}
     foreach ($line in [System.IO.File]::ReadLines($path)) {
         # read and check server
         $address, $port, $password, $encrypt = -Split $line.Trim();
 
-        if ([string]::IsNullOrEmpty($address) -or [string]::IsNullOrEmpty($port) -or 
-            [string]::IsNullOrEmpty($password) -or [string]::IsNullOrEmpty($encrypt)) {
+        if ([String]::IsNullOrEmpty($address) -or [String]::IsNullOrEmpty($port) -or 
+            [String]::IsNullOrEmpty($password) -or [String]::IsNullOrEmpty($encrypt)) {
             continue;
         }
 
-        $ssList += $line;
+        $ssTable["$address-$port"] = "$address $port $password $encrypt";
     }
 
-    return $ssList
+    return $ssTable.Values
 }
 
 function TestServer {
     param (
-        $ssLocal,
-        $shadowsocks
+        [String]$ssLocal,
+        [String]$shadowsocks
     )
     
     # start socks5
     $address, $port, $password, $encrypt = -Split $shadowsocks;
-    Write-Host "`r`nCheck server: $address-$port ..."
+    Write-Host -ForegroundColor Magenta "`r`nCheck server: $address-$port ..."
 
     $ssProcess = Start-Process -FilePath $exeShadowsocksLocal -ArgumentList `
         '-s', $address, '-p', $port, `
         '-k', $password, '-m', $encrypt, `
         '-l', $localSocksPort, "-u", `
-        "-t", 5 `
+        "-t", 4 `
         -NoNewWindow -PassThru
 
     # make sure socks5 proxy is ready
     Start-Sleep -Milliseconds 100
-    [System.Net.ServicePointManager]::MaxServicePointIdleTime = 10000
+    [System.Net.ServicePointManager]::MaxServicePointIdleTime = 7000
 
     try {
         $response = Invoke-WebRequest "https://www.google.com/" `
@@ -56,10 +55,12 @@ function TestServer {
 
     switch ($statusCode) {
         { $_ -in 429, 200 } {
+            Write-Host "Passed"
             return $ssProcess
         }
         Default {
             Stop-Process $ssProcess
+            Write-Host "Failed"
             return $null
         }
     }
