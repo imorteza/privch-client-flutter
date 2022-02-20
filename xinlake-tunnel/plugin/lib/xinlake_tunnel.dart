@@ -62,14 +62,14 @@ class XinlakeTunnel {
     }
   }
 
-  static Future<void> startShadowsocks(
+  static Future<void> connectTunnel(
     int serverId,
     int port,
     String address,
     String password,
     String encrypt,
   ) async {
-    await _methodChannel.invokeMethod("startShadowsocks", {
+    await _methodChannel.invokeMethod("connectTunnel", {
       "serverId": serverId,
       "port": port,
       "address": address,
@@ -78,8 +78,8 @@ class XinlakeTunnel {
     });
   }
 
-  static Future<void> stopService() async {
-    await _methodChannel.invokeMethod("stopService");
+  static Future<void> stopTunnel() async {
+    await _methodChannel.invokeMethod("stopTunnel");
   }
 
   static Future<void> updateSettings({

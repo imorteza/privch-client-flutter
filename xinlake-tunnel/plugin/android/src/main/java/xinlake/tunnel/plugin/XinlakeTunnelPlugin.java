@@ -43,10 +43,12 @@ public class XinlakeTunnelPlugin implements FlutterPlugin, ActivityAware {
     // (First) FlutterPlugin -----------------------------------------------------------------------
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        eventChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), "xinlake_tunnel_event");
+        eventChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(),
+            "xinlake_tunnel_event");
         eventChannel.setStreamHandler(eventHandler);
 
-        methodChannel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "xinlake_tunnel_method");
+        methodChannel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(),
+            "xinlake_tunnel_method");
         methodChannel.setMethodCallHandler(methodHandler);
     }
 

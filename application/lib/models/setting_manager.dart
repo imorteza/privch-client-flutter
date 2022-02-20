@@ -67,7 +67,7 @@ class SettingManager {
       // update vpn server
       final shadowsocks = onServerState.value.currentServer;
       if (shadowsocks != null) {
-        await XinlakeTunnel.startShadowsocks(
+        await XinlakeTunnel.connectTunnel(
           shadowsocks.hashCode,
           shadowsocks.port,
           shadowsocks.address,

@@ -108,7 +108,7 @@ public class MethodHandler implements
         result.success(trafficBytes);
     }
 
-    private void startShadowsocks(MethodCall call, MethodChannel.Result result) {
+    private void connectTunnel(MethodCall call, MethodChannel.Result result) {
         final Integer serverId;
         final Integer port;
         final String address;
@@ -153,7 +153,7 @@ public class MethodHandler implements
         }
     }
 
-    private void stopService(MethodChannel.Result result) {
+    private void stopTunnel(MethodChannel.Result result) {
         try {
             tunnelMethod.stopService();
         } catch (Exception exception) {
@@ -213,11 +213,11 @@ public class MethodHandler implements
                 getTrafficBytes(result);
                 break;
 
-            case "startShadowsocks":
-                startShadowsocks(call, result);
+            case "connectTunnel":
+                connectTunnel(call, result);
                 break;
-            case "stopService":
-                stopService(result);
+            case "stopTunnel":
+                stopTunnel(result);
                 break;
 
             case "updateSettings":

@@ -165,9 +165,7 @@ class _SettingState extends State<SettingPage> {
   Widget _buildAbout() {
     return IconButton(
       onPressed: () async {
-        final map = await XinlakePlatform.getAppVersion();
-        final version = map?["version"];
-        final modifiedUtc = map?["modified-utc"];
+        final verInfo = await XinPlatform.getAppVersion();
 
         showDialog(
           context: context,
@@ -175,7 +173,7 @@ class _SettingState extends State<SettingPage> {
             final style = Theme.of(context).textTheme.caption;
             final content = <TableRow>[];
 
-            if (version != null) {
+            if (verInfo != null) {
               content.add(TableRow(
                 children: [
                   Align(
@@ -185,13 +183,10 @@ class _SettingState extends State<SettingPage> {
                       style: style,
                     ),
                   ),
-                  Text("$version"),
+                  Text(verInfo.version),
                 ],
               ));
-            }
 
-            if (modifiedUtc != null) {
-              final modifiedTime = DateTime.utc(1970, 1, 1, 0, 0, 0, modifiedUtc).toLocal();
               content.add(TableRow(
                 children: [
                   Align(
@@ -201,7 +196,7 @@ class _SettingState extends State<SettingPage> {
                       style: style,
                     ),
                   ),
-                  Text(_dateFormat.format(modifiedTime)),
+                  Text(_dateFormat.format(verInfo.updatedTime)),
                 ],
               ));
             }
@@ -229,7 +224,7 @@ class _SettingState extends State<SettingPage> {
                   onPressed: () {
                     showLicensePage(
                       context: context,
-                      applicationVersion: version,
+                      applicationVersion: verInfo?.version,
                       applicationIcon: const Padding(
                         padding: EdgeInsets.all(10),
                         child: Icon(Icons.security, size: 40),

@@ -69,10 +69,10 @@ class _HomeState extends State<HomePage> {
   }
 
   Future<void> _importImage() async {
-    final images = await XinlakePlatform.pickFiles(
+    final images = await XinPlatform.pickFiles(
       multiSelection: true,
       mimeType: "image/*",
-      cacheDir: AndroidAppDir.externalFiles,
+      cacheDir: XinAndroidAppDir.externalFiles,
       filterName: "JPEG, PNG Images",
       filterPattern: "*.jpg; *.jpeg; *.png",
     );

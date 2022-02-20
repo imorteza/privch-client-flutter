@@ -25,7 +25,7 @@ import 'package:privch/pages/home_page.dart';
 
 Future<bool> _initData() async {
   // init directory
-  final appDir = await XinlakePlatform.getAppDir();
+  final appDir = await XinPlatform.getAppDir();
   if (appDir == null) {
     return false;
   }

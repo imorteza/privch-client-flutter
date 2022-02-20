@@ -203,7 +203,7 @@ class _MyAppState extends State<MyApp> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: (value == XinlakeTunnel.stateStopped)
-                            ? () async => await XinlakeTunnel.startShadowsocks(
+                            ? () async => await XinlakeTunnel.connectTunnel(
                                 _serverId, _port, _address, _password, _encrypt)
                             : null,
                         child: const Text("startShadowsocks"),
@@ -213,7 +213,7 @@ class _MyAppState extends State<MyApp> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: (value == XinlakeTunnel.stateConnected)
-                            ? () async => await XinlakeTunnel.stopService()
+                            ? () async => await XinlakeTunnel.stopTunnel()
                             : null,
                         child: const Text("stopService"),
                       ),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:xinlake_text/readable.dart';
 import 'package:xinlake_tunnel/xinlake_tunnel.dart';
@@ -26,11 +28,11 @@ class ServiceState extends State<ServiceButton> {
 
   Future<void> _onServiceButton() async {
     if (XinlakeTunnel.onState.value == XinlakeTunnel.stateConnected) {
-      await XinlakeTunnel.stopService();
+      await XinlakeTunnel.stopTunnel();
     } else if (XinlakeTunnel.onState.value == XinlakeTunnel.stateStopped) {
       final shadowsocks = _setting.onServerState.value.currentServer;
       if (shadowsocks != null) {
-        await XinlakeTunnel.startShadowsocks(
+        await XinlakeTunnel.connectTunnel(
           shadowsocks.hashCode,
           shadowsocks.port,
           shadowsocks.address,
@@ -91,6 +93,68 @@ class ServiceState extends State<ServiceButton> {
   }
 
   Widget _buildTunPanel() {
+    const panelHeight = 55.0;
+
+    const tunIconSmall = 40.0;
+    const tunIconMiddle = 50.0;
+    const tunIconBig = 60.0;
+    const tunBoxSize = 100.0;
+
+    return Card(
+      elevation: 8.0,
+      child: Container(
+        alignment: Alignment.center,
+        child: SizedBox(
+          width: tunIconMiddle,
+          height: panelHeight,
+          child: OverflowBox(
+            maxHeight: tunBoxSize,
+            maxWidth: tunBoxSize,
+            alignment: Alignment.bottomCenter,
+            child: ValueListenableBuilder<int>(
+              valueListenable: XinlakeTunnel.onState,
+              builder: (BuildContext context, int tunState, Widget? child) {
+                if (tunState == XinlakeTunnel.stateConnected) {
+                  // connected, icon
+                  return IconButton(
+                    onPressed: _onServiceButton,
+                    iconSize: tunIconBig,
+                    icon: const Icon(Icons.health_and_safety),
+                    color: Theme.of(context).colorScheme.secondary,
+                  );
+                } else if (tunState == XinlakeTunnel.stateStopped) {
+                  // stopped, small icon
+                  return OutlinedButton(
+                    onPressed: _onServiceButton,
+                    style: ButtonStyle(
+                      side: MaterialStateProperty.resolveWith<BorderSide?>((states) {
+                        return BorderSide.none;
+                      }),
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+                        return Colors.grey.withAlpha(33);
+                      }),
+                    ),
+                    child: Icon(
+                      Icons.security,
+                      size: tunIconSmall,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  );
+                } else {
+                  // connecting/stopping, middle icon
+                  return (tunState == XinlakeTunnel.stateConnecting)
+                      ? const Icon(Icons.health_and_safety, size: tunIconMiddle)
+                      : const Icon(Icons.security, size: tunIconMiddle);
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTunPanelChart() {
     const panelHeight = 55.0;
 
     const tunIconSmall = 40.0;
@@ -236,7 +300,7 @@ class ServiceState extends State<ServiceButton> {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ServerState>(
       valueListenable: _setting.onServerState,
-      child: _buildTunPanel(),
+      child: Platform.isAndroid ? _buildTunPanelChart() : _buildTunPanel(),
       builder: (BuildContext context, ServerState serverState, Widget? tunPanel) {
         // empty
         if (serverState.serverCount < 1 && serverState.currentServer == null) {
@@ -271,7 +335,9 @@ class ServiceState extends State<ServiceButton> {
   void initState() {
     super.initState();
     XinlakeTunnel.startListen();
-    _syncTrafficBytes();
+    if (Platform.isAndroid) {
+      _syncTrafficBytes();
+    }
   }
 
   @override
