@@ -11,21 +11,20 @@ $txtShadowsocksList = "D:\PrivChX\server-list.txt"
 $localHttpPort = 17039;
 $localSocksPort = 17029;
 
+[System.Collections.ArrayList]$ssList = @()
+[System.Collections.ArrayList]$ssInvalid = @()
+$ssProcess = $null
+
 # source and functions
 Set-Location -Path "E:\PrivateChannel\SourceCode\script"
 . .\fun-servers.ps1
 
 function RandomValidServer {
-    param (
-        [String[]]$ssList,
-        [String[]]$ssInvalid
-    )
-
     while ($true) {
-        $shadowsocks = Get-Random -InputObject $ssList
+        $shadowsocks = Get-Random -InputObject $Global:ssList
         $ssProcess = TestServer -ssLocal $exeShadowsocksLocal -shadowsocks $shadowsocks
         if ($null -eq $ssProcess) {
-            $ssInvalid += $shadowsocks
+            $Global:ssInvalid += $shadowsocks
         } else {
             return $ssProcess
         }        
@@ -34,12 +33,12 @@ function RandomValidServer {
 
 
 # start 
-"Private Channel X v0.1"
+"Private Channel X v0.2"
 "https://xinlake.dev"
 
 # load and fix server list
 Write-Host -ForegroundColor Magenta "`r`nLoad servers"
-[String[]]$ssList = LoadServers -path $txtShadowsocksList
+$ssList += LoadServers -path $txtShadowsocksList
 if ($ssList.Count -le 1) {
     Write-Host "Server not found. Exit"
     Exit;
@@ -65,18 +64,18 @@ $privoxyProcess = Start-Process -FilePath $exePrivoxy -ArgumentList $txtPrivoxyC
 Start-Sleep -Milliseconds 100
 
 # check socks5 proxy
-[String[]]$ssInvalid = @();
-$ssProcess = RandomValidServer -ssList $ssList -ssValid $ssInvalid
+$ssProcess = RandomValidServer
 
 # done
-$message = 
-"`r`nR: [R]andom server" +
-"`r`nB: open [B]rowser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
-"`r`nC: open [C]md with http(s)_proxy=127.0.0.1:$localHttpPort" +
-"`r`nS: remove invalid server and [S]ave to file" +
-"`r`nQ: stop processes and [Q]uit" +
-"`r`nSELECTION"
 [Console]::TreatControlCAsInput = $True
+
+$message = 
+"`r`nSELECT" +
+"`r`nR - [R]andom server" +
+"`r`nB - open [B]rowser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
+"`r`nC - open [C]md with http(s)_proxy=127.0.0.1:$localHttpPort" +
+"`r`nS - remove invalid server and [S]ave to file" +
+"`r`nQ - stop processes and [Q]uit`r`n"
 while ($true) {
     $option = Read-Host $message
     switch ($option.ToLower()) {
@@ -85,7 +84,7 @@ while ($true) {
                 Write-Host "`r`nStop socks server"
                 Stop-Process $ssProcess
             }
-            $ssProcess = RandomValidServer -ssList $ssList -ssValid $ssInvalid
+            $ssProcess = RandomValidServer
         }
         "b" {
             & $exeChrome --proxy-server="socks5://127.0.0.1:$localSocksPort" 

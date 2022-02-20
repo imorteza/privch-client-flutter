@@ -36,7 +36,7 @@ function TestServer {
         '-s', $address, '-p', $port, `
         '-k', $password, '-m', $encrypt, `
         '-l', $localSocksPort, "-u", `
-        "-t", 4 `
+        "-t", 5 `
         -NoNewWindow -PassThru
 
     # make sure socks5 proxy is ready
