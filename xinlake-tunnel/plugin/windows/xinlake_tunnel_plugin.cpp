@@ -14,7 +14,7 @@
 #include <memory>
 #include <sstream>
 
-// method
+// method channel
 extern void connectTunnel(const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
 
@@ -24,8 +24,9 @@ extern void stopTunnel(const flutter::MethodCall<flutter::EncodableValue>& metho
 extern void updateSettings(const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
 
-// event
+// event channel
 extern void setEventSink(std::unique_ptr<flutter::EventSink<>>& eventSink);
+
 
 namespace {
     class XinlakeTunnelPlugin : public flutter::Plugin {
@@ -83,11 +84,8 @@ namespace {
         extern void writePrivoxyConfig();
         extern void startPrivoxy();
 
-        // init binary files
-        cacheBinaries();
-
-        // start http proxy
-        writePrivoxyConfig();
+        cacheBinaries();      // cache binary files 
+        writePrivoxyConfig(); // write configurations
         startPrivoxy();
     }
 
@@ -95,7 +93,9 @@ namespace {
     XinlakeTunnelPlugin::~XinlakeTunnelPlugin() {
         extern BOOL stopPrivoxy();
         extern BOOL stopShadowsocks();
+        extern BOOL DisableProxy();
 
+        DisableProxy();
         stopPrivoxy();
         stopShadowsocks();
     }

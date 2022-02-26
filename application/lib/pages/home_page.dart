@@ -32,7 +32,7 @@ class _HomeState extends State<HomePage> {
   final _setting = SettingManager.instance;
 
   Future<void> _scanQrcode() async {
-    final qrcode = await XinlakeQrcode.fromCamera(
+    final qrcode = await XinQrcode.fromCamera(
       prefix: "ss://",
       playBeep: true,
     );
@@ -81,7 +81,7 @@ class _HomeState extends State<HomePage> {
     }
 
     final ssList = <Shadowsocks>[];
-    final codeList = await XinlakeQrcode.fromImage(images);
+    final codeList = await XinQrcode.readImage(images);
     codeList?.forEach((element) {
       final shadowsocks = Shadowsocks.parserQrCode(element);
       if (shadowsocks != null) {
@@ -277,7 +277,10 @@ class _HomeState extends State<HomePage> {
             _buildDrawerItem(
               Icons.settings,
               "Setting",
-              () => Navigator.pushNamed(context, "/home/setting"),
+              () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, "/home/setting");
+              },
             ),
           ],
         ),

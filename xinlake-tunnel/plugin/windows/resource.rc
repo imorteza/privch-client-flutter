@@ -81,14 +81,7 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "TODO: <Company name>"
-            VALUE "FileDescription", "TODO: <File description>"
-            VALUE "FileVersion", "1.0.0.1"
-            VALUE "InternalName", "Project1.dll"
-            VALUE "LegalCopyright", "Copyright (C) 2022"
-            VALUE "OriginalFilename", "Project1.dll"
-            VALUE "ProductName", "TODO: <Product name>"
-            VALUE "ProductVersion", "1.0.0.1"
+            VALUE "OriginalFilename", "xinlake_tunnel.dll"
         END
     END
     BLOCK "VarFileInfo"

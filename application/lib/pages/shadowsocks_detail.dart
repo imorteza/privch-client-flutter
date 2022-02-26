@@ -32,6 +32,11 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
   }
 
   Widget _buildForm() {
+    // necessary on windows
+    const inputDecoration = InputDecoration(
+      contentPadding: EdgeInsets.only(top: 8, bottom: 4),
+    );
+
     return Form(
       key: _formKey,
       onChanged: () => setState(() => (_isFormChanged = true)),
@@ -43,7 +48,7 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
             autovalidateMode: AutovalidateMode.always,
             textAlignVertical: TextAlignVertical.bottom,
             initialValue: widget.shadowsocks.name,
-            decoration: const InputDecoration(labelText: "Display name"),
+            decoration: inputDecoration.copyWith(labelText: "Display name"),
             validator: (value) {
               return (value != null && value.isNotEmpty) ? null : "Display name can't be empty";
             },
@@ -64,7 +69,7 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
                   autovalidateMode: AutovalidateMode.always,
                   initialValue: widget.shadowsocks.address,
                   textAlignVertical: TextAlignVertical.bottom,
-                  decoration: const InputDecoration(labelText: "Host address"),
+                  decoration: inputDecoration.copyWith(labelText: "Host address"),
                   validator: (value) {
                     return (value != null && Validator.isURL(value))
                         ? null
@@ -85,7 +90,7 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
                   keyboardType: TextInputType.number,
                   initialValue: "${widget.shadowsocks.port}",
                   textAlignVertical: TextAlignVertical.bottom,
-                  decoration: const InputDecoration(labelText: "Host port"),
+                  decoration: inputDecoration.copyWith(labelText: "Host port"),
                   validator: (value) {
                     return (value != null && Validator.getPortNumber(value) != null)
                         ? null
@@ -107,7 +112,7 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
             obscureText: _obscureText,
             initialValue: widget.shadowsocks.password,
             textAlignVertical: TextAlignVertical.bottom,
-            decoration: InputDecoration(
+            decoration: inputDecoration.copyWith(
               labelText: "Password",
               suffixIcon: IconButton(
                 icon: Icon(

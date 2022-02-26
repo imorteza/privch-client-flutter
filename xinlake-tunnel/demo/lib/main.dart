@@ -23,10 +23,10 @@ class _MyAppState extends State<MyApp> {
   String _dnsRemoteAddress = "8.8.8.8";
 
   final int _serverId = 100;
-  int _port = 8090;
-  String _address = "46.29.218.6";
-  String _password = "PCnnH6SQSnfoS27";
-  String _encrypt = "aes-256-gcm";
+  int _port = 826;
+  String _address = "141.95.0.26";
+  String _password = "sF43Xt2gONqcgFX563";
+  String _encrypt = "chacha20-ietf-poly1305";
 
   bool _update = true;
   final _onTrafficTxRx = ValueNotifier<List<int>?>(null);

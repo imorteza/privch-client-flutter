@@ -5,6 +5,7 @@
 
 #include <variant>
 #include <string>
+#include <thread>
 
 // event 
 extern void notifyMessage(std::string message);
@@ -12,9 +13,15 @@ extern void notifyServerChanged(int serverId);
 extern void notifyStateChanged(int state);
 
 // process
-extern void startShadowsocks(int port, std::string& address, std::string& password, std::string& encrypt);
+extern void startShadowsocks(
+    int port, std::string& address, std::string& password, std::string& encrypt);
 extern BOOL stopShadowsocks();
 extern void updateSettings(int localHttpPort, int localSocksPort);
+
+// proxy control
+extern BOOL EnableProxy();
+extern BOOL DisableProxy();
+
 
 // state
 const int STATE_CONNECTING = 1;
@@ -80,8 +87,11 @@ void connectTunnel(const flutter::MethodCall<flutter::EncodableValue>& method_ca
     }
 
     startShadowsocks(port, address, password, encrypt);
-    notifyServerChanged(serverId);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+    EnableProxy();
+
+    notifyServerChanged(serverId);
     _setState(STATE_CONNECTED);
 
     // send results
@@ -100,6 +110,8 @@ void stopTunnel(const flutter::MethodCall<flutter::EncodableValue>& method_call,
         _setState(state);
         return;
     }
+
+    DisableProxy();
 
     _setState(STATE_STOPPED);
     result->Success(flutter::EncodableValue(nullptr));

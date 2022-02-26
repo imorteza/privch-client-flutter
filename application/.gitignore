@@ -11,7 +11,7 @@
 
 # Xinlake
 /.apk
-**/*.so
+/binary
 desktop.ini
 
 # IntelliJ related

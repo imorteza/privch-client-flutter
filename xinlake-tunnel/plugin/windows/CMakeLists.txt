@@ -10,7 +10,8 @@ add_library(${PLUGIN_NAME} SHARED
   "xinlake_tunnel_plugin.cpp"
   "xinlake_tunnel_event.cpp"
   "xinlake_tunnel_method.cpp"
-  "_process.cpp"  
+  "process_ctrl.cpp"  
+  "proxy_ctrl.cpp"
   "resource.rc"
 )
 apply_standard_settings(${PLUGIN_NAME})

@@ -33,18 +33,18 @@ const std::vector<std::pair<int, std::string>> ssFiles{
     std::pair<int, std::string>{EXE_SS_LOCAL,"ss-local.exe"},
 };
 
+// settings
+int localHttpPort = 1080;
+int localSocksPort = 7039;
+
 static DWORD _privoxyProcessId = 0;
 static DWORD _ssProcessId = 0;
 
-// settings
-static int _localHttpPort = 1080;
-static int _localSocksPort = 7039;
-
 void writePrivoxyConfig() {
     std::vector<std::string> configuration{
-        "listen-address 127.0.0.1:" + std::to_string(_localHttpPort),
+        "listen-address 127.0.0.1:" + std::to_string(localHttpPort),
         "toggle 0",
-        "forward-socks5 / 127.0.0.1:" + std::to_string(_localSocksPort) + " .",
+        "forward-socks5 / 127.0.0.1:" + std::to_string(localSocksPort) + " .",
         "max-client-connections 2048",
         "activity-animation 0",
         "show-on-task-bar 0",
@@ -134,7 +134,7 @@ void startShadowsocks(int port, std::string& address, std::string& password, std
     std::string command =
         " -s " + address + " -p " + std::to_string(port) +
         " -k " + password + " -m " + encrypt +
-        " -l " + std::to_string(_localSocksPort) +
+        " -l " + std::to_string(localSocksPort) +
         " -u -t 3";
 
     // convert to wstring, the codecvt header are deprecated in C++17
@@ -172,13 +172,13 @@ BOOL stopShadowsocks() {
     return TRUE;
 }
 
-void updateSettings(int localHttpPort, int localSocksPort) {
-    if (localHttpPort > 0) {
-        _localHttpPort = localHttpPort;
+void updateSettings(int httpPort, int socksPort) {
+    if (httpPort > 0) {
+        localHttpPort = httpPort;
     }
 
-    if (localSocksPort > 0) {
-        _localSocksPort = localSocksPort;
+    if (socksPort > 0) {
+        localSocksPort = socksPort;
     }
 }
 
