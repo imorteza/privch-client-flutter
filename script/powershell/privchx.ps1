@@ -1,3 +1,4 @@
+$version = "0.3"
 $ErrorActionPreference = "Stop"
 
 # configurations
@@ -13,10 +14,22 @@ $localSocksPort = 17029;
 
 [System.Collections.ArrayList]$ssList = @()
 [System.Collections.ArrayList]$ssInvalid = @()
+$privoxyProcess = $null
 $ssProcess = $null
 
+Register-EngineEvent -SourceIdentifier PowerShell.Exiting -SupportEvent -Action {
+    if (-not($null -eq $privoxyProcess)) {
+        Stop-Process $privoxyProcess
+        $privoxyProcess = $null
+    }
+    if (-not($null -eq $ssProcess)) {
+        Stop-Process $ssProcess
+        $ssProcess = $null
+    }
+}
+
 # source and functions
-Set-Location -Path "E:\PrivateChannel\SourceCode\script"
+Set-Location -Path "E:\PrivateChannel\SourceCode\script\powershell"
 . .\fun-servers.ps1
 
 function RandomValidServer {
@@ -33,7 +46,7 @@ function RandomValidServer {
 
 
 # start 
-"Private Channel X v0.2"
+"Private Channel X v$version"
 "https://xinlake.dev"
 
 # load and fix server list
@@ -109,9 +122,13 @@ while ($true) {
             Write-Host $ssList.Count "servers available"
         }
         "q" {
-            Stop-Process $privoxyProcess
+            if (-not($null -eq $privoxyProcess)) {
+                Stop-Process $privoxyProcess
+                $privoxyProcess = $null
+            }
             if (-not($null -eq $ssProcess)) {
                 Stop-Process $ssProcess
+                $ssProcess = $null
             }
 
             Write-Host "Exit"
