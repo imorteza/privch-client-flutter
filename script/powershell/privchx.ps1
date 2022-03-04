@@ -1,4 +1,4 @@
-$version = "0.3"
+$version = "0.4"
 $ErrorActionPreference = "Stop"
 
 # configurations
@@ -87,6 +87,7 @@ $message =
 "`r`nR - [R]andom server" +
 "`r`nB - open [B]rowser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
 "`r`nC - open [C]md with http(s)_proxy=127.0.0.1:$localHttpPort" +
+"`r`nL - open server [L]ist file" +
 "`r`nS - remove invalid server and [S]ave to file" +
 "`r`nQ - stop processes and [Q]uit`r`n"
 while ($true) {
@@ -108,6 +109,9 @@ while ($true) {
                 "set http_proxy=http://127.0.0.1:$localHttpPort&&", `
                 "set no_proxy=localhost,127.0.0.1,127.0.1.1,192.168.0.1,::1&&", `
                 "cls"
+        }
+        "l" {
+            & $txtShadowsocksList
         }
         "s" {
             if ($ssInvalid.Count -gt 0) {
