@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:privch/pages/setting_page.dart';
 import 'package:privch/pages/shadowsocks_detail.dart';
@@ -25,7 +27,7 @@ class _HomeState extends State<HomePage> {
   final _servers = ServerManager.instance;
   final _setting = SettingManager.instance;
 
-  Future<void> _scanQrcode() async {
+  Future<void> _importCamera() async {
     final qrcode = await XinQrcode.fromCamera(
       prefix: "ss://",
       playBeep: true,
@@ -62,6 +64,25 @@ class _HomeState extends State<HomePage> {
     // TODO: refresh widget when only date changed
   }
 
+  Future<void> _importScreen() async {
+    final codeList = await XinQrcode.readScreen();
+    if (codeList == null || codeList.isEmpty) {
+      return;
+    }
+
+    final ssList = <Shadowsocks>[];
+    for (final qrcode in codeList) {
+      final shadowsocks = Shadowsocks.parserQrCode(qrcode);
+      if (shadowsocks != null) {
+        ssList.add(shadowsocks);
+      }
+    }
+
+    if (ssList.isNotEmpty) {
+      _addList(ssList);
+    }
+  }
+
   Future<void> _importImage() async {
     final images = await XinPlatform.pickFiles(
       multiSelection: true,
@@ -74,15 +95,25 @@ class _HomeState extends State<HomePage> {
       return;
     }
 
-    final ssList = <Shadowsocks>[];
     final codeList = await XinQrcode.readImage(images);
-    codeList?.forEach((element) {
-      final shadowsocks = Shadowsocks.parserQrCode(element);
+    if (codeList == null || codeList.isEmpty) {
+      return;
+    }
+
+    final ssList = <Shadowsocks>[];
+    for (final qrcode in codeList) {
+      final shadowsocks = Shadowsocks.parserQrCode(qrcode);
       if (shadowsocks != null) {
         ssList.add(shadowsocks);
       }
-    });
+    }
 
+    if (ssList.isNotEmpty) {
+      _addList(ssList);
+    }
+  }
+
+  Future<void> _addList(List<Shadowsocks> ssList) async {
     var updated = 0;
     await _servers.addAll(
       ssList,
@@ -181,7 +212,7 @@ class _HomeState extends State<HomePage> {
       onSelected: (index) async {
         switch (index) {
           case 0:
-            await _scanQrcode();
+            Platform.isWindows ? await _importScreen() : await _importCamera();
             break;
           case 1:
             await _importImage();
@@ -196,13 +227,21 @@ class _HomeState extends State<HomePage> {
         return [
           PopupMenuItem<int>(
             value: 0,
-            child: Row(
-              children: [
-                Icon(Icons.camera_alt, color: iconColor),
-                const SizedBox(width: 10),
-                const Text("Scan QR code ..."),
-              ],
-            ),
+            child: Platform.isWindows
+                ? Row(
+                    children: [
+                      Icon(Icons.screen_search_desktop_outlined, color: iconColor),
+                      const SizedBox(width: 10),
+                      const Text("Scan Screen ..."),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Icon(Icons.qr_code_scanner, color: iconColor),
+                      const SizedBox(width: 10),
+                      const Text("Scan QR code ..."),
+                    ],
+                  ),
           ),
           PopupMenuItem<int>(
             value: 1,
@@ -265,7 +304,7 @@ class _HomeState extends State<HomePage> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 30),
+            const SizedBox(height: 100),
             // TODO: header
             // const Divider(height: 10),
             _buildDrawerItem(
@@ -309,10 +348,18 @@ class _HomeState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               // action buttons
               children: [
-                ElevatedButton(
-                  child: const Text("Scan QR code ..."),
-                  onPressed: _scanQrcode,
-                ),
+                Builder(builder: (context) {
+                  if (Platform.isWindows) {
+                    return ElevatedButton(
+                      child: const Text("Scan Screen ..."),
+                      onPressed: _importScreen,
+                    );
+                  }
+                  return ElevatedButton(
+                    child: const Text("Scan QR code ..."),
+                    onPressed: _importCamera,
+                  );
+                }),
                 const SizedBox(height: 10),
                 ElevatedButton(
                   child: const Text("Import from image ..."),

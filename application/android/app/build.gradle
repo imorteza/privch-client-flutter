@@ -65,6 +65,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (isXinlake) {
+                signingConfig signingConfigs.xinlake
+            } else {
+                // Signing with the debug keys for now, so `flutter run --release` works.
+                signingConfig signingConfigs.debug
+            }
+        }
         release {
             if (isXinlake) {
                 signingConfig signingConfigs.xinlake

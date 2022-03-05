@@ -176,6 +176,10 @@ BOOL stopShadowsocks() {
 }
 
 void updateSettings(int httpPort, int socksPort) {
+    if (socksPort > 0) {
+        localSocksPort = socksPort;
+    }
+
     if (httpPort > 0 && localHttpPort != httpPort) {
         localHttpPort = httpPort;
 
@@ -186,10 +190,6 @@ void updateSettings(int httpPort, int socksPort) {
         writePrivoxyConfig();
         startPrivoxy();
         EnableProxy();
-    }
-
-    if (socksPort > 0) {
-        localSocksPort = socksPort;
     }
 }
 
