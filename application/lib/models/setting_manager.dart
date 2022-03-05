@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
@@ -19,7 +21,8 @@ class SettingManager {
   /// indicate theme mode has been changed
   final ValueNotifier<ThemeMode> onThemeMode;
 
-  int get proxyPort => _data.proxyPort;
+  int get httpPort => _data.httpPort;
+  int get socksPort => _data.socksPort;
   int get dnsLocalPort => _data.dnsLocalPort;
   String get dnsRemoteAddress => _data.dnsRemoteAddress;
 
@@ -30,13 +33,18 @@ class SettingManager {
         height: _data.windowH,
       );
 
-  Future<void> updateVpnSetting({
-    int? proxyPort,
+  Future<void> updateTunnelSetting({
+    int? httpPort,
+    int? socksPort,
     int? dnsLocalPort,
     String? dnsRemoteAddress,
   }) async {
-    if (proxyPort != null) {
-      _data.proxyPort = proxyPort;
+    if (httpPort != null) {
+      _data.httpPort = httpPort;
+    }
+
+    if (socksPort != null) {
+      _data.socksPort = socksPort;
     }
 
     if (dnsLocalPort != null) {
@@ -47,9 +55,10 @@ class SettingManager {
       _data.dnsRemoteAddress = dnsRemoteAddress;
     }
 
-    if (proxyPort != null || dnsLocalPort != null || dnsRemoteAddress != null) {
+    if (httpPort != null || socksPort != null || dnsLocalPort != null || dnsRemoteAddress != null) {
       await XinlakeTunnel.updateSettings(
-        proxyPort: proxyPort,
+        httpPort: httpPort,
+        socksPort: socksPort,
         dnsLocalPort: dnsLocalPort,
         dnsRemoteAddress: dnsRemoteAddress,
       );

@@ -20,7 +20,9 @@ class ServerManager {
   }) async {
     if (_serverBox.containsKey(shadowsocks.id)) {
       final update = onUpdate?.call() ?? true;
-      if (!update) {
+      if (update) {
+        await _serverBox.put(shadowsocks.id, shadowsocks);
+        // TODO: refresh
         return;
       }
     }

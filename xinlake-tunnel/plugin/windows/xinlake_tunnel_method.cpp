@@ -125,7 +125,7 @@ void updateSettings(const flutter::MethodCall<flutter::EncodableValue>& method_c
     // check arguments
     const auto* arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
     if (arguments) {
-        auto httpPortValue = arguments->find(flutter::EncodableValue("proxyPort"));
+        auto httpPortValue = arguments->find(flutter::EncodableValue("httpPort"));
         if (httpPortValue != arguments->end()) {
             httpPort = std::get<int>(httpPortValue->second);
         }

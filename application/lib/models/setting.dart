@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 
 part 'setting.g.dart';
 
-/// `flutter packages pub run build_runner build`
+/// `flutter packages pub run build_runner build --delete-conflicting-outputs`
 /// * `themeModeIndex` is defaults to `ThemeMode.system.index`
 /// * 2021-11-29
 @HiveType(typeId: 0)
@@ -27,10 +27,12 @@ class Setting extends HiveObject {
   int themeModeIndex;
 
   @HiveField(8)
-  int proxyPort;
+  int httpPort;
   @HiveField(9)
-  int dnsLocalPort;
+  int socksPort;
   @HiveField(10)
+  int dnsLocalPort;
+  @HiveField(11)
   String dnsRemoteAddress;
 
   Setting()
@@ -45,7 +47,8 @@ class Setting extends HiveObject {
         sortModeIndex = 0,
         themeModeIndex = ThemeMode.system.index,
         // networking
-        proxyPort = 1080,
+        httpPort = 7039,
+        socksPort = 7029,
         dnsLocalPort = 5450,
         dnsRemoteAddress = "8.8.8.8";
 }

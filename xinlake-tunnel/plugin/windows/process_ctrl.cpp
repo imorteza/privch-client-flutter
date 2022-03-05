@@ -11,6 +11,9 @@
 #include <fstream>
 #include <filesystem>
 
+extern BOOL EnableProxy();
+extern BOOL DisableProxy();
+
 const std::string privoxyDir = "binary\\privoxy-x64";
 const std::string privoxyExe = "privoxy.exe";
 const std::string privoxyConfig = "config.txt";
@@ -173,8 +176,16 @@ BOOL stopShadowsocks() {
 }
 
 void updateSettings(int httpPort, int socksPort) {
-    if (httpPort > 0) {
+    if (httpPort > 0 && localHttpPort != httpPort) {
         localHttpPort = httpPort;
+
+        DisableProxy();
+        stopPrivoxy();
+
+        // update privoxy config
+        writePrivoxyConfig();
+        startPrivoxy();
+        EnableProxy();
     }
 
     if (socksPort > 0) {

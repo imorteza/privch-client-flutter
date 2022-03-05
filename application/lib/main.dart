@@ -2,7 +2,7 @@
   TODO: language
 
   Xinlake Liu
-  2022-01
+  2022-02-28
  */
 
 import 'dart:io';
@@ -52,7 +52,8 @@ Future<bool> _initData() async {
 
   // init tunnel
   await XinlakeTunnel.updateSettings(
-    proxyPort: settings.proxyPort,
+    httpPort: settings.httpPort,
+    socksPort: settings.socksPort,
     dnsLocalPort: settings.dnsLocalPort,
     dnsRemoteAddress: settings.dnsRemoteAddress,
   );
@@ -69,6 +70,7 @@ Future<void> main() async {
 class PrivChApp extends StatelessWidget {
   const PrivChApp(this.initSuccess, {Key? key}) : super(key: key);
 
+  static const title = "Private Channel";
   final bool initSuccess;
 
   @override
@@ -79,7 +81,7 @@ class PrivChApp extends StatelessWidget {
       valueListenable: _setting.onThemeMode,
       builder: (BuildContext context, ThemeMode value, Widget? child) {
         return MaterialApp(
-          title: 'Private Channel',
+          title: title,
           // themes
           theme: ThemeData(
             primarySwatch: Colors.purple,
@@ -91,19 +93,19 @@ class PrivChApp extends StatelessWidget {
           ),
           themeMode: value,
           // routers
-          initialRoute: initSuccess ? "/home" : "/sorry",
+          initialRoute: initSuccess ? HomePage.route : SorryPage.route,
           routes: {
-            "/sorry": (context) => const SorryPage(),
-            "/home": (context) => const HomePage(title: "PrivCh"),
-            "/home/setting": (context) => const SettingPage(),
+            SorryPage.route: (context) => const SorryPage(),
+            HomePage.route: (context) => const HomePage(title: "PrivCh"),
+            SettingPage.route: (context) => const SettingPage(),
           },
           onGenerateRoute: (settings) {
-            if (settings.name == "/home/shadowsocks") {
+            if (settings.name == ShadowsocksDetailPage.route) {
               final shadowsocks = settings.arguments as Shadowsocks;
               return MaterialPageRoute(
                 builder: (context) => ShadowsocksDetailPage(shadowsocks),
               );
-            } else if (settings.name == "/home/shadowsocks/encrypt") {
+            } else if (settings.name == EncryptListPage.route) {
               final encrypt = settings.arguments as String;
               return MaterialPageRoute(
                 builder: (context) => EncryptListPage(encrypt: encrypt),

@@ -29,14 +29,14 @@ public final class TunnelCore {
     public final File noBackupFilesDir;
     public final String nativeLibraryDir;
 
-    public int proxyPort;
+    public int socksPort;
     public int dnsLocalPort;
     public String dnsRemoteAddress;
 
     // single instance -----------------------------------------------------------------------------
     private static TunnelCore tunnelCore;
 
-    private TunnelCore(Context appContext, int proxyPort, int dnsLocalPort, String dnsRemoteAddress) {
+    private TunnelCore(Context appContext, int socksPort, int dnsLocalPort, String dnsRemoteAddress) {
         activityManager = appContext.getSystemService(ActivityManager.class);
         connectivityManager = appContext.getSystemService(ConnectivityManager.class);
 
@@ -50,14 +50,14 @@ public final class TunnelCore {
 
         // settings
         this.appContext = appContext;
-        this.proxyPort = proxyPort;
+        this.socksPort = socksPort;
         this.dnsLocalPort = dnsLocalPort;
         this.dnsRemoteAddress = dnsRemoteAddress;
     }
 
-    public static void init(@NonNull Context appContext, int proxyPort,
+    public static void init(@NonNull Context appContext, int socksPort,
                             int dnsLocalPort, String dnsRemoteAddress) {
-        tunnelCore = new TunnelCore(appContext, proxyPort, dnsLocalPort, dnsRemoteAddress);
+        tunnelCore = new TunnelCore(appContext, socksPort, dnsLocalPort, dnsRemoteAddress);
     }
 
     public static TunnelCore instance() {

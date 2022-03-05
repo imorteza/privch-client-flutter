@@ -1,12 +1,19 @@
+/*
+  Xinlake Liu
+  2022-02
+ */
+
 import 'package:flutter/material.dart';
 
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:xinlake_text/validator.dart';
 
 import 'package:privch/models/shadowsocks.dart';
+import 'package:privch/pages/encrypt_list.dart';
 
 class ShadowsocksDetailPage extends StatefulWidget {
   const ShadowsocksDetailPage(this.shadowsocks, {Key? key}) : super(key: key);
+  static const route = "/home/shadowsocks";
 
   // Fields in a Widget subclass are always marked "final".
   final Shadowsocks shadowsocks;
@@ -26,13 +33,12 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // indicate data has been changed
-      Navigator.of(context).pop(true);
+      // indicate that data has been changed
+      Navigator.pop(context, true);
     }
   }
 
   Widget _buildForm() {
-    // necessary on windows
     const inputDecoration = InputDecoration(
       contentPadding: EdgeInsets.only(top: 8, bottom: 4),
     );
@@ -46,11 +52,13 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
           // display name
           TextFormField(
             autovalidateMode: AutovalidateMode.always,
-            textAlignVertical: TextAlignVertical.bottom,
             initialValue: widget.shadowsocks.name,
             decoration: inputDecoration.copyWith(labelText: "Display name"),
             validator: (value) {
-              return (value != null && value.isNotEmpty) ? null : "Display name can't be empty";
+              if ((value != null && value.isNotEmpty)) {
+                return null;
+              }
+              return "Display name can't be empty";
             },
             onSaved: (value) {
               if (value != null) {
@@ -68,12 +76,12 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
                 child: TextFormField(
                   autovalidateMode: AutovalidateMode.always,
                   initialValue: widget.shadowsocks.address,
-                  textAlignVertical: TextAlignVertical.bottom,
                   decoration: inputDecoration.copyWith(labelText: "Host address"),
                   validator: (value) {
-                    return (value != null && Validator.isURL(value))
-                        ? null
-                        : "Invalid host address";
+                    if ((value != null && Validator.isURL(value))) {
+                      return null;
+                    }
+                    return "Invalid host address";
                   },
                   onSaved: (value) {
                     if (value != null) {
@@ -89,12 +97,12 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
                   autovalidateMode: AutovalidateMode.always,
                   keyboardType: TextInputType.number,
                   initialValue: "${widget.shadowsocks.port}",
-                  textAlignVertical: TextAlignVertical.bottom,
                   decoration: inputDecoration.copyWith(labelText: "Host port"),
                   validator: (value) {
-                    return (value != null && Validator.getPortNumber(value) != null)
-                        ? null
-                        : "Invalid port number";
+                    if ((value != null && Validator.getPortNumber(value) != null)) {
+                      return null;
+                    }
+                    return "Invalid port number";
                   },
                   onSaved: (value) {
                     if (value != null) {
@@ -111,7 +119,6 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
             autovalidateMode: AutovalidateMode.always,
             obscureText: _obscureText,
             initialValue: widget.shadowsocks.password,
-            textAlignVertical: TextAlignVertical.bottom,
             decoration: inputDecoration.copyWith(
               labelText: "Password",
               suffixIcon: IconButton(
@@ -124,7 +131,10 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
               ),
             ),
             validator: (value) {
-              return (value != null && value.isNotEmpty) ? null : "Password can't be empty";
+              if ((value != null && value.isNotEmpty)) {
+                return null;
+              }
+              return "Password can't be empty";
             },
             onSaved: (value) {
               if (value != null) {
@@ -142,7 +152,7 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
       onPressed: () async {
         final encrypt = await Navigator.pushNamed(
           context,
-          "/home/shadowsocks/encrypt",
+          EncryptListPage.route,
           arguments: widget.shadowsocks.encrypt,
         ) as String?;
         if (encrypt != null && widget.shadowsocks.encrypt != encrypt) {
@@ -190,7 +200,7 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
           children: [
             // qr code
             Container(
-              color: Colors.white70,
+              color: Colors.white,
               alignment: Alignment.center,
               child: QrImage(
                 padding: const EdgeInsets.all(20),

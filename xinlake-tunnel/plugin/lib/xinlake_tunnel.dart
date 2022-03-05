@@ -82,13 +82,25 @@ class XinlakeTunnel {
     await _methodChannel.invokeMethod("stopTunnel");
   }
 
+  /// This must be called once before connectTunnel
+  /// * [socksPort] local socks client listen port
+  ///
+  /// Android
+  /// * [dnsLocalPort], [dnsRemoteAddress] dns settings
+  ///
+  /// Windows
+  /// * [httpPort] local http proxy listen port
+  ///
+  /// [httpPort] parameter used on Windows only
   static Future<void> updateSettings({
-    int? proxyPort,
+    int? httpPort,
+    int? socksPort,
     int? dnsLocalPort,
     String? dnsRemoteAddress,
   }) async {
     await _methodChannel.invokeMethod("updateSettings", {
-      "proxyPort": proxyPort,
+      "httpPort": httpPort,
+      "socksPort": socksPort,
       "dnsLocalPort": dnsLocalPort,
       "dnsRemoteAddress": dnsRemoteAddress,
     });

@@ -7,7 +7,7 @@ import xinlake.tunnel.aidl.ITunnelEvent;
 interface ITunnelMethod {
     void setListener(in ITunnelEvent listener);
 
-    void setProxyPort(in int port);
+    void setSocksPort(in int port);
     void setDnsLocalPort(in int port);
     void setDnsRemoteAddress(in String address);
 

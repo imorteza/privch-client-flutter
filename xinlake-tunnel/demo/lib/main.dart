@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:xinlake_text/readable.dart';
@@ -18,7 +19,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int _proxyPort = 1080;
+  int _httpPort = 1080;
+  int _socksPort = 1090;
   int _dnsLocalPort = 5450;
   String _dnsRemoteAddress = "8.8.8.8";
 
@@ -228,7 +230,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _buildSettings() {
+  Widget _buildAndroidSettings() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -243,13 +245,13 @@ class _MyAppState extends State<MyApp> {
                   flex: 3,
                   child: TextFormField(
                     autovalidateMode: AutovalidateMode.always,
-                    decoration: const InputDecoration(label: Text("Proxy port")),
-                    initialValue: "$_proxyPort",
+                    decoration: const InputDecoration(label: Text("Socks port")),
+                    initialValue: "$_socksPort",
                     validator: (value) {
                       if (value != null) {
                         int? port = int.tryParse(value);
                         if (port != null && port > 0 && port < 65535) {
-                          _proxyPort = port;
+                          _socksPort = port;
                           return null;
                         }
                       }
@@ -300,7 +302,80 @@ class _MyAppState extends State<MyApp> {
                 return ElevatedButton(
                   onPressed: (value == XinlakeTunnel.stateStopped)
                       ? () async => await XinlakeTunnel.updateSettings(
-                            proxyPort: _proxyPort,
+                            socksPort: _socksPort,
+                            dnsLocalPort: _dnsLocalPort,
+                            dnsRemoteAddress: _dnsRemoteAddress,
+                          )
+                      : null,
+                  child: const Text("updateSettings"),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWindowsSettings() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: TextFormField(
+                    autovalidateMode: AutovalidateMode.always,
+                    decoration: const InputDecoration(label: Text("Http port")),
+                    initialValue: "$_httpPort",
+                    validator: (value) {
+                      if (value != null) {
+                        int? port = int.tryParse(value);
+                        if (port != null && port > 0 && port < 65535) {
+                          _httpPort = port;
+                          return null;
+                        }
+                      }
+                      return "Invalid value";
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 1,
+                  child: TextFormField(
+                    autovalidateMode: AutovalidateMode.always,
+                    decoration: const InputDecoration(label: Text("Socks port")),
+                    initialValue: "$_socksPort",
+                    validator: (value) {
+                      if (value != null) {
+                        int? port = int.tryParse(value);
+                        if (port != null && port > 0 && port < 65535) {
+                          _socksPort = port;
+                          return null;
+                        }
+                      }
+                      return "Invalid value";
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ValueListenableBuilder<int>(
+              valueListenable: XinlakeTunnel.onState,
+              builder: (context, value, child) {
+                return ElevatedButton(
+                  onPressed: (value == XinlakeTunnel.stateStopped)
+                      ? () async => await XinlakeTunnel.updateSettings(
+                            httpPort: _httpPort,
+                            socksPort: _socksPort,
                             dnsLocalPort: _dnsLocalPort,
                             dnsRemoteAddress: _dnsRemoteAddress,
                           )
@@ -379,7 +454,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               _buildTraffic(),
               _buildState(),
-              _buildSettings(),
+              Platform.isAndroid ? _buildAndroidSettings() : _buildWindowsSettings(),
               _buildStartStop(),
             ],
           ),

@@ -164,13 +164,13 @@ public class MethodHandler implements
     }
 
     private void updateSettings(MethodCall call, MethodChannel.Result result) {
-        final Integer proxyPort;
-        final Integer dnsLocalPort;
+        final Number socksPort;
+        final Number dnsLocalPort;
         final String dnsRemoteAddress;
 
         // check parameters
         try {
-            proxyPort = call.argument("proxyPort");
+            socksPort = call.argument("socksPort");
             dnsLocalPort = call.argument("dnsLocalPort");
             dnsRemoteAddress = call.argument("dnsRemoteAddress");
         } catch (Exception exception) {
@@ -178,9 +178,9 @@ public class MethodHandler implements
             return;
         }
 
-        if (proxyPort != null) {
+        if (socksPort != null) {
             try {
-                tunnelMethod.setProxyPort(proxyPort);
+                tunnelMethod.setSocksPort(socksPort.intValue());
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
@@ -188,7 +188,7 @@ public class MethodHandler implements
 
         if (dnsLocalPort != null) {
             try {
-                tunnelMethod.setDnsLocalPort(dnsLocalPort);
+                tunnelMethod.setDnsLocalPort(dnsLocalPort.intValue());
             } catch (Exception exception) {
                 exception.printStackTrace();
             }

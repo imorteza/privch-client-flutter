@@ -1,22 +1,24 @@
+/*
+  Xinlake Liu
+  2022-03
+ */
+
 import 'package:flutter/material.dart';
 
 import 'package:privch/models/server_manager.dart';
 import 'package:privch/models/server_state.dart';
 import 'package:privch/models/setting_manager.dart';
 import 'package:privch/models/shadowsocks.dart';
+import 'package:privch/pages/shadowsocks_detail.dart';
 import 'package:privch/pages/widgets/shadowsocks_widget.dart';
 
 class ShadowsocksList extends StatefulWidget {
   const ShadowsocksList({
     Key? key,
-    required this.onScanQrcode,
-    required this.onImportImage,
-    required this.onCreateServer,
+    required this.empty,
   }) : super(key: key);
 
-  final void Function() onScanQrcode;
-  final void Function() onImportImage;
-  final void Function() onCreateServer;
+  final Widget empty;
 
   @override
   State<StatefulWidget> createState() => ShadowsocksListState();
@@ -30,7 +32,7 @@ class ShadowsocksListState extends State<ShadowsocksList> {
     // navigate to shadowsocks details
     final checked = await Navigator.pushNamed(
       context,
-      "/home/shadowsocks",
+      ShadowsocksDetailPage.route,
       arguments: shadowsocks,
     ) as bool?;
     if (checked != null && checked) {
@@ -142,67 +144,17 @@ class ShadowsocksListState extends State<ShadowsocksList> {
     );
   }
 
-  // the content when the list is empty
-  Widget _buildEmpty() {
-    final themeData = Theme.of(context);
-
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "Nothing here",
-          style: themeData.textTheme.headline5,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 20),
-          child: Text(
-            "Add servers now ?",
-            style: themeData.textTheme.caption,
-          ),
-        ),
-        Center(
-          child: IntrinsicWidth(
-            stepWidth: 100,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              // action buttons
-              children: [
-                ElevatedButton(
-                  child: const Text("Scan QR code ..."),
-                  onPressed: widget.onScanQrcode,
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  child: const Text("Import from image ..."),
-                  onPressed: widget.onImportImage,
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  child: const Text("Create new ..."),
-                  onPressed: widget.onCreateServer,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 50),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ServerState>(
       valueListenable: _setting.onServerState,
-      builder: (context, value, child) {
-        if (value.serverCount < 1) {
-          return _buildEmpty();
+      builder: (context, serverState, child) {
+        if (serverState.serverCount < 1) {
+          return widget.empty;
         }
 
         final ssList = _servers.servers.toList();
-        switch (value.sortMode) {
+        switch (serverState.sortMode) {
           case ServerSortMode.modified:
             ssList.sort((ss1, ss2) => -ss1.modified.compareTo(ss2.modified));
             break;

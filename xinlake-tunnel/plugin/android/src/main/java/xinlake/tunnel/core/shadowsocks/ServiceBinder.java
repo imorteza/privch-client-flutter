@@ -20,8 +20,8 @@ public class ServiceBinder extends ITunnelMethod.Stub {
     }
 
     @Override
-    public void setProxyPort(int port) {
-        TunnelCore.instance().proxyPort = port;
+    public void setSocksPort(int port) {
+        TunnelCore.instance().socksPort = port;
     }
 
     @Override

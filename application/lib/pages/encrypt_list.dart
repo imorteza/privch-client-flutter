@@ -1,3 +1,8 @@
+/*
+  Xinlake Liu
+  2022-03-03
+ */
+
 import 'package:flutter/material.dart';
 
 import 'package:privch/models/shadowsocks.dart';
@@ -8,6 +13,7 @@ class EncryptListPage extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
+  static const route = "/home/shadowsocks/encrypt";
   final String encrypt;
 
   @override
@@ -27,10 +33,7 @@ class _EncryptListState extends State<EncryptListPage> {
         // item child
         final child = Padding(
           padding: const EdgeInsets.all(10),
-          child: Text(
-            item.toUpperCase(),
-            textAlign: TextAlign.center,
-          ),
+          child: Text(item), // opt: uppercase text
         );
         // item widget
         return (_encrypt == item)
@@ -48,10 +51,10 @@ class _EncryptListState extends State<EncryptListPage> {
         const SizedBox(height: 5),
         Text(
           _encrypt.toUpperCase(),
-          textScaleFactor: 0.6,
-          style: TextStyle(
+          textScaleFactor: 0.7,
+          style: const TextStyle(
             fontStyle: FontStyle.italic,
-            color: Theme.of(context).colorScheme.secondary,
+            color: Colors.white60,
           ),
         ),
       ],
@@ -66,8 +69,7 @@ class _EncryptListState extends State<EncryptListPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed:
-                (_encrypt != widget.encrypt) ? () => Navigator.of(context).pop(_encrypt) : null,
+            onPressed: (_encrypt != widget.encrypt) ? () => Navigator.pop(context, _encrypt) : null,
           ),
         ],
       ),

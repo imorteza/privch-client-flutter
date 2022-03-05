@@ -1,114 +1,183 @@
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:privch/main.dart';
 import 'package:xinlake_platform/xinlake_platform.dart';
 import 'package:xinlake_text/validator.dart';
 
+import 'package:privch/global.dart';
 import 'package:privch/models/setting_manager.dart';
 import 'package:privch/models/server_manager.dart';
 
-/// * 2021-12
+/// save data when press back
+/// * 2022-02
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);
+  static const route = "/home/setting";
+  static const title = "Settings";
 
   @override
   _SettingState createState() => _SettingState();
 }
 
 class _SettingState extends State<SettingPage> {
-  final _dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
   final _servers = ServerManager.instance;
   final _setting = SettingManager.instance;
   final _formKey = GlobalKey<FormState>();
 
-  int? _proxyPort;
+  int? _httpPort;
+  int? _socksPort;
   int? _dnsLocalPort;
   String? _dnsRemoteAddress;
 
   Widget _buildNetworkSettings() {
     const inputDecoration = InputDecoration(
-      contentPadding: EdgeInsets.symmetric(vertical: 5),
+      contentPadding: EdgeInsets.only(top: 8, bottom: 4),
     );
 
     return Form(
       key: _formKey,
       onWillPop: () async {
         _formKey.currentState?.save();
-        await _setting.updateVpnSetting(
+        await _setting.updateTunnelSetting(
+          httpPort: _httpPort,
+          socksPort: _socksPort,
           dnsLocalPort: _dnsLocalPort,
-          proxyPort: _proxyPort,
           dnsRemoteAddress: _dnsRemoteAddress,
         );
 
         return true;
       },
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Builder(builder: (context) {
+        // settings for Android
+        if (Platform.isAndroid) {
+          return Column(
             children: [
-              Expanded(
-                flex: 1,
-                child: TextFormField(
-                  decoration: inputDecoration.copyWith(labelText: "Proxy Port"),
-                  autovalidateMode: AutovalidateMode.always,
-                  textAlignVertical: TextAlignVertical.bottom,
-                  keyboardType: TextInputType.number,
-                  initialValue: "${_setting.proxyPort}",
-                  validator: (value) {
-                    return (value != null && Validator.getPortNumber(value) != null)
-                        ? null
-                        : "Invalid port number";
-                  },
-                  onSaved: (value) {
-                    if (value != null) {
-                      _proxyPort = int.parse(value);
-                    }
-                  },
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: TextFormField(
+                      decoration: inputDecoration.copyWith(labelText: "Socks Port"),
+                      autovalidateMode: AutovalidateMode.always,
+                      keyboardType: TextInputType.number,
+                      initialValue: "${_setting.socksPort}",
+                      validator: (value) {
+                        if (value != null) {
+                          if (Validator.getPortNumber(value) != null) {
+                            return null;
+                          }
+                        }
+                        return "Invalid port number";
+                      },
+                      onSaved: (value) {
+                        if (value != null) {
+                          _socksPort = int.parse(value);
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 1,
+                    child: TextFormField(
+                      decoration: inputDecoration.copyWith(labelText: "Local DNS Port"),
+                      autovalidateMode: AutovalidateMode.always,
+                      keyboardType: TextInputType.number,
+                      initialValue: "${_setting.dnsLocalPort}",
+                      validator: (value) {
+                        if (value != null) {
+                          if (Validator.getPortNumber(value) != null) {
+                            return null;
+                          }
+                        }
+                        return "Invalid port number";
+                      },
+                      onSaved: (value) {
+                        if (value != null) {
+                          _dnsLocalPort = int.parse(value);
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                flex: 1,
-                child: TextFormField(
-                  decoration: inputDecoration.copyWith(labelText: "Local DNS Port"),
-                  autovalidateMode: AutovalidateMode.always,
-                  textAlignVertical: TextAlignVertical.bottom,
-                  keyboardType: TextInputType.number,
-                  initialValue: "${_setting.dnsLocalPort}",
-                  validator: (value) {
-                    return (value != null && Validator.getPortNumber(value) != null)
-                        ? null
-                        : "Invalid port number";
-                  },
-                  onSaved: (value) {
-                    if (value != null) {
-                      _dnsLocalPort = int.parse(value);
-                    }
-                  },
-                ),
+              const SizedBox(height: 10),
+              // remote dns address
+              TextFormField(
+                decoration: inputDecoration.copyWith(labelText: "Remote DNS Address"),
+                autovalidateMode: AutovalidateMode.always,
+                keyboardType: TextInputType.url,
+                initialValue: _setting.dnsRemoteAddress,
+                validator: (value) {
+                  if ((value != null && Validator.isURL(value))) {
+                    return null;
+                  }
+                  return "Invalid url";
+                },
+                onSaved: (value) {
+                  if (value != null) {
+                    _dnsRemoteAddress = value;
+                  }
+                },
               ),
             ],
-          ),
-          const SizedBox(height: 10),
-          // remote dns address
-          TextFormField(
-            decoration: inputDecoration.copyWith(labelText: "Remote DNS Address"),
-            autovalidateMode: AutovalidateMode.always,
-            textAlignVertical: TextAlignVertical.bottom,
-            keyboardType: TextInputType.url,
-            initialValue: _setting.dnsRemoteAddress,
-            validator: (value) {
-              return (value != null && Validator.isURL(value)) ? null : "Invalid url";
-            },
-            onSaved: (value) {
-              if (value != null) {
-                _dnsRemoteAddress = value;
-              }
-            },
-          ),
-        ],
-      ),
+          );
+        }
+
+        // settings for Windows
+        return Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: TextFormField(
+                    decoration: inputDecoration.copyWith(labelText: "Http Proxy Port"),
+                    autovalidateMode: AutovalidateMode.always,
+                    keyboardType: TextInputType.number,
+                    initialValue: "${_setting.httpPort}",
+                    validator: (value) {
+                      if ((value != null && Validator.getPortNumber(value) != null)) {
+                        return null;
+                      }
+                      return "Invalid port number";
+                    },
+                    onSaved: (value) {
+                      if (value != null) {
+                        _httpPort = int.parse(value);
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 1,
+                  child: TextFormField(
+                    decoration: inputDecoration.copyWith(labelText: "Socks Port"),
+                    autovalidateMode: AutovalidateMode.always,
+                    keyboardType: TextInputType.number,
+                    initialValue: "${_setting.socksPort}",
+                    validator: (value) {
+                      if ((value != null && Validator.getPortNumber(value) != null)) {
+                        return null;
+                      }
+                      return "Invalid port number";
+                    },
+                    onSaved: (value) {
+                      if (value != null) {
+                        _socksPort = int.parse(value);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -136,9 +205,10 @@ class _SettingState extends State<SettingPage> {
               groupValue: _setting.onThemeMode.value,
               onChanged: (value) {
                 if (value != null) {
-                  _setting.onThemeMode.value = value;
-                  // TODO: have to?
-                  setState(() {});
+                  setState(() {
+                    // have to refresh radio state
+                    _setting.onThemeMode.value = value;
+                  });
                 }
               },
             ),
@@ -192,21 +262,22 @@ class _SettingState extends State<SettingPage> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      "modified: ",
+                      "updated: ",
                       style: style,
                     ),
                   ),
-                  Text(_dateFormat.format(verInfo.updatedTime)),
+                  Text(dateFormat.format(verInfo.updatedTime)),
                 ],
               ));
             }
 
             return AlertDialog(
               title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: const <Widget>[
                   Icon(Icons.security),
                   SizedBox(width: 10),
-                  Text("Private Channel"),
+                  Text(PrivChApp.title),
                 ],
               ),
               content: Table(
@@ -248,12 +319,36 @@ class _SettingState extends State<SettingPage> {
     );
   }
 
+  Widget _buildBanner(String title) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            const Spacer(),
+            Text(
+              title,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              maxLines: 1,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontStyle: FontStyle.italic,
+              ),
+              textScaleFactor: 1.2,
+            ),
+          ],
+        ),
+        const Divider(height: 4),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        title: const Text("Settings"),
+        title: const Text(SettingPage.title),
         actions: [_buildAbout()],
       ),
       body: SingleChildScrollView(
@@ -264,6 +359,7 @@ class _SettingState extends State<SettingPage> {
             _buildThemeSetting(),
             // network settings
             const SizedBox(height: 20),
+            _buildBanner("NETWORKING"),
             _buildNetworkSettings(),
             // develop debug only
             const SizedBox(height: 20),

@@ -107,7 +107,7 @@ namespace {
         const std::string method_name = method_call.method_name();
 
         if (method_name == "getTrafficBytes") {
-            // not implement. clr or win32
+            // not implement. use clr or win32
             result->NotImplemented();
         } else if (method_name == "connectTunnel") {
             connectTunnel(method_call, std::move(result));

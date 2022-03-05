@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:privch/pages/setting_page.dart';
+import 'package:privch/pages/shadowsocks_detail.dart';
 import 'package:xinlake_platform/xinlake_platform.dart';
 import 'package:xinlake_qrcode/xinlake_qrcode.dart';
 
@@ -12,15 +14,7 @@ import 'package:privch/pages/widgets/service_panel.dart';
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
+  static const route = "/home";
   final String title;
 
   @override
@@ -135,7 +129,7 @@ class _HomeState extends State<HomePage> {
     final shadowsocks = Shadowsocks.createDefault();
     final checked = await Navigator.pushNamed(
       context,
-      "/home/shadowsocks",
+      ShadowsocksDetailPage.route,
       arguments: shadowsocks,
     ) as bool?;
 
@@ -279,12 +273,62 @@ class _HomeState extends State<HomePage> {
               "Setting",
               () {
                 Navigator.pop(context);
-                Navigator.pushNamed(context, "/home/setting");
+                Navigator.pushNamed(context, SettingPage.route);
               },
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // the content when the list is empty
+  Widget _buildEmpty() {
+    final themeData = Theme.of(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "Nothing here",
+          style: themeData.textTheme.headline5,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 20),
+          child: Text(
+            "Add servers now ?",
+            style: themeData.textTheme.caption,
+          ),
+        ),
+        Center(
+          child: IntrinsicWidth(
+            stepWidth: 100,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              // action buttons
+              children: [
+                ElevatedButton(
+                  child: const Text("Scan QR code ..."),
+                  onPressed: _scanQrcode,
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  child: const Text("Import from image ..."),
+                  onPressed: _importImage,
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  child: const Text("Create new ..."),
+                  onPressed: _createServer,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 50),
+      ],
     );
   }
 
@@ -303,9 +347,7 @@ class _HomeState extends State<HomePage> {
         children: [
           Expanded(
             child: ShadowsocksList(
-              onScanQrcode: () async => await _scanQrcode(),
-              onImportImage: () async => await _importImage(),
-              onCreateServer: () async => await _createServer(),
+              empty: _buildEmpty(),
             ),
           ),
           const ServiceButton(),

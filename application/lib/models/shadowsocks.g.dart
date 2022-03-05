@@ -21,12 +21,11 @@ class ShadowsocksAdapter extends TypeAdapter<Shadowsocks> {
       password: fields[1] as String,
       address: fields[2] as String,
       port: fields[3] as int,
-    )
-      ..name = fields[4] as String
-      ..modified = fields[5] as String
-      ..order = fields[6] as int
-      ..geoLocation = fields[7] as String
-      ..responseTime = fields[8] as int;
+      name: fields[4] as String?,
+      order: fields[6] as int?,
+      geoLocation: fields[7] as String?,
+      responseTime: fields[8] as int?,
+    )..modified = fields[5] as String;
   }
 
   @override

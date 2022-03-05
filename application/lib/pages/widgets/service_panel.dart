@@ -100,128 +100,104 @@ class ServiceState extends State<ServiceButton> {
     const tunIconBig = 60.0;
     const tunBoxSize = 100.0;
 
-    return Card(
-      elevation: 8.0,
-      child: Container(
-        alignment: Alignment.center,
-        child: SizedBox(
-          width: tunIconMiddle,
-          height: panelHeight,
-          child: OverflowBox(
-            maxHeight: tunBoxSize,
-            maxWidth: tunBoxSize,
-            alignment: Alignment.bottomCenter,
-            child: ValueListenableBuilder<int>(
-              valueListenable: XinlakeTunnel.onState,
-              builder: (BuildContext context, int tunState, Widget? child) {
-                if (tunState == XinlakeTunnel.stateConnected) {
-                  // connected, icon
-                  return IconButton(
-                    onPressed: _onServiceButton,
-                    iconSize: tunIconBig,
-                    icon: const Icon(Icons.health_and_safety),
-                    color: Theme.of(context).colorScheme.secondary,
-                  );
-                } else if (tunState == XinlakeTunnel.stateStopped) {
-                  // stopped, small icon
-                  return OutlinedButton(
-                    onPressed: _onServiceButton,
-                    style: ButtonStyle(
-                      side: MaterialStateProperty.resolveWith<BorderSide?>((states) {
-                        return BorderSide.none;
-                      }),
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-                        return Colors.grey.withAlpha(33);
-                      }),
-                    ),
-                    child: Icon(
-                      Icons.security,
-                      size: tunIconSmall,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  );
-                } else {
-                  // connecting/stopping, middle icon
-                  return (tunState == XinlakeTunnel.stateConnecting)
-                      ? const Icon(Icons.health_and_safety, size: tunIconMiddle)
-                      : const Icon(Icons.security, size: tunIconMiddle);
-                }
-              },
-            ),
+    // build without chart
+    if (Platform.isWindows) {
+      return Card(
+        elevation: 8.0,
+        child: Container(
+          alignment: Alignment.center,
+          child: _buildTunnelButton(
+            panelHeight: panelHeight,
+            tunBoxSize: tunBoxSize,
+            tunIconSmall: tunIconSmall,
+            tunIconMiddle: tunIconMiddle,
+            tunIconBig: tunIconBig,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTunPanelChart() {
-    const panelHeight = 55.0;
-
-    const tunIconSmall = 40.0;
-    const tunIconMiddle = 50.0;
-    const tunIconBig = 60.0;
-    const tunBoxSize = 100.0;
+      );
+    }
 
     return Card(
-      elevation: 8.0,
       child: Stack(
         alignment: Alignment.center,
         children: [
           // background, traffic info
-          _buildTrafficChart(panelHeight, tunIconMiddle),
+          _buildTrafficChart(
+            panelHeight: panelHeight,
+            iconSize: tunIconMiddle,
+          ),
           // front, button
-          SizedBox(
-            width: tunIconMiddle,
-            height: panelHeight,
-            child: OverflowBox(
-              maxHeight: tunBoxSize,
-              maxWidth: tunBoxSize,
-              alignment: Alignment.bottomCenter,
-              child: ValueListenableBuilder<int>(
-                valueListenable: XinlakeTunnel.onState,
-                builder: (BuildContext context, int tunState, Widget? child) {
-                  if (tunState == XinlakeTunnel.stateConnected) {
-                    // connected, icon
-                    return IconButton(
-                      onPressed: _onServiceButton,
-                      iconSize: tunIconBig,
-                      icon: const Icon(Icons.health_and_safety),
-                      color: Theme.of(context).colorScheme.secondary,
-                    );
-                  } else if (tunState == XinlakeTunnel.stateStopped) {
-                    // stopped, small icon
-                    return OutlinedButton(
-                      onPressed: _onServiceButton,
-                      style: ButtonStyle(
-                        side: MaterialStateProperty.resolveWith<BorderSide?>((states) {
-                          return BorderSide.none;
-                        }),
-                        backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-                          return Colors.grey.withAlpha(33);
-                        }),
-                      ),
-                      child: Icon(
-                        Icons.security,
-                        size: tunIconSmall,
-                        color: Theme.of(context).hintColor,
-                      ),
-                    );
-                  } else {
-                    // connecting/stopping, middle icon
-                    return (tunState == XinlakeTunnel.stateConnecting)
-                        ? const Icon(Icons.health_and_safety, size: tunIconMiddle)
-                        : const Icon(Icons.security, size: tunIconMiddle);
-                  }
-                },
-              ),
-            ),
+          _buildTunnelButton(
+            panelHeight: panelHeight,
+            tunBoxSize: tunBoxSize,
+            tunIconSmall: tunIconSmall,
+            tunIconMiddle: tunIconMiddle,
+            tunIconBig: tunIconBig,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTrafficChart(double panelHeight, double iconSize) {
+  Widget _buildTunnelButton({
+    required double panelHeight,
+    required double tunBoxSize,
+    required double tunIconSmall,
+    required double tunIconMiddle,
+    required double tunIconBig,
+  }) {
+    return SizedBox(
+      width: tunIconMiddle,
+      height: panelHeight,
+      child: OverflowBox(
+        maxHeight: tunBoxSize,
+        maxWidth: tunBoxSize,
+        alignment: Alignment.bottomCenter,
+        child: ValueListenableBuilder<int>(
+          valueListenable: XinlakeTunnel.onState,
+          builder: (BuildContext context, int tunState, Widget? child) {
+            if (tunState == XinlakeTunnel.stateConnected) {
+              // connected, icon
+              return IconButton(
+                onPressed: _onServiceButton,
+                iconSize: tunIconBig,
+                icon: const Icon(Icons.health_and_safety),
+                color: Theme.of(context).colorScheme.secondary,
+              );
+            } else if (tunState == XinlakeTunnel.stateStopped) {
+              // stopped, small icon
+              return OutlinedButton(
+                onPressed: _onServiceButton,
+                style: ButtonStyle(
+                  side: MaterialStateProperty.resolveWith<BorderSide?>((states) {
+                    return BorderSide.none;
+                  }),
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+                    return Colors.grey.withAlpha(33);
+                  }),
+                ),
+                child: Icon(
+                  Icons.security,
+                  size: tunIconSmall,
+                  color: Theme.of(context).hintColor,
+                ),
+              );
+            } else {
+              // connecting/stopping, middle icon
+              return (tunState == XinlakeTunnel.stateConnecting)
+                  ? Icon(Icons.health_and_safety, size: tunIconMiddle)
+                  : Icon(Icons.security, size: tunIconMiddle);
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrafficChart({
+    required double panelHeight,
+    required double iconSize,
+  }) {
     return ValueListenableBuilder(
       valueListenable: _onTrafficTxRxBytesPerSecond,
       builder: (BuildContext context, List<int>? trafficTxRx, Widget? child) {
@@ -253,39 +229,47 @@ class ServiceState extends State<ServiceButton> {
               children: [
                 Expanded(
                   child: Center(
-                    child: trafficTxRx == null
-                        ? const Icon(Icons.arrow_circle_up)
-                        : Column(
-                            children: [
-                              Text(
-                                Readable.formatSize(txBytes),
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                              Text(
-                                Readable.formatSize(txMax),
-                                style: Theme.of(context).textTheme.caption,
-                              ),
-                            ],
+                    child: Builder(builder: (context) {
+                      // no data
+                      if (trafficTxRx == null) {
+                        return const Icon(Icons.arrow_circle_up);
+                      }
+                      return Column(
+                        children: [
+                          Text(
+                            Readable.formatSize(txBytes),
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
+                          Text(
+                            Readable.formatSize(txMax),
+                            style: Theme.of(context).textTheme.caption,
+                          ),
+                        ],
+                      );
+                    }),
                   ),
                 ),
                 SizedBox(width: iconSize),
                 Expanded(
                   child: Center(
-                    child: trafficTxRx == null
-                        ? const Icon(Icons.arrow_circle_down)
-                        : Column(
-                            children: [
-                              Text(
-                                Readable.formatSize(rxBytes),
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                              Text(
-                                Readable.formatSize(rxMax),
-                                style: Theme.of(context).textTheme.caption,
-                              ),
-                            ],
+                    child: Builder(builder: (context) {
+                      // no data
+                      if (trafficTxRx == null) {
+                        return const Icon(Icons.arrow_circle_down);
+                      }
+                      return Column(
+                        children: [
+                          Text(
+                            Readable.formatSize(rxBytes),
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
+                          Text(
+                            Readable.formatSize(rxMax),
+                            style: Theme.of(context).textTheme.caption,
+                          ),
+                        ],
+                      );
+                    }),
                   ),
                 ),
               ],
@@ -300,7 +284,7 @@ class ServiceState extends State<ServiceButton> {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ServerState>(
       valueListenable: _setting.onServerState,
-      child: Platform.isAndroid ? _buildTunPanelChart() : _buildTunPanel(),
+      child: _buildTunPanel(),
       builder: (BuildContext context, ServerState serverState, Widget? tunPanel) {
         // empty
         if (serverState.serverCount < 1 && serverState.currentServer == null) {

@@ -25,15 +25,16 @@ class SettingAdapter extends TypeAdapter<Setting> {
       ..serverSelId = fields[5] as String?
       ..sortModeIndex = fields[6] as int
       ..themeModeIndex = fields[7] as int
-      ..proxyPort = fields[8] as int
-      ..dnsLocalPort = fields[9] as int
-      ..dnsRemoteAddress = fields[10] as String;
+      ..httpPort = fields[8] as int
+      ..socksPort = fields[9] as int
+      ..dnsLocalPort = fields[10] as int
+      ..dnsRemoteAddress = fields[11] as String;
   }
 
   @override
   void write(BinaryWriter writer, Setting obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.windowX)
       ..writeByte(1)
@@ -51,10 +52,12 @@ class SettingAdapter extends TypeAdapter<Setting> {
       ..writeByte(7)
       ..write(obj.themeModeIndex)
       ..writeByte(8)
-      ..write(obj.proxyPort)
+      ..write(obj.httpPort)
       ..writeByte(9)
-      ..write(obj.dnsLocalPort)
+      ..write(obj.socksPort)
       ..writeByte(10)
+      ..write(obj.dnsLocalPort)
+      ..writeByte(11)
       ..write(obj.dnsRemoteAddress);
   }
 

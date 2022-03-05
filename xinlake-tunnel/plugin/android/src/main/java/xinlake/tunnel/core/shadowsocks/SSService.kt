@@ -54,8 +54,8 @@ import java.io.IOException
  */
 
 /**
- * Must bind service and set `proxyPort`, `localDnsPort`, `remoteDnsAddress` extras
- * to the intent, Or update settings before startService
+ * Must bind service with `socksPort`, `localDnsPort`, `remoteDnsAddress` optional settings
+ * And updateSettings before startService
  *
  * 2021-11
  */
@@ -89,7 +89,9 @@ class SSService : VpnService() {
                         return@let true
                     } catch (exception: IOException) {
                         when ((exception.cause as? ErrnoException)?.errno) {
-                            OsConstants.EPERM, OsConstants.EACCES, OsConstants.ENONET -> Timber.d(exception)
+                            OsConstants.EPERM, OsConstants.EACCES, OsConstants.ENONET -> Timber.d(
+                                exception
+                            )
                             else -> Timber.w(exception)
                         }
                         return@let false
@@ -132,7 +134,8 @@ class SSService : VpnService() {
         }
 
     private suspend fun preInit() = DefaultNetworkListener.start(this) { underlyingNetwork = it }
-    private suspend fun rawResolver(query: ByteArray) = DnsResolverCompat.resolveRawOnActiveNetwork(query)
+    private suspend fun rawResolver(query: ByteArray) =
+        DnsResolverCompat.resolveRawOnActiveNetwork(query)
 
     /* overwrite rawResolver
     // need to listen for network here as this is only used for forwarding local DNS queries.
@@ -150,7 +153,13 @@ class SSService : VpnService() {
         listener?.onStateChanged(state)
     }
 
-    fun startService(serverId: Int, port: Int, address: String, password: String, encrypt: String): Boolean {
+    fun startService(
+        serverId: Int,
+        port: Int,
+        address: String,
+        password: String,
+        encrypt: String
+    ): Boolean {
         // check the new server
         val remoteServer = RemoteServer(port, address, password, encrypt)
         if (!remoteServer.isValid) {
@@ -251,11 +260,11 @@ class SSService : VpnService() {
         val cmd = arrayListOf(
             File(TunnelCore.instance().nativeLibraryDir, Executable.SS_LOCAL).absolutePath,
             //"--stat-path", stat.absolutePath,
-            "--local-addr", "127.0.0.1:${TunnelCore.instance().proxyPort}",
+            "--local-addr", "127.0.0.1:${TunnelCore.instance().socksPort}",
             "--server-addr", "${server!!.address}:${server!!.port}",
             "-k", server!!.password,
             "-m", server!!.encrypt,
-            "--udp-bind-addr", "127.0.0.1:${TunnelCore.instance().proxyPort}",
+            "--udp-bind-addr", "127.0.0.1:${TunnelCore.instance().socksPort}",
             "--dns-addr", "127.0.0.1:${TunnelCore.instance().dnsLocalPort}",
             "--local-dns-addr", "local_dns_path",
             "--remote-dns-addr", "${TunnelCore.instance().dnsRemoteAddress}:53",
@@ -294,7 +303,7 @@ class SSService : VpnService() {
         val cmd = arrayListOf(
             File(applicationInfo.nativeLibraryDir, Executable.TUN2SOCKS).absolutePath,
             "--netif-ipaddr", PRIVATE_VLAN4_ROUTER,
-            "--socks-server-addr", "127.0.0.1:${TunnelCore.instance().proxyPort}",
+            "--socks-server-addr", "127.0.0.1:${TunnelCore.instance().socksPort}",
             "--tunmtu", VPN_MTU.toString(),
             "--sock-path", "sock_path",
             "--dnsgw", "127.0.0.1:${TunnelCore.instance().dnsLocalPort}",
@@ -359,11 +368,12 @@ class SSService : VpnService() {
             return super.onBind(intent)
         }
 
-        val proxyPort: Int = intent.getIntExtra("proxyPort", 1080)
+        // optional
+        val socksPort: Int = intent.getIntExtra("socksPort", 1080)
         val dnsLocalPort: Int = intent.getIntExtra("dnsLocalPort", 5450)
         val dnsRemoteAddress: String? = intent.getStringExtra("8.8.8.8")
 
-        TunnelCore.init(applicationContext, proxyPort, dnsLocalPort, dnsRemoteAddress)
+        TunnelCore.init(applicationContext, socksPort, dnsLocalPort, dnsRemoteAddress)
         return ServiceBinder(this)
     }
 
