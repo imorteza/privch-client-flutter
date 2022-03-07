@@ -2,24 +2,24 @@
 Modern VPN Client
 
 ## Screen
-Light theme
+Android
 <p>
 <table>
     <tr>
-        <td><img src=".lfs/screen-0.1.1/empty-light.jpg"/></td>
-        <td><img src=".lfs/screen-0.1.1/home-light.jpg"/></td>
-        <td><img src=".lfs/screen-0.1.1/setting-light.jpg"/></td>
+        <td><img src=".lfs/screen/0.2/android1-dark.png"/></td>
+        <td><img src=".lfs/screen/0.2/android2-light.png"/></td>
+        <td><img src=".lfs/screen/0.2/android3-light.png"/></td>
     </tr>
 </table>
 </p>
 
-Dark theme
+Windows
 <p>
 <table>
     <tr>
-        <td><img src=".lfs/screen-0.1.1/empty-dark.jpg"/></td>
-        <td><img src=".lfs/screen-0.1.1/new-dark.jpg"/></td>
-        <td><img src=".lfs/screen-0.1.1/setting-dark.jpg"/></td>
+        <td><img src=".lfs/screen/0.2/windows1-light.png"/></td>
+        <td><img src=".lfs/screen/0.2/windows2-light.png"/></td>
+        <td><img src=".lfs/screen/0.2/windows3-dark.png"/></td>
     </tr>
 </table>
 </p>
