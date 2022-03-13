@@ -83,6 +83,6 @@ class _EncryptListState extends State<EncryptListPage> {
   @override
   void initState() {
     super.initState();
-    _encrypt = widget.encrypt;
+    _encrypt = widget.encrypt.toUpperCase();
   }
 }

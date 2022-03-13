@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:xinlake_text/readable.dart';
 import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
-import 'package:privch/models/server_state.dart';
 import 'package:privch/models/setting_manager.dart';
 import 'package:privch/pages/widgets/traffic_charts.dart';
 
@@ -30,7 +29,7 @@ class ServiceState extends State<ServiceButton> {
     if (XinlakeTunnel.onState.value == XinlakeTunnel.stateConnected) {
       await XinlakeTunnel.stopTunnel();
     } else if (XinlakeTunnel.onState.value == XinlakeTunnel.stateStopped) {
-      final shadowsocks = _setting.onServerState.value.currentServer;
+      final shadowsocks = _setting.serverState.currentServer;
       if (shadowsocks != null) {
         await XinlakeTunnel.connectTunnel(
           shadowsocks.hashCode,
@@ -55,6 +54,10 @@ class ServiceState extends State<ServiceButton> {
         );
       }
     }
+  }
+
+  void _onServerStateChange() {
+    setState(() {});
   }
 
   Future<void> _syncTrafficBytes() async {
@@ -282,42 +285,38 @@ class ServiceState extends State<ServiceButton> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ServerState>(
-      valueListenable: _setting.onServerState,
-      child: _buildTunPanel(),
-      builder: (BuildContext context, ServerState serverState, Widget? tunPanel) {
-        // empty
-        if (serverState.serverCount < 1 && serverState.currentServer == null) {
-          final colorScheme = Theme.of(context).colorScheme;
-          return Card(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: RichText(
-                  text: TextSpan(
-                    text: 'Private',
-                    style: TextStyle(color: colorScheme.secondary, fontSize: 16),
-                    children: const <TextSpan>[
-                      TextSpan(
-                        text: ' Channel',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    ],
+    // empty
+    if (_setting.serverState.serverCount < 1 && _setting.serverState.currentServer == null) {
+      final colorScheme = Theme.of(context).colorScheme;
+      return Card(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: RichText(
+              text: TextSpan(
+                text: 'Private',
+                style: TextStyle(color: colorScheme.secondary, fontSize: 16),
+                children: const <TextSpan>[
+                  TextSpan(
+                    text: ' Channel',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
                   ),
-                ),
+                ],
               ),
             ),
-          );
-        }
-        // button.
-        return tunPanel!;
-      },
-    );
+          ),
+        ),
+      );
+    }
+
+    // button.
+    return _buildTunPanel();
   }
 
   @override
   void initState() {
     super.initState();
+    _setting.serverState.addListener(_onServerStateChange);
     XinlakeTunnel.startListen();
     if (Platform.isAndroid) {
       _syncTrafficBytes();
@@ -328,6 +327,7 @@ class ServiceState extends State<ServiceButton> {
   void dispose() {
     _updateTrafficBytes = false;
     XinlakeTunnel.stopListen();
+    _setting.serverState.removeListener(_onServerStateChange);
     super.dispose();
   }
 }

@@ -23,7 +23,7 @@ class _ShadowsocksState extends State<ShadowsocksWidget> {
   @override
   Widget build(BuildContext context) {
     final shadowsocks = widget.shadowsocks;
-    final selected = (shadowsocks.id == _setting.onServerState.value.currentServer?.id);
+    final selected = (shadowsocks.id == _setting.serverState.currentServer?.id);
     final themeData = Theme.of(context);
 
     return Container(

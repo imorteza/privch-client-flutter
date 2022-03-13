@@ -12,25 +12,25 @@ import 'package:privch/models/setting.dart';
 import 'package:privch/models/server_state.dart';
 
 class SettingManager {
-  final Setting _data;
-
-  /// TODO: better?
+  // TODO: multi stream?
   /// indicate that server count or current server or sort mode has been changed.
-  final ValueNotifier<ServerState> onServerState;
+  final ServerState serverState;
+
+  final Setting _settings;
 
   /// indicate theme mode has been changed
   final ValueNotifier<ThemeMode> onThemeMode;
 
-  int get httpPort => _data.httpPort;
-  int get socksPort => _data.socksPort;
-  int get dnsLocalPort => _data.dnsLocalPort;
-  String get dnsRemoteAddress => _data.dnsRemoteAddress;
+  int get httpPort => _settings.httpPort;
+  int get socksPort => _settings.socksPort;
+  int get dnsLocalPort => _settings.dnsLocalPort;
+  String get dnsRemoteAddress => _settings.dnsRemoteAddress;
 
   WindowPlacement windowPlacement() => WindowPlacement(
-        offsetX: _data.windowX,
-        offsetY: _data.windowY,
-        width: _data.windowW,
-        height: _data.windowH,
+        offsetX: _settings.windowX,
+        offsetY: _settings.windowY,
+        width: _settings.windowW,
+        height: _settings.windowH,
       );
 
   Future<void> updateTunnelSetting({
@@ -40,19 +40,19 @@ class SettingManager {
     String? dnsRemoteAddress,
   }) async {
     if (httpPort != null) {
-      _data.httpPort = httpPort;
+      _settings.httpPort = httpPort;
     }
 
     if (socksPort != null) {
-      _data.socksPort = socksPort;
+      _settings.socksPort = socksPort;
     }
 
     if (dnsLocalPort != null) {
-      _data.dnsLocalPort = dnsLocalPort;
+      _settings.dnsLocalPort = dnsLocalPort;
     }
 
     if (dnsRemoteAddress != null) {
-      _data.dnsRemoteAddress = dnsRemoteAddress;
+      _settings.dnsRemoteAddress = dnsRemoteAddress;
     }
 
     if (httpPort != null || socksPort != null || dnsLocalPort != null || dnsRemoteAddress != null) {
@@ -62,19 +62,19 @@ class SettingManager {
         dnsLocalPort: dnsLocalPort,
         dnsRemoteAddress: dnsRemoteAddress,
       );
-      await _data.save();
+      await _settings.save();
     }
   }
 
-  Future<void> _onStateChanged() async {
+  Future<void> _saveServerState() async {
     bool save = false;
 
-    if (_data.serverSelId != onServerState.value.currentServer?.id) {
-      _data.serverSelId = onServerState.value.currentServer?.id;
+    if (_settings.serverSelId != serverState.currentServer?.id) {
+      _settings.serverSelId = serverState.currentServer?.id;
       save = true;
 
       // update vpn server
-      final shadowsocks = onServerState.value.currentServer;
+      final shadowsocks = serverState.currentServer;
       if (shadowsocks != null) {
         await XinlakeTunnel.connectTunnel(
           shadowsocks.hashCode,
@@ -86,19 +86,19 @@ class SettingManager {
       }
     }
 
-    if (_data.sortModeIndex != onServerState.value.sortMode.index) {
-      _data.sortModeIndex = onServerState.value.sortMode.index;
+    if (_settings.sortModeIndex != serverState.sortMode.index) {
+      _settings.sortModeIndex = serverState.sortMode.index;
       save = true;
     }
 
     if (save) {
-      await _data.save();
+      await _settings.save();
     }
   }
 
-  Future<void> _onThemeChanged() async {
-    _data.themeModeIndex = onThemeMode.value.index;
-    await _data.save();
+  Future<void> _saveTheme() async {
+    _settings.themeModeIndex = onThemeMode.value.index;
+    await _settings.save();
   }
 
   /// single instance, use `instance` property, call `initialize()` first
@@ -106,17 +106,17 @@ class SettingManager {
   SettingManager._constructor({
     required Setting setting,
     required Shadowsocks? currentServer,
-  })  : _data = setting,
-        onServerState = ValueNotifier(ServerState(
+  })  : _settings = setting,
+        serverState = ServerState(
           currentServer: currentServer,
           serverCount: ServerManager.instance.servers.length,
           sortMode: ServerSortMode.values[setting.sortModeIndex],
-        )),
+        ),
         onThemeMode = ValueNotifier(
           ThemeMode.values[setting.themeModeIndex],
         ) {
-    onServerState.addListener(() async => await _onStateChanged());
-    onThemeMode.addListener(() async => await _onThemeChanged());
+    serverState.addListener(() async => await _saveServerState());
+    onThemeMode.addListener(() async => await _saveTheme());
   }
 
   static late final SettingManager _instance;

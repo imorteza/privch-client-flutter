@@ -1,8 +1,12 @@
 ## Private Channel
 Modern VPN Client
 
+## Downloads
+* [PrivCh Android v0.3.0](.lfs/privch-android/dev.xinlake.privch-0.3.0.apk?raw=1)
+* [PrivCh Windows v0.3.0](.lfs/privch-windows/privch-0.3.0.rar?raw=1)
+
 ## Screen
-Android
+**Android**
 <p>
 <table>
     <tr>
@@ -13,7 +17,7 @@ Android
 </table>
 </p>
 
-Windows
+**Windows**
 <p>
 <table>
     <tr>

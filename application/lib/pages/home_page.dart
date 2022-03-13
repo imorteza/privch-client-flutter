@@ -25,7 +25,7 @@ class HomePage extends StatefulWidget {
 
 class _HomeState extends State<HomePage> {
   final _servers = ServerManager.instance;
-  final _setting = SettingManager.instance;
+  final _settings = SettingManager.instance;
 
   Future<void> _importCamera() async {
     final qrcode = await XinQrcode.fromCamera(
@@ -61,7 +61,6 @@ class _HomeState extends State<HomePage> {
         return true;
       },
     );
-    // TODO: refresh widget when only date changed
   }
 
   Future<void> _importScreen() async {
@@ -136,8 +135,6 @@ class _HomeState extends State<HomePage> {
         ++updated;
         return true;
       },
-
-      // TODO: refresh widget when only date changed
     );
 
     final added = ssList.length - updated;
@@ -174,13 +171,12 @@ class _HomeState extends State<HomePage> {
   Widget _buildSortButton() {
     return PopupMenuButton<ServerSortMode>(
       onSelected: (value) {
-        final newValue = _setting.onServerState.value.copyWith(sortMode: value);
-        _setting.onServerState.value = newValue;
+        _settings.serverState.sortMode = value;
       },
       icon: const Icon(Icons.sort),
       itemBuilder: (context) {
         return ServerSortMode.values.map((item) {
-          final bool selected = (item == _setting.onServerState.value.sortMode);
+          final bool selected = (item == _settings.serverState.sortMode);
           final String sortBy;
           switch (item) {
             case ServerSortMode.modified:

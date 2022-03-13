@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:hive/hive.dart';
 
 import 'package:privch/models/setting_manager.dart';
@@ -6,7 +8,6 @@ import 'package:privch/models/shadowsocks.dart';
 /// server data manager
 class ServerManager {
   final Box<Shadowsocks> _serverBox;
-
   Iterable<Shadowsocks> get servers => _serverBox.values;
 
   /// get server by id
@@ -22,40 +23,46 @@ class ServerManager {
       final update = onUpdate?.call() ?? true;
       if (update) {
         await _serverBox.put(shadowsocks.id, shadowsocks);
-        // TODO: refresh
+        SettingManager.instance.serverState.forceNotify();
         return;
       }
+    } else {
+      // put and notify count changed
+      await _serverBox.put(shadowsocks.id, shadowsocks);
+      SettingManager.instance.serverState.serverCount = _serverBox.length;
     }
-
-    // put and notify count changed
-    await _serverBox.put(shadowsocks.id, shadowsocks);
-    _updateCount();
   }
 
   Future<void> addAll(
     List<Shadowsocks> ssList, {
     bool Function(Shadowsocks shadowsocks)? onUpdate,
   }) async {
+    int added = 0;
+
     for (var shadowsocks in ssList) {
       if (_serverBox.containsKey(shadowsocks.id)) {
         final update = onUpdate?.call(shadowsocks) ?? true;
-        if (!update) {
-          continue;
+        if (update) {
+          await _serverBox.put(shadowsocks.id, shadowsocks);
+          SettingManager.instance.serverState.forceNotify();
         }
+      } else {
+        await _serverBox.put(shadowsocks.id, shadowsocks);
+        ++added;
       }
-
-      await _serverBox.put(shadowsocks.id, shadowsocks);
     }
 
     // notify count changed
-    _updateCount();
+    if (added > 0) {
+      SettingManager.instance.serverState.serverCount = _serverBox.length;
+    }
   }
 
   Future<bool> delete(Shadowsocks shadowsocks) async {
     await _serverBox.delete(shadowsocks.id);
 
     // notify count changed
-    _updateCount();
+    SettingManager.instance.serverState.serverCount = _serverBox.length;
     return true;
   }
 
@@ -66,14 +73,7 @@ class ServerManager {
       await _serverBox.put(ss.id, ss);
     }
 
-    _updateCount();
-  }
-
-  void _updateCount() {
-    final newValue = SettingManager.instance.onServerState.value.copyWith(
-      serverCount: _serverBox.length,
-    );
-    SettingManager.instance.onServerState.value = newValue;
+    SettingManager.instance.serverState.serverCount = _serverBox.length;
   }
 
   /// single instance, use `instance` property. call `initialize()` first

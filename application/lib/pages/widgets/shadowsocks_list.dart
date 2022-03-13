@@ -41,8 +41,7 @@ class ShadowsocksListState extends State<ShadowsocksList> {
   }
 
   void _onItemSelected(Shadowsocks shadowsocks) {
-    final newValue = _setting.onServerState.value.copyWith(currentServer: shadowsocks);
-    _setting.onServerState.value = newValue;
+    _setting.serverState.currentServer = shadowsocks;
   }
 
   Future<void> _onItemRemove(Shadowsocks shadowsocks) async {
@@ -61,6 +60,10 @@ class ShadowsocksListState extends State<ShadowsocksList> {
         ),
       ));
     }
+  }
+
+  void _onServerStateChange() {
+    setState(() {});
   }
 
   /// item left background on swipe
@@ -146,33 +149,40 @@ class ShadowsocksListState extends State<ShadowsocksList> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ServerState>(
-      valueListenable: _setting.onServerState,
-      builder: (context, serverState, child) {
-        if (serverState.serverCount < 1) {
-          return widget.empty;
-        }
+    if (_setting.serverState.serverCount < 1) {
+      return widget.empty;
+    }
 
-        final ssList = _servers.servers.toList();
-        switch (serverState.sortMode) {
-          case ServerSortMode.modified:
-            ssList.sort((ss1, ss2) => -ss1.modified.compareTo(ss2.modified));
-            break;
-          case ServerSortMode.address:
-            ssList.sort((ss1, ss2) => ss1.address.compareTo(ss2.address));
-            break;
-          case ServerSortMode.name:
-            ssList.sort((ss1, ss2) => ss1.name.compareTo(ss2.name));
-            break;
-        }
+    final ssList = _servers.servers.toList();
+    switch (_setting.serverState.sortMode) {
+      case ServerSortMode.modified:
+        ssList.sort((ss1, ss2) => -ss1.modified.compareTo(ss2.modified));
+        break;
+      case ServerSortMode.address:
+        ssList.sort((ss1, ss2) => ss1.address.compareTo(ss2.address));
+        break;
+      case ServerSortMode.name:
+        ssList.sort((ss1, ss2) => ss1.name.compareTo(ss2.name));
+        break;
+    }
 
-        return ListView(
-          scrollDirection: Axis.vertical,
-          children: ssList.map<Widget>((shadowsocks) {
-            return _buildItem(shadowsocks);
-          }).toList(),
-        );
-      },
+    return ListView(
+      scrollDirection: Axis.vertical,
+      children: ssList.map<Widget>((shadowsocks) {
+        return _buildItem(shadowsocks);
+      }).toList(),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _setting.serverState.addListener(_onServerStateChange);
+  }
+
+  @override
+  void dispose() {
+    _setting.serverState.removeListener(_onServerStateChange);
+    super.dispose();
   }
 }
