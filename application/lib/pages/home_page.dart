@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:privch/pages/setting_page.dart';
 import 'package:privch/pages/shadowsocks_detail.dart';
+import 'package:window_interface/window_interface.dart';
 import 'package:xinlake_platform/xinlake_platform.dart';
 import 'package:xinlake_qrcode/xinlake_qrcode.dart';
 
@@ -375,6 +376,17 @@ class _HomeState extends State<HomePage> {
     );
   }
 
+  Future<void> initWindow() async {
+    // init window
+    if (Platform.isWindows) {
+      await WindowInterface.setWindowMinSize(400, 600);
+      final placement = _settings.windowPlacement;
+      if (placement.isValid) {
+        await WindowInterface.setWindowPlacement(placement);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -401,7 +413,17 @@ class _HomeState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    initWindow();
+    WindowInterface.startListen(
+      onPlacement: (value) async => await _settings.updateWindowPlacement(value),
+    );
+  }
+
+  @override
   void dispose() {
+    WindowInterface.stopListen();
     super.dispose();
   }
 }

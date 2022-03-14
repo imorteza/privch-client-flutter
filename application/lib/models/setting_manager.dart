@@ -26,12 +26,20 @@ class SettingManager {
   int get dnsLocalPort => _settings.dnsLocalPort;
   String get dnsRemoteAddress => _settings.dnsRemoteAddress;
 
-  WindowPlacement windowPlacement() => WindowPlacement(
-        offsetX: _settings.windowX,
-        offsetY: _settings.windowY,
+  WindowPlacement get windowPlacement => WindowPlacement(
+        x: _settings.windowX,
+        y: _settings.windowY,
         width: _settings.windowW,
         height: _settings.windowH,
       );
+
+  Future<void> updateWindowPlacement(WindowPlacement value) async {
+    _settings.windowX = value.x;
+    _settings.windowY = value.y;
+    _settings.windowW = value.width;
+    _settings.windowH = value.height;
+    await _settings.save();
+  }
 
   Future<void> updateTunnelSetting({
     int? httpPort,

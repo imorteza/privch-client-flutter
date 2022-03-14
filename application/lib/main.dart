@@ -9,7 +9,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
-import 'package:window_interface/window_interface.dart';
 import 'package:xinlake_platform/xinlake_platform.dart';
 import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
@@ -40,15 +39,6 @@ Future<bool> _initData() async {
   await ServerManager.initialize();
   await SettingManager.initialize();
   final settings = SettingManager.instance;
-
-  // init window
-  if (Platform.isWindows) {
-    await WindowInterface.setWindowMinSize(400, 600);
-    final placement = settings.windowPlacement();
-    if (placement.isValid) {
-      await WindowInterface.setWindowPlacement(placement);
-    }
-  }
 
   // init tunnel
   await XinlakeTunnel.updateSettings(
