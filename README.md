@@ -1,5 +1,5 @@
 ## Private Channel
-Modern VPN Client
+A modern VPN client built with Flutter supports Android and Windows but does not provide international communication services.
 
 ## Downloads
 * [PrivCh Android v0.3.1](.lfs/privch-android/dev.xinlake.privch-0.3.1.apk?raw=1)

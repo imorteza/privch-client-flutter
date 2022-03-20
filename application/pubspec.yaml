@@ -37,7 +37,7 @@ dependencies:
   url_launcher: ^6.0.20
   
   xinlake_text: ^0.1.6
-  xinlake_qrcode: ^0.1.5
+  xinlake_qrcode: ^0.1.6
   xinlake_platform: ^0.2.1
   window_interface: ^0.3.1
 
