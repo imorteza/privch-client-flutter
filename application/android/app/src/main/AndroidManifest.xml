@@ -7,7 +7,7 @@
     <application
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Private Channel"
+        android:label="PrivCh"
         android:largeHeap="true">
 
         <activity

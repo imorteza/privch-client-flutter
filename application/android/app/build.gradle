@@ -17,7 +17,7 @@ if (isXinlake) {
 }
 
 def versionMajor = 0 //12bit
-def versionMinor = 2 //10bit
+def versionMinor = 4 //10bit
 def versionRevision = 0 //10bit
 
 apply plugin: 'com.android.application'
@@ -31,17 +31,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    signingConfigs {
-        if (isXinlake) {
-            xinlake {
-                storeFile file(signingStoreFile)
-                storePassword signingStorePassword
-                keyAlias signingKeyAlias
-                keyPassword signingKeyPassword
-            }
-        }
     }
 
     defaultConfig {
@@ -59,8 +48,21 @@ android {
         // buildConfigField "String", "buildUser", buildUser
         // buildConfigField "String", "buildTime", buildTime
 
+        setProperty("archivesBaseName", applicationId + "-v" + versionName)
+
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a'
+        }
+    }
+
+    signingConfigs {
+        if (isXinlake) {
+            xinlake {
+                storeFile file(signingStoreFile)
+                storePassword signingStorePassword
+                keyAlias signingKeyAlias
+                keyPassword signingKeyPassword
+            }
         }
     }
 
@@ -89,13 +91,9 @@ android {
             if (output.outputFileName != null && output.outputFileName.endsWith('.apk')) {
                 // copy apk
                 variant.assembleProvider.get().doLast {
-                    def apkVersion = android.defaultConfig.versionName
                     copy {
                         from output.outputFile
                         into "../../.apk"
-                        rename { String fileName ->
-                            return "${applicationId}-${apkVersion}.apk"
-                        }
                     }
                 }
             }

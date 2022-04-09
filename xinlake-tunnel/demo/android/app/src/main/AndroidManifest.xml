@@ -6,7 +6,7 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="xinlake_tunnel_example">
+        android:label="XinlakeTunnel Demo">
 
         <activity
             android:name=".MainActivity"
