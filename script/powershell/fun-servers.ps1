@@ -32,7 +32,7 @@ function TestServer {
     $address, $port, $password, $encrypt = -Split $shadowsocks;
     Write-Host -ForegroundColor Magenta "`r`nCheck server: $address-$port ..."
 
-    $ssProcess = Start-Process -FilePath $exeShadowsocksLocal -ArgumentList `
+    $ssProcess = Start-Process -FilePath $ssLocal -ArgumentList `
         '-s', $address, '-p', $port, `
         '-k', $password, '-m', $encrypt, `
         '-l', $localSocksPort, "-u", `
@@ -41,20 +41,14 @@ function TestServer {
 
     # make sure socks5 proxy is ready
     Start-Sleep -Milliseconds 100
-    [System.Net.ServicePointManager]::MaxServicePointIdleTime = 7000
 
-    try {
-        $response = Invoke-WebRequest "https://www.google.com/" `
-            -Proxy "http://127.0.0.1:$localHttpPort" `
-            -ProxyUseDefaultCredentials
-        -TimeoutSec 3
-        $statusCode = $Response.StatusCode
-    } catch {
-        $statusCode = $_.Exception.Response.StatusCode.value__
-    }
+    $statusCode = & curl.exe -s -o NUL `
+        -x socks5h://localhost:17029 `
+        --head -w "%{http_code}" `
+        https://google.com
 
     switch ($statusCode) {
-        { $_ -in 429, 200 } {
+        { $_ -in 204, 200, 429 } {
             Write-Host "Passed"
             return $ssProcess
         }
