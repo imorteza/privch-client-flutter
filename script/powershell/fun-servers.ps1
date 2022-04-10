@@ -36,13 +36,15 @@ function TestServer {
         '-s', $address, '-p', $port, `
         '-k', $password, '-m', $encrypt, `
         '-l', $localSocksPort, "-u", `
-        "-t", 5 `
+        "-t", 4 `
         -NoNewWindow -PassThru
 
     # make sure socks5 proxy is ready
     Start-Sleep -Milliseconds 100
 
     $statusCode = & curl.exe -s -o NUL `
+        --connect-timeout 5 `
+        --max-time 7 `
         -x socks5h://localhost:17029 `
         --head -w "%{http_code}" `
         https://google.com
