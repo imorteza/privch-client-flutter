@@ -15,8 +15,18 @@ public class ServiceBinder extends ITunnelMethod.Stub {
     }
 
     @Override
-    public void setListener(ITunnelEvent listener) {
-        service.setListener(listener);
+    public void addListener(String key, ITunnelEvent listener) {
+        service.addListener(key, listener);
+    }
+
+    @Override
+    public void removeListener(String key) {
+        service.removeListener(key);
+    }
+
+    @Override
+    public int getState() {
+        return service.getState();
     }
 
     @Override
@@ -43,5 +53,10 @@ public class ServiceBinder extends ITunnelMethod.Stub {
     @Override
     public void stopService() {
         service.stopRunner();
+    }
+
+    @Override
+    public boolean toggleService() {
+        return service.toggleService();
     }
 }

@@ -43,10 +43,21 @@ public class MethodHandler implements
     private ITunnelMethod tunnelMethod;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
+        public void onBindingDied(ComponentName name) {
+            try {
+                tunnelMethod.removeListener("tunnel");
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+
+            tunnelMethod = null;
+        }
+
+        @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             tunnelMethod = ITunnelMethod.Stub.asInterface(service);
             try {
-                tunnelMethod.setListener(tunnelEvent);
+                tunnelMethod.addListener("tunnel", tunnelEvent);
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
@@ -54,6 +65,12 @@ public class MethodHandler implements
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            try {
+                tunnelMethod.removeListener("tunnel");
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+
             tunnelMethod = null;
         }
     };
@@ -88,6 +105,7 @@ public class MethodHandler implements
         this.binding = binding;
         this.eventHandler = eventHandler;
     }
+
     public void detachedFromActivity() {
         binding.removeActivityResultListener(this);
 

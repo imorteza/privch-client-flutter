@@ -12,6 +12,22 @@
         android:networkSecurityConfig="@xml/network_security_config">
 
         <service
+            android:name="xinlake.tunnel.plugin.TileService"
+            android:exported="true"
+            android:icon="@drawable/baseline_security_24"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:process=":tunnel">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+
+        <service
             android:name="xinlake.tunnel.core.shadowsocks.SSService"
             android:directBootAware="true"
             android:exported="false"

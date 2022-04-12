@@ -5,7 +5,9 @@ import xinlake.tunnel.aidl.ITunnelEvent;
 // int, long, boolean, float, double, String
 
 interface ITunnelMethod {
-    void setListener(in ITunnelEvent listener);
+    void addListener(in String key, in ITunnelEvent listener);
+    void removeListener(in String key);
+    int getState();
 
     void setSocksPort(in int port);
     void setDnsLocalPort(in int port);
@@ -13,4 +15,5 @@ interface ITunnelMethod {
 
     boolean startService(in int id, in int port, in String address, in String password, in String encrypt);
     void stopService();
+    boolean toggleService();
 }

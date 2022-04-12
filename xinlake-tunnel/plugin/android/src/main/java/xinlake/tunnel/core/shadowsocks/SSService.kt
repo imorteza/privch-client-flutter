@@ -79,7 +79,8 @@ class SSService : VpnService() {
 
     private inner class ProtectWorker : ConcurrentLocalSocketListener(
         "ShadowsocksVpnThread",
-        File(TunnelCore.instance().noBackupFilesDir, "protect_path")) {
+        File(TunnelCore.instance().noBackupFilesDir, "protect_path")
+    ) {
         override fun acceptInternal(socket: LocalSocket) {
             if (socket.inputStream.read() == -1) return
             val success = socket.ancillaryFileDescriptors!!.single()!!.use { fd ->
@@ -118,7 +119,7 @@ class SSService : VpnService() {
     private var active = false
     private var metered = false
     private var server: RemoteServer? = null
-    private var listener: ITunnelEvent? = null
+    private val listeners = HashMap<String, ITunnelEvent>()
 
     @Volatile
     private var underlyingNetwork: Network? = null
@@ -144,13 +145,33 @@ class SSService : VpnService() {
         DnsResolverCompat.resolveRaw(underlyingNetwork ?: throw IOException("no network"), query)
     */
 
-    fun setListener(listener: ITunnelEvent?) {
-        this.listener = listener
+    fun addListener(key: String, listener: ITunnelEvent) {
+        listeners[key] = listener
     }
 
-    private fun changeState(state: Int) {
-        this.state = state
-        listener?.onStateChanged(state)
+    fun removeListener(key: String) {
+        listeners.remove(key)
+    }
+
+    fun getState(): Int {
+        return state
+    }
+
+    fun toggleService(): Boolean {
+        if (server == null) {
+            return false
+        }
+
+        when (state) {
+            TunnelCore.STATE_CONNECTED -> {
+                stopRunner()
+            }
+            TunnelCore.STATE_STOPPED -> {
+                startService()
+            }
+        }
+
+        return true
     }
 
     fun startService(
@@ -163,11 +184,11 @@ class SSService : VpnService() {
         // check the new server
         val remoteServer = RemoteServer(port, address, password, encrypt)
         if (!remoteServer.isValid) {
-            listener?.onMessage("Invalid server")
+            listeners.values.forEach { it.onMessage("Invalid server") }
             return false
         }
         if (remoteServer == server && active) {
-            listener?.onMessage("Server already in use")
+            listeners.values.forEach { it.onMessage("Server already in use") }
             return false
         }
 
@@ -177,16 +198,21 @@ class SSService : VpnService() {
 
         // switch to the new server
         server = remoteServer
-        listener?.onServerChanged(serverId)
+        listeners.values.forEach { it.onServerChanged(serverId) }
 
+        startService()
+        return true
+    }
+
+    private fun startService() {
         changeState(TunnelCore.STATE_CONNECTING)
         connectingJob = GlobalScope.launch(Dispatchers.Main) {
             try {
                 Executable.killAll()    // clean up old processes
                 preInit()
 
-                // TODO. not necessary
-                Thread.sleep(100)
+                // necessary
+                Thread.sleep(10)
 
                 startProcesses()
                 changeState(TunnelCore.STATE_CONNECTED)
@@ -199,8 +225,6 @@ class SSService : VpnService() {
                 connectingJob = null
             }
         }
-
-        return true
     }
 
     fun stopRunner() {
@@ -221,6 +245,11 @@ class SSService : VpnService() {
             // stopSelf()
             changeState(TunnelCore.STATE_STOPPED)
         }
+    }
+
+    private fun changeState(state: Int) {
+        this.state = state
+        listeners.values.forEach { it.onStateChanged(state) }
     }
 
     private suspend fun startProcesses() {
