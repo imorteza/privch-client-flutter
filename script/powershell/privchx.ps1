@@ -1,7 +1,8 @@
-$version = "0.7"
+$version = "0.7.1"
 $ErrorActionPreference = "Stop"
 
 # configurations
+$exeCurl = "D:\cURL\win64-mingw\bin\curl.exe"
 $exeChrome = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 $exeShadowsocksLocal = "D:\PrivChX\shadowsocks-libev-x64\ss-local.exe"
 $txtShadowsocksList = "D:\PrivChX\server-list.txt"

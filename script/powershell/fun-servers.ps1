@@ -42,7 +42,7 @@ function TestServer {
     # make sure socks5 proxy is ready
     Start-Sleep -Milliseconds 100
 
-    $statusCode = & curl.exe -s -o NUL `
+    $statusCode = & $exeCurl -s -o NUL `
         --connect-timeout 5 `
         --max-time 7 `
         -x socks5h://localhost:17029 `
