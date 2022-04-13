@@ -1,9 +1,16 @@
+/*
+  Xinlake Liu
+  2022-04-12
+
+  - forceNotify is not a good practice
+ */
+
 import 'dart:async';
 
 import 'package:hive/hive.dart';
 
-import 'package:privch/models/setting_manager.dart';
-import 'package:privch/models/shadowsocks.dart';
+import '../models/setting_manager.dart';
+import '../models/shadowsocks.dart';
 
 /// server data manager
 class ServerManager {
@@ -23,13 +30,13 @@ class ServerManager {
       final update = onUpdate?.call() ?? true;
       if (update) {
         await _serverBox.put(shadowsocks.id, shadowsocks);
-        SettingManager.instance.serverState.forceNotify();
+        SettingManager.instance.status.forceNotify();
         return;
       }
     } else {
       // put and notify count changed
       await _serverBox.put(shadowsocks.id, shadowsocks);
-      SettingManager.instance.serverState.serverCount = _serverBox.length;
+      SettingManager.instance.status.serverCount = _serverBox.length;
     }
   }
 
@@ -44,7 +51,7 @@ class ServerManager {
         final update = onUpdate?.call(shadowsocks) ?? true;
         if (update) {
           await _serverBox.put(shadowsocks.id, shadowsocks);
-          SettingManager.instance.serverState.forceNotify();
+          SettingManager.instance.status.forceNotify();
         }
       } else {
         await _serverBox.put(shadowsocks.id, shadowsocks);
@@ -54,7 +61,7 @@ class ServerManager {
 
     // notify count changed
     if (added > 0) {
-      SettingManager.instance.serverState.serverCount = _serverBox.length;
+      SettingManager.instance.status.serverCount = _serverBox.length;
     }
   }
 
@@ -62,7 +69,7 @@ class ServerManager {
     await _serverBox.delete(shadowsocks.id);
 
     // notify count changed
-    SettingManager.instance.serverState.serverCount = _serverBox.length;
+    SettingManager.instance.status.serverCount = _serverBox.length;
     return true;
   }
 
@@ -73,7 +80,7 @@ class ServerManager {
       await _serverBox.put(ss.id, ss);
     }
 
-    SettingManager.instance.serverState.serverCount = _serverBox.length;
+    SettingManager.instance.status.serverCount = _serverBox.length;
   }
 
   /// single instance, use `instance` property. call `initialize()` first

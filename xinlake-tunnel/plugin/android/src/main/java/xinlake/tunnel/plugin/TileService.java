@@ -1,8 +1,10 @@
 package xinlake.tunnel.plugin;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
@@ -10,7 +12,6 @@ import android.os.Looper;
 import android.service.quicksettings.Tile;
 import android.widget.Toast;
 
-import xinlake.tunnel.aidl.ITunnelEvent;
 import xinlake.tunnel.aidl.ITunnelMethod;
 import xinlake.tunnel.core.TunnelCore;
 import xinlake.tunnel.core.shadowsocks.SSService;
@@ -27,53 +28,34 @@ public class TileService extends android.service.quicksettings.TileService {
     private ITunnelMethod tunnelMethod;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
-        public void onBindingDied(ComponentName name) {
-            try {
-                tunnelMethod.removeListener("tile");
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-
-            tunnelMethod = null;
-        }
-
-        @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             tunnelMethod = ITunnelMethod.Stub.asInterface(service);
-            try {
-                tunnelMethod.addListener("tile", tunnelEvent);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
 
-            // not necessary, already running on main thread
+            TileService.this.registerReceiver(tunnelReceiver,
+                new IntentFilter("xinlake.tunnel.broadcast"));
+
+            // put a message to the main looper
             new Handler(Looper.getMainLooper()).post(() -> updateState());
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            try {
-                tunnelMethod.removeListener("tile");
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
+            TileService.this.unregisterReceiver(tunnelReceiver);
+            tunnelMethod = null;
+        }
 
+        @Override
+        public void onBindingDied(ComponentName name) {
+            TileService.this.unregisterReceiver(tunnelReceiver);
             tunnelMethod = null;
         }
     };
 
-    private final ITunnelEvent tunnelEvent = new ITunnelEvent.Stub() {
+    private final BroadcastReceiver tunnelReceiver = new BroadcastReceiver() {
         @Override
-        public void onMessage(String message) {
-        }
-
-        @Override
-        public void onServerChanged(int serverId) {
-        }
-
-        @Override
-        public void onStateChanged(int state) {
-            new Handler(Looper.getMainLooper()).post(() -> updateState(state));
+        public void onReceive(Context context, Intent intent) {
+            int status = intent.getIntExtra("status", 0);
+            new Handler(Looper.getMainLooper()).post(() -> updateState(status));
         }
     };
 

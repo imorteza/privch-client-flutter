@@ -1,26 +1,27 @@
 /*
-  TODO: language
-
   Xinlake Liu
   2022-02-28
+
+  - language
  */
 
 import 'dart:io';
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:xinlake_platform/xinlake_platform.dart';
 import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
-import 'package:privch/models/setting.dart';
-import 'package:privch/models/setting_manager.dart';
-import 'package:privch/models/shadowsocks.dart';
-import 'package:privch/models/server_manager.dart';
-import 'package:privch/pages/sorry_page.dart';
-import 'package:privch/pages/encrypt_list.dart';
-import 'package:privch/pages/setting_page.dart';
-import 'package:privch/pages/shadowsocks_detail.dart';
-import 'package:privch/pages/home_page.dart';
+import 'models/server_manager.dart';
+import 'models/setting.dart';
+import 'models/setting_manager.dart';
+import 'models/shadowsocks.dart';
+import 'pages/about_page.dart';
+import 'pages/encrypt_list.dart';
+import 'pages/home_page.dart';
+import 'pages/setting_page.dart';
+import 'pages/shadowsocks_detail.dart';
+import 'pages/sorry_page.dart';
 
 Future<bool> _initData() async {
   // init directory
@@ -86,7 +87,8 @@ class PrivChApp extends StatelessWidget {
           initialRoute: initSuccess ? HomePage.route : SorryPage.route,
           routes: {
             SorryPage.route: (context) => const SorryPage(),
-            HomePage.route: (context) => const HomePage(title: "PrivCh"),
+            HomePage.route: (context) => const HomePage(),
+            AboutPage.route: (context) => const AboutPage(),
             SettingPage.route: (context) => const SettingPage(),
           },
           onGenerateRoute: (settings) {

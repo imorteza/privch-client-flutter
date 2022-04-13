@@ -1,9 +1,11 @@
 package xinlake.tunnel.plugin;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.TrafficStats;
 import android.net.VpnService;
@@ -20,7 +22,6 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
-import xinlake.tunnel.aidl.ITunnelEvent;
 import xinlake.tunnel.aidl.ITunnelMethod;
 import xinlake.tunnel.core.shadowsocks.SSService;
 
@@ -43,61 +44,50 @@ public class MethodHandler implements
     private ITunnelMethod tunnelMethod;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
-        public void onBindingDied(ComponentName name) {
-            try {
-                tunnelMethod.removeListener("tunnel");
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-
-            tunnelMethod = null;
-        }
-
-        @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             tunnelMethod = ITunnelMethod.Stub.asInterface(service);
-            try {
-                tunnelMethod.addListener("tunnel", tunnelEvent);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            try {
-                tunnelMethod.removeListener("tunnel");
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
+            tunnelMethod = null;
+        }
 
+        @Override
+        public void onBindingDied(ComponentName name) {
             tunnelMethod = null;
         }
     };
 
-    private final ITunnelEvent tunnelEvent = new ITunnelEvent.Stub() {
+    private final BroadcastReceiver tunnelReceiver = new BroadcastReceiver() {
         @Override
-        public void onMessage(String message) {
-            binding.getActivity().runOnUiThread(() -> eventHandler.notifyMessage(message));
-        }
+        public void onReceive(Context context, Intent intent) {
+            final Activity activity = binding.getActivity();
+            final int status = intent.getIntExtra("status", 0);
+            final int serverId = intent.getIntExtra("serverId", 0);
+            final String message = intent.getStringExtra("message");
 
-        @Override
-        public void onServerChanged(int serverId) {
-            binding.getActivity().runOnUiThread(() -> eventHandler.notifyServerChanged(serverId));
-        }
-
-        @Override
-        public void onStateChanged(int state) {
-            binding.getActivity().runOnUiThread(() -> eventHandler.notifyStateChanged(state));
+            if (status > 0) {
+                activity.runOnUiThread(() -> eventHandler.notifyStateChanged(status));
+            }
+            if (serverId > 0) {
+                activity.runOnUiThread(() -> eventHandler.notifyServerChanged(serverId));
+            }
+            if (message != null) {
+                activity.runOnUiThread(() -> eventHandler.notifyMessage(message));
+            }
         }
     };
 
     public void attachedToActivity(ActivityPluginBinding binding, EventHandler eventHandler) {
-        // bind service
+        // bind service and register receiver
         final Context context = binding.getActivity().getApplicationContext();
         context.bindService(
             new Intent(context, SSService.class),
             serviceConnection, Context.BIND_AUTO_CREATE);
+
+        context.registerReceiver(tunnelReceiver,
+            new IntentFilter("xinlake.tunnel.broadcast"));
 
         applicationUid = binding.getActivity().getApplicationInfo().uid;
         binding.addActivityResultListener(this);
@@ -109,8 +99,10 @@ public class MethodHandler implements
     public void detachedFromActivity() {
         binding.removeActivityResultListener(this);
 
-        // unbind and stop service
+        // unregister receiver, unbind and stop service
         final Context context = binding.getActivity().getApplicationContext();
+        context.unregisterReceiver(tunnelReceiver);
+
         try {
             context.unbindService(serviceConnection);
             context.stopService(new Intent(context, SSService.class));

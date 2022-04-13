@@ -1,6 +1,5 @@
 package xinlake.tunnel.core.shadowsocks;
 
-import xinlake.tunnel.aidl.ITunnelEvent;
 import xinlake.tunnel.aidl.ITunnelMethod;
 import xinlake.tunnel.core.TunnelCore;
 
@@ -12,16 +11,6 @@ public class ServiceBinder extends ITunnelMethod.Stub {
 
     public ServiceBinder(SSService service) {
         this.service = service;
-    }
-
-    @Override
-    public void addListener(String key, ITunnelEvent listener) {
-        service.addListener(key, listener);
-    }
-
-    @Override
-    public void removeListener(String key) {
-        service.removeListener(key);
     }
 
     @Override

@@ -1,11 +1,17 @@
+/*
+  Xinlake Liu
+  2021-11-29
+ */
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'setting.g.dart';
 
-/// `flutter packages pub run build_runner build --delete-conflicting-outputs`
+/// flutter packages pub run build_runner build --delete-conflicting-outputs
+///
 /// * `themeModeIndex` is defaults to `ThemeMode.system.index`
-/// * 2021-11-29
+///
 @HiveType(typeId: 0)
 class Setting extends HiveObject {
   @HiveField(0)

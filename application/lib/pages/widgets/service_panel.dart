@@ -1,20 +1,25 @@
+/*
+  Xinlake Liu
+  2022-04
+ */
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:xinlake_text/readable.dart';
 import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
-import 'package:privch/models/setting_manager.dart';
-import 'package:privch/pages/widgets/traffic_charts.dart';
+import '../../models/setting_manager.dart';
+import '../../pages/widgets/traffic_charts.dart';
 
-class ServiceButton extends StatefulWidget {
-  const ServiceButton({Key? key}) : super(key: key);
+class ServicePanel extends StatefulWidget {
+  const ServicePanel({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => ServiceState();
+  State<StatefulWidget> createState() => _ServiceState();
 }
 
-class ServiceState extends State<ServiceButton> {
+class _ServiceState extends State<ServicePanel> {
   // max trace points
   static const _maxTrace = 20;
 
@@ -29,7 +34,7 @@ class ServiceState extends State<ServiceButton> {
     if (XinlakeTunnel.onState.value == XinlakeTunnel.stateConnected) {
       await XinlakeTunnel.stopTunnel();
     } else if (XinlakeTunnel.onState.value == XinlakeTunnel.stateStopped) {
-      final shadowsocks = _setting.serverState.currentServer;
+      final shadowsocks = _setting.status.currentServer;
       if (shadowsocks != null) {
         await XinlakeTunnel.connectTunnel(
           shadowsocks.hashCode,
@@ -54,10 +59,6 @@ class ServiceState extends State<ServiceButton> {
         );
       }
     }
-  }
-
-  void _onServerStateChange() {
-    setState(() {});
   }
 
   Future<void> _syncTrafficBytes() async {
@@ -95,53 +96,6 @@ class ServiceState extends State<ServiceButton> {
     }
   }
 
-  Widget _buildTunPanel() {
-    const panelHeight = 55.0;
-
-    const tunIconSmall = 40.0;
-    const tunIconMiddle = 50.0;
-    const tunIconBig = 60.0;
-    const tunBoxSize = 100.0;
-
-    // build without chart
-    if (Platform.isWindows) {
-      return Card(
-        elevation: 8.0,
-        child: Container(
-          alignment: Alignment.center,
-          child: _buildTunnelButton(
-            panelHeight: panelHeight,
-            tunBoxSize: tunBoxSize,
-            tunIconSmall: tunIconSmall,
-            tunIconMiddle: tunIconMiddle,
-            tunIconBig: tunIconBig,
-          ),
-        ),
-      );
-    }
-
-    return Card(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // background, traffic info
-          _buildTrafficChart(
-            panelHeight: panelHeight,
-            iconSize: tunIconMiddle,
-          ),
-          // front, button
-          _buildTunnelButton(
-            panelHeight: panelHeight,
-            tunBoxSize: tunBoxSize,
-            tunIconSmall: tunIconSmall,
-            tunIconMiddle: tunIconMiddle,
-            tunIconBig: tunIconBig,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTunnelButton({
     required double panelHeight,
     required double tunBoxSize,
@@ -164,7 +118,7 @@ class ServiceState extends State<ServiceButton> {
               return IconButton(
                 onPressed: _onServiceButton,
                 iconSize: tunIconBig,
-                icon: const Icon(Icons.health_and_safety),
+                icon: const Icon(Icons.gpp_good),
                 color: Theme.of(context).colorScheme.secondary,
               );
             } else if (tunState == XinlakeTunnel.stateStopped) {
@@ -188,7 +142,7 @@ class ServiceState extends State<ServiceButton> {
             } else {
               // connecting/stopping, middle icon
               return (tunState == XinlakeTunnel.stateConnecting)
-                  ? Icon(Icons.health_and_safety, size: tunIconMiddle)
+                  ? Icon(Icons.gpp_good, size: tunIconMiddle)
                   : Icon(Icons.security, size: tunIconMiddle);
             }
           },
@@ -285,38 +239,55 @@ class ServiceState extends State<ServiceButton> {
 
   @override
   Widget build(BuildContext context) {
-    // empty
-    if (_setting.serverState.serverCount < 1 && _setting.serverState.currentServer == null) {
-      final colorScheme = Theme.of(context).colorScheme;
+    const panelHeight = 55.0;
+
+    const tunIconSmall = 40.0;
+    const tunIconMiddle = 50.0;
+    const tunIconBig = 60.0;
+    const tunBoxSize = 100.0;
+
+    // build without chart
+    if (Platform.isWindows) {
       return Card(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: RichText(
-              text: TextSpan(
-                text: 'Private',
-                style: TextStyle(color: colorScheme.secondary, fontSize: 16),
-                children: const <TextSpan>[
-                  TextSpan(
-                    text: ' Channel',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
+        elevation: 8.0,
+        child: Container(
+          alignment: Alignment.center,
+          child: _buildTunnelButton(
+            panelHeight: panelHeight,
+            tunBoxSize: tunBoxSize,
+            tunIconSmall: tunIconSmall,
+            tunIconMiddle: tunIconMiddle,
+            tunIconBig: tunIconBig,
           ),
         ),
       );
     }
 
-    // button.
-    return _buildTunPanel();
+    return Card(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // background, traffic info
+          _buildTrafficChart(
+            panelHeight: panelHeight,
+            iconSize: tunIconMiddle,
+          ),
+          // front, button
+          _buildTunnelButton(
+            panelHeight: panelHeight,
+            tunBoxSize: tunBoxSize,
+            tunIconSmall: tunIconSmall,
+            tunIconMiddle: tunIconMiddle,
+            tunIconBig: tunIconBig,
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    _setting.serverState.addListener(_onServerStateChange);
     XinlakeTunnel.startListen();
     if (Platform.isAndroid) {
       _syncTrafficBytes();
@@ -327,7 +298,6 @@ class ServiceState extends State<ServiceButton> {
   void dispose() {
     _updateTrafficBytes = false;
     XinlakeTunnel.stopListen();
-    _setting.serverState.removeListener(_onServerStateChange);
     super.dispose();
   }
 }

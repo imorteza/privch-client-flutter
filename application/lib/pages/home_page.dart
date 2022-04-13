@@ -1,24 +1,30 @@
+/*
+  Xinlake Liu
+  2022-04-12
+ */
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:privch/pages/setting_page.dart';
-import 'package:privch/pages/shadowsocks_detail.dart';
 import 'package:window_interface/window_interface.dart';
 import 'package:xinlake_platform/xinlake_platform.dart';
 import 'package:xinlake_qrcode/xinlake_qrcode.dart';
 
-import 'package:privch/models/server_manager.dart';
-import 'package:privch/models/server_state.dart';
-import 'package:privch/models/setting_manager.dart';
-import 'package:privch/models/shadowsocks.dart';
-import 'package:privch/pages/widgets/shadowsocks_list.dart';
-import 'package:privch/pages/widgets/service_panel.dart';
+import '../models/server_manager.dart';
+import '../models/setting_manager.dart';
+import '../models/shadowsocks.dart';
+import '../models/status.dart';
+import '../pages/about_page.dart';
+import '../pages/setting_page.dart';
+import '../pages/shadowsocks_detail.dart';
+import '../pages/widgets/service_panel.dart';
+import '../pages/widgets/shadowsocks_list.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   static const route = "/home";
-  final String title;
+  static const title = "PrivCh";
 
   @override
   State<HomePage> createState() => _HomeState();
@@ -139,6 +145,8 @@ class _HomeState extends State<HomePage> {
     );
 
     final added = ssList.length - updated;
+    final servers = added > 1 ? 'servers' : 'server';
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 2),
@@ -147,7 +155,7 @@ class _HomeState extends State<HomePage> {
         content: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("$added ${added > 1 ? 'servers' : 'server'} added"),
+            Text("$added $servers added"),
           ],
         ),
       ),
@@ -156,13 +164,13 @@ class _HomeState extends State<HomePage> {
 
   Future<void> _createServer() async {
     final shadowsocks = Shadowsocks.createDefault();
-    final checked = await Navigator.pushNamed(
+    await Navigator.pushNamed(
       context,
       ShadowsocksDetailPage.route,
       arguments: shadowsocks,
-    ) as bool?;
+    );
 
-    if (checked != null && checked) {
+    if (shadowsocks.isValid) {
       // add server to db first, otherwise it will causes the "not in the box" exception
       _servers.add(shadowsocks);
       shadowsocks.save();
@@ -172,12 +180,12 @@ class _HomeState extends State<HomePage> {
   Widget _buildSortButton() {
     return PopupMenuButton<ServerSortMode>(
       onSelected: (value) {
-        _settings.serverState.sortMode = value;
+        _settings.status.sortMode = value;
       },
       icon: const Icon(Icons.sort),
       itemBuilder: (context) {
         return ServerSortMode.values.map((item) {
-          final bool selected = (item == _settings.serverState.sortMode);
+          final bool selected = (item == _settings.status.sortMode);
           final String sortBy;
           switch (item) {
             case ServerSortMode.modified:
@@ -260,23 +268,35 @@ class _HomeState extends State<HomePage> {
               ],
             ),
           ),
-          // const PopupMenuItem<int>(
-          //   enabled: false,
-          //   height: 2,
-          //   child: Divider(),
-          // ),
-          // PopupMenuItem<int>(
-          //   value: 3,
-          //   child: Row(
-          //     children: [
-          //       Icon(Icons.settings, color: iconColor),
-          //       const SizedBox(width: 10),
-          //       const Text("Settings"),
-          //     ],
-          //   ),
-          // ),
         ];
       },
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: Column(
+        children: [
+          _buildDrawerHeader(),
+          const Divider(height: 20),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildDrawerItem(
+                    Icons.settings,
+                    "Settings",
+                    () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, SettingPage.route);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -284,33 +304,62 @@ class _HomeState extends State<HomePage> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: <Widget>[
             Icon(iconData),
-            const SizedBox(width: 10),
-            Text(title),
+            const SizedBox(width: 20),
+            Text(
+              title,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+                fontSize: 20,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDrawer() {
-    return Drawer(
-      child: SingleChildScrollView(
-        child: Column(
+  Widget _buildDrawerHeader() {
+    return InkWell(
+      onTap: () async {
+        Navigator.pop(context);
+        Navigator.pushNamed(context, AboutPage.route);
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 50, bottom: 10),
+        child: Row(
           children: [
-            const SizedBox(height: 100),
-            // TODO: header
-            // const Divider(height: 10),
-            _buildDrawerItem(
-              Icons.settings,
-              "Setting",
-              () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, SettingPage.route);
-              },
+            const Image(
+              image: AssetImage('.assets/icon.png'),
+              width: 40,
+              height: 40,
+              filterQuality: FilterQuality.high,
+              isAntiAlias: true,
+            ),
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Private ",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const TextSpan(
+                      text: "Channel",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
@@ -319,22 +368,24 @@ class _HomeState extends State<HomePage> {
   }
 
   // the content when the list is empty
-  Widget _buildEmpty() {
-    final themeData = Theme.of(context);
-
+  Widget _buildEmptyList() {
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
+        const Text(
           "Nothing here",
-          style: themeData.textTheme.headline5,
+          style: TextStyle(
+            fontSize: 26,
+          ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 20),
+        const Padding(
+          padding: EdgeInsets.only(top: 10, bottom: 20),
           child: Text(
             "Add servers now ?",
-            style: themeData.textTheme.caption,
+            style: TextStyle(
+              color: Colors.grey,
+            ),
           ),
         ),
         Center(
@@ -376,6 +427,29 @@ class _HomeState extends State<HomePage> {
     );
   }
 
+  Widget _buildEmptyPanel() {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Card(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: RichText(
+            text: TextSpan(
+              text: 'Private',
+              style: TextStyle(color: colorScheme.secondary, fontSize: 16),
+              children: const <TextSpan>[
+                TextSpan(
+                  text: ' Channel',
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> initWindow() async {
     // init window
     if (Platform.isWindows) {
@@ -384,7 +458,15 @@ class _HomeState extends State<HomePage> {
       if (placement.isValid) {
         await WindowInterface.setWindowPlacement(placement);
       }
+      // listen window update
+      WindowInterface.startListen(
+        onPlacement: (value) async => await _settings.updateWindowPlacement(value),
+      );
     }
+  }
+
+  void disposeWindow() {
+    WindowInterface.stopListen();
   }
 
   @override
@@ -392,7 +474,7 @@ class _HomeState extends State<HomePage> {
     return Scaffold(
       drawerEnableOpenDragGesture: false,
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text(HomePage.title),
         actions: [
           _buildSortButton(),
           _buildMoreMenu(),
@@ -402,10 +484,21 @@ class _HomeState extends State<HomePage> {
         children: [
           Expanded(
             child: ShadowsocksList(
-              empty: _buildEmpty(),
+              empty: _buildEmptyList(),
             ),
           ),
-          const ServiceButton(),
+          AnimatedBuilder(
+            animation: _settings.status,
+            child: const ServicePanel(),
+            builder: (context, servicePanel) {
+              if (_settings.status.serverCount < 1) {
+                // the empty panel also does not depend on the animation
+                return _buildEmptyPanel();
+              }
+
+              return servicePanel!;
+            },
+          ),
         ],
       ),
       drawer: _buildDrawer(),
@@ -416,14 +509,11 @@ class _HomeState extends State<HomePage> {
   void initState() {
     super.initState();
     initWindow();
-    WindowInterface.startListen(
-      onPlacement: (value) async => await _settings.updateWindowPlacement(value),
-    );
   }
 
   @override
   void dispose() {
-    WindowInterface.stopListen();
+    disposeWindow();
     super.dispose();
   }
 }

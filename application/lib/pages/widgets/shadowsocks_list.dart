@@ -1,16 +1,18 @@
 /*
   Xinlake Liu
-  2022-03
+  2022-04-10
+
+  - "setState(() {});" is not a good practice
  */
 
 import 'package:flutter/material.dart';
 
-import 'package:privch/models/server_manager.dart';
-import 'package:privch/models/server_state.dart';
-import 'package:privch/models/setting_manager.dart';
-import 'package:privch/models/shadowsocks.dart';
-import 'package:privch/pages/shadowsocks_detail.dart';
-import 'package:privch/pages/widgets/shadowsocks_widget.dart';
+import '../../models/server_manager.dart';
+import '../../models/setting_manager.dart';
+import '../../models/shadowsocks.dart';
+import '../../models/status.dart';
+import '../../pages/shadowsocks_detail.dart';
+import '../../pages/widgets/shadowsocks_widget.dart';
 
 class ShadowsocksList extends StatefulWidget {
   const ShadowsocksList({
@@ -26,22 +28,23 @@ class ShadowsocksList extends StatefulWidget {
 
 class ShadowsocksListState extends State<ShadowsocksList> {
   final _servers = ServerManager.instance;
-  final _setting = SettingManager.instance;
+  final _settings = SettingManager.instance;
 
   void _onItemDetail(Shadowsocks shadowsocks) async {
     // navigate to shadowsocks details
-    final checked = await Navigator.pushNamed(
+    await Navigator.pushNamed(
       context,
       ShadowsocksDetailPage.route,
       arguments: shadowsocks,
-    ) as bool?;
-    if (checked != null && checked) {
+    );
+    // not have to, the editor page will validate data
+    if (shadowsocks.isValid) {
       shadowsocks.save();
     }
   }
 
   void _onItemSelected(Shadowsocks shadowsocks) {
-    _setting.serverState.currentServer = shadowsocks;
+    _settings.status.currentServer = shadowsocks;
   }
 
   Future<void> _onItemRemove(Shadowsocks shadowsocks) async {
@@ -62,16 +65,10 @@ class ShadowsocksListState extends State<ShadowsocksList> {
     }
   }
 
-  void _onServerStateChange() {
-    setState(() {});
-  }
-
   /// item left background on swipe
-  Widget _buildItemBgLeft() {
-    final ThemeData themeData = Theme.of(context);
-
+  Widget _buildItemBgLeft(Color colorBg, Color colorFg) {
     return Container(
-      color: themeData.colorScheme.onPrimary,
+      color: colorBg,
       padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -80,12 +77,12 @@ class ShadowsocksListState extends State<ShadowsocksList> {
         children: <Widget>[
           Icon(
             Icons.delete,
-            color: themeData.backgroundColor,
+            color: colorFg,
           ),
           const SizedBox(width: 8),
           Text(
             "Delete",
-            style: TextStyle(color: themeData.backgroundColor),
+            style: TextStyle(color: colorFg),
           ),
         ],
       ),
@@ -93,11 +90,9 @@ class ShadowsocksListState extends State<ShadowsocksList> {
   }
 
   /// item right background on swipe
-  Widget _buildItemBgRight() {
-    final ThemeData themeData = Theme.of(context);
-
+  Widget _buildItemBgRight(Color colorBg, Color colorFg) {
     return Container(
-      color: themeData.colorScheme.onPrimary,
+      color: colorBg,
       padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -106,12 +101,12 @@ class ShadowsocksListState extends State<ShadowsocksList> {
         children: <Widget>[
           Text(
             "Edit",
-            style: TextStyle(color: themeData.backgroundColor),
+            style: TextStyle(color: colorFg),
           ),
           const SizedBox(width: 8),
           Icon(
             Icons.arrow_back,
-            color: themeData.backgroundColor,
+            color: colorFg,
           ),
         ],
       ),
@@ -119,6 +114,9 @@ class ShadowsocksListState extends State<ShadowsocksList> {
   }
 
   Widget _buildItem(Shadowsocks shadowsocks) {
+    final colorBg = Theme.of(context).hoverColor;
+    final colorFg = Theme.of(context).colorScheme.secondary;
+
     return Dismissible(
       key: Key("${shadowsocks.hashCode}"),
       dismissThresholds: const {
@@ -142,19 +140,24 @@ class ShadowsocksListState extends State<ShadowsocksList> {
         onTap: () => _onItemSelected(shadowsocks),
         shadowsocks: shadowsocks,
       ),
-      background: _buildItemBgLeft(),
-      secondaryBackground: _buildItemBgRight(),
+      background: _buildItemBgLeft(colorBg, colorFg),
+      secondaryBackground: _buildItemBgRight(colorBg, colorFg),
     );
+  }
+
+  // AnimatedBuilder is not a good idea
+  void _onStatusChanged() {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_setting.serverState.serverCount < 1) {
+    if (_settings.status.serverCount < 1) {
       return widget.empty;
     }
 
     final ssList = _servers.servers.toList();
-    switch (_setting.serverState.sortMode) {
+    switch (_settings.status.sortMode) {
       case ServerSortMode.modified:
         ssList.sort((ss1, ss2) => -ss1.modified.compareTo(ss2.modified));
         break;
@@ -166,23 +169,25 @@ class ShadowsocksListState extends State<ShadowsocksList> {
         break;
     }
 
-    return ListView(
+    return SingleChildScrollView(
       scrollDirection: Axis.vertical,
-      children: ssList.map<Widget>((shadowsocks) {
-        return _buildItem(shadowsocks);
-      }).toList(),
+      child: Column(
+        children: ssList.map<Widget>((shadowsocks) {
+          return _buildItem(shadowsocks);
+        }).toList(),
+      ),
     );
   }
 
   @override
   void initState() {
     super.initState();
-    _setting.serverState.addListener(_onServerStateChange);
+    _settings.status.addListener(_onStatusChanged);
   }
 
   @override
   void dispose() {
-    _setting.serverState.removeListener(_onServerStateChange);
+    _settings.status.removeListener(_onStatusChanged);
     super.dispose();
   }
 }

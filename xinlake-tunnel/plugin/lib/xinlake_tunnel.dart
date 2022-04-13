@@ -14,7 +14,7 @@ class XinlakeTunnel {
 
   // platform event channel and subscription
   static const _eventChannel = EventChannel("xinlake_tunnel_event");
-  static late final StreamSubscription _tunnelSubscription;
+  static StreamSubscription? _tunnelSubscription;
 
   /// subscript to tunnel events
   static void startListen() {
@@ -41,12 +41,14 @@ class XinlakeTunnel {
         }
       }
     });
-    _tunnelSubscription.resume();
+
+    _tunnelSubscription!.resume();
   }
 
   /// cancel the tunnel events subscription
   static void stopListen() {
-    _tunnelSubscription.cancel();
+    _tunnelSubscription?.cancel();
+    _tunnelSubscription = null;
   }
 
   // method channel --------------------------------------------------------------------------------

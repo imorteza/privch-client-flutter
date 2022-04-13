@@ -1,15 +1,19 @@
 /*
   Xinlake Liu
-  2022-02
+  2022-04-10
+
+  - The size of the qrcode image
+
+  - When using the From autovalidateMode parameter, 
+  its TextFormField does not trigger initial validation
  */
 
 import 'package:flutter/material.dart';
-
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:xinlake_text/validator.dart';
 
-import 'package:privch/models/shadowsocks.dart';
-import 'package:privch/pages/encrypt_list.dart';
+import '../models/shadowsocks.dart';
+import '../pages/encrypt_list.dart';
 
 class ShadowsocksDetailPage extends StatefulWidget {
   const ShadowsocksDetailPage(this.shadowsocks, {Key? key}) : super(key: key);
@@ -19,24 +23,11 @@ class ShadowsocksDetailPage extends StatefulWidget {
   final Shadowsocks shadowsocks;
 
   @override
-  _ShadowsocksEditState createState() => _ShadowsocksEditState();
+  _ShadowsocksDetailState createState() => _ShadowsocksDetailState();
 }
 
-class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
-  final _formKey = GlobalKey<FormState>();
-
-  bool _obscureText = true;
-  bool _isFormChanged = false;
-  bool _isEncryptChanged = false;
-
-  void _check() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      // indicate that data has been changed
-      Navigator.pop(context, true);
-    }
-  }
+class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
+  var _obscureText = true;
 
   Widget _buildForm() {
     const inputDecoration = InputDecoration(
@@ -44,8 +35,6 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
     );
 
     return Form(
-      key: _formKey,
-      onChanged: () => setState(() => (_isFormChanged = true)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
@@ -56,14 +45,10 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
             decoration: inputDecoration.copyWith(labelText: "Display name"),
             validator: (value) {
               if ((value != null && value.isNotEmpty)) {
+                widget.shadowsocks.name = value;
                 return null;
               }
               return "Display name can't be empty";
-            },
-            onSaved: (value) {
-              if (value != null) {
-                widget.shadowsocks.name = value;
-              }
             },
           ),
           const SizedBox(height: 20),
@@ -79,14 +64,10 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
                   decoration: inputDecoration.copyWith(labelText: "Host address"),
                   validator: (value) {
                     if ((value != null && Validator.isURL(value))) {
+                      widget.shadowsocks.address = value;
                       return null;
                     }
                     return "Invalid host address";
-                  },
-                  onSaved: (value) {
-                    if (value != null) {
-                      widget.shadowsocks.address = value;
-                    }
                   },
                 ),
               ),
@@ -99,15 +80,14 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
                   initialValue: "${widget.shadowsocks.port}",
                   decoration: inputDecoration.copyWith(labelText: "Host port"),
                   validator: (value) {
-                    if ((value != null && Validator.getPortNumber(value) != null)) {
-                      return null;
+                    if (value != null) {
+                      final port = Validator.getPortNumber(value);
+                      if (port != null) {
+                        widget.shadowsocks.port = port;
+                        return null;
+                      }
                     }
                     return "Invalid port number";
-                  },
-                  onSaved: (value) {
-                    if (value != null) {
-                      widget.shadowsocks.port = int.parse(value);
-                    }
                   },
                 ),
               ),
@@ -132,14 +112,10 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
             ),
             validator: (value) {
               if ((value != null && value.isNotEmpty)) {
+                widget.shadowsocks.password = value;
                 return null;
               }
               return "Password can't be empty";
-            },
-            onSaved: (value) {
-              if (value != null) {
-                widget.shadowsocks.password = value;
-              }
             },
           ),
         ],
@@ -158,7 +134,6 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
         if (encrypt != null && widget.shadowsocks.encrypt != encrypt) {
           setState(() {
             widget.shadowsocks.encrypt = encrypt;
-            _isEncryptChanged = true;
           });
         }
       },
@@ -168,7 +143,7 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
         children: [
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Icon(Icons.security),
+            child: Icon(Icons.enhanced_encryption),
           ),
           Expanded(
             child: Center(
@@ -185,14 +160,6 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.shadowsocks.name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: ((_isFormChanged || _isEncryptChanged) && _formKey.currentState!.validate())
-                ? _check
-                : null,
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
@@ -219,5 +186,10 @@ class _ShadowsocksEditState extends State<ShadowsocksDetailPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 }

@@ -1,17 +1,21 @@
+/*
+  Xinlake Liu
+  2022-04-12
+ */
+
 import 'package:flutter/foundation.dart';
-import 'package:privch/models/shadowsocks.dart';
+
+import '../models/shadowsocks.dart';
 
 /// shadowsocks sort methods
 enum ServerSortMode { modified, address, name }
 
-/// info about the server data changing
-/// * 2022-03
-class ServerState extends ChangeNotifier {
+class Status extends ChangeNotifier {
   Shadowsocks? _currentServer;
   ServerSortMode _sortMode;
   int _serverCount;
 
-  ServerState({
+  Status({
     Shadowsocks? currentServer,
     required ServerSortMode sortMode,
     required int serverCount,
@@ -48,7 +52,7 @@ class ServerState extends ChangeNotifier {
 
   @override
   bool operator ==(other) {
-    return other is ServerState &&
+    return other is Status &&
         other.currentServer == _currentServer &&
         other.sortMode == _sortMode &&
         other.serverCount == _serverCount;

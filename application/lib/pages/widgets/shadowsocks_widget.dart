@@ -1,7 +1,14 @@
+/*
+  Xinlake Liu
+  2022-04
+
+  - "setState(() {});" is not a good practice
+ */
+
 import 'package:flutter/material.dart';
 
-import 'package:privch/models/setting_manager.dart';
-import 'package:privch/models/shadowsocks.dart';
+import '../../models/setting_manager.dart';
+import '../../models/shadowsocks.dart';
 
 class ShadowsocksWidget extends StatefulWidget {
   const ShadowsocksWidget({
@@ -23,7 +30,7 @@ class _ShadowsocksState extends State<ShadowsocksWidget> {
   @override
   Widget build(BuildContext context) {
     final shadowsocks = widget.shadowsocks;
-    final selected = (shadowsocks.id == _setting.serverState.currentServer?.id);
+    final selected = (shadowsocks.id == _setting.status.currentServer?.id);
     final themeData = Theme.of(context);
 
     return Container(
@@ -80,12 +87,12 @@ class _ShadowsocksState extends State<ShadowsocksWidget> {
   @override
   void initState() {
     super.initState();
-    widget.shadowsocks.onChange = () => setState(() {});
+    widget.shadowsocks.onSaved = () => setState(() {});
   }
 
   @override
   void dispose() {
-    widget.shadowsocks.onChange = null;
+    widget.shadowsocks.onSaved = null;
     super.dispose();
   }
 }

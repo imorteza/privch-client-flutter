@@ -189,7 +189,7 @@ packages:
       name: fl_chart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.46.0"
+    version: "0.50.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -587,7 +587,7 @@ packages:
       name: xinlake_text
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.6"
+    version: "0.2.0"
   xinlake_tunnel:
     dependency: "direct main"
     description:

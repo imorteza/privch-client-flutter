@@ -1,12 +1,14 @@
 /*
   Xinlake Liu
-  2022-01-07
+  2022-04-10
 */
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+const gXinlakeDev = "https://xinlake.dev";
+const gPrivacyPolicy = "https://github.com/xinlake/privch/blob/main/PRIVACY-POLICY.md";
+final gDateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
 
 // TODO: Not used
 Route<T> createRoute<T>(

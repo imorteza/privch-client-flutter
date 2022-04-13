@@ -42,7 +42,6 @@ import com.github.shadowsocks.net.Subnet
 import com.github.shadowsocks.utils.int
 import kotlinx.coroutines.*
 import timber.log.Timber
-import xinlake.tunnel.aidl.ITunnelEvent
 import xinlake.tunnel.core.TunnelCore
 import java.io.File
 import java.io.FileDescriptor
@@ -77,10 +76,8 @@ class SSService : VpnService() {
         }
     }
 
-    private inner class ProtectWorker : ConcurrentLocalSocketListener(
-        "ShadowsocksVpnThread",
-        File(TunnelCore.instance().noBackupFilesDir, "protect_path")
-    ) {
+    private inner class ProtectWorker : ConcurrentLocalSocketListener("ShadowsocksVpnThread",
+        File(TunnelCore.instance().noBackupFilesDir, "protect_path")) {
         override fun acceptInternal(socket: LocalSocket) {
             if (socket.inputStream.read() == -1) return
             val success = socket.ancillaryFileDescriptors!!.single()!!.use { fd ->
@@ -109,7 +106,7 @@ class SSService : VpnService() {
         }
     }
 
-    private var state: Int = TunnelCore.STATE_STOPPED
+    private var status: Int = TunnelCore.STATE_STOPPED
     private var processes: GuardedProcessPool? = null
     private var localDns: LocalDnsWorker? = null
     private var connectingJob: Job? = null
@@ -119,7 +116,6 @@ class SSService : VpnService() {
     private var active = false
     private var metered = false
     private var server: RemoteServer? = null
-    private val listeners = HashMap<String, ITunnelEvent>()
 
     @Volatile
     private var underlyingNetwork: Network? = null
@@ -145,16 +141,31 @@ class SSService : VpnService() {
         DnsResolverCompat.resolveRaw(underlyingNetwork ?: throw IOException("no network"), query)
     */
 
-    fun addListener(key: String, listener: ITunnelEvent) {
-        listeners[key] = listener
+    private fun broadcastMessage(message: String) {
+        Intent("xinlake.tunnel.broadcast").also { intent ->
+            intent.putExtra("message", message)
+            sendBroadcast(intent)
+        }
     }
 
-    fun removeListener(key: String) {
-        listeners.remove(key)
+    private fun broadcastServer(serverId: Int) {
+        Intent("xinlake.tunnel.broadcast").also { intent ->
+            intent.putExtra("serverId", serverId)
+            sendBroadcast(intent)
+        }
+    }
+
+    private fun broadcastStatus(status: Int) {
+        this.status = status
+
+        Intent("xinlake.tunnel.broadcast").also { intent ->
+            intent.putExtra("status", status)
+            sendBroadcast(intent)
+        }
     }
 
     fun getState(): Int {
-        return state
+        return status
     }
 
     fun toggleService(): Boolean {
@@ -162,7 +173,7 @@ class SSService : VpnService() {
             return false
         }
 
-        when (state) {
+        when (status) {
             TunnelCore.STATE_CONNECTED -> {
                 stopRunner()
             }
@@ -184,11 +195,11 @@ class SSService : VpnService() {
         // check the new server
         val remoteServer = RemoteServer(port, address, password, encrypt)
         if (!remoteServer.isValid) {
-            listeners.values.forEach { it.onMessage("Invalid server") }
+            broadcastMessage("Invalid server")
             return false
         }
         if (remoteServer == server && active) {
-            listeners.values.forEach { it.onMessage("Server already in use") }
+            broadcastMessage("Server already in use")
             return false
         }
 
@@ -198,24 +209,21 @@ class SSService : VpnService() {
 
         // switch to the new server
         server = remoteServer
-        listeners.values.forEach { it.onServerChanged(serverId) }
+        broadcastServer(serverId)
 
         startService()
         return true
     }
 
     private fun startService() {
-        changeState(TunnelCore.STATE_CONNECTING)
+        broadcastStatus(TunnelCore.STATE_CONNECTING)
         connectingJob = GlobalScope.launch(Dispatchers.Main) {
             try {
                 Executable.killAll()    // clean up old processes
                 preInit()
 
-                // necessary
-                Thread.sleep(10)
-
                 startProcesses()
-                changeState(TunnelCore.STATE_CONNECTED)
+                broadcastStatus(TunnelCore.STATE_CONNECTED)
             } catch (exception: CancellationException) {
                 // if the job was cancelled, it is canceller's responsibility to call stopRunner
             } catch (exception: Throwable) {
@@ -228,10 +236,10 @@ class SSService : VpnService() {
     }
 
     fun stopRunner() {
-        if (state == TunnelCore.STATE_STOPPING) return
+        if (status == TunnelCore.STATE_STOPPING) return
 
         // change state
-        changeState(TunnelCore.STATE_STOPPING)
+        broadcastStatus(TunnelCore.STATE_STOPPING)
 
         GlobalScope.launch(Dispatchers.Main.immediate) {
             connectingJob?.cancelAndJoin() // ensure stop connecting first
@@ -243,22 +251,17 @@ class SSService : VpnService() {
 
             // stop the service if nothing has bound to it
             // stopSelf()
-            changeState(TunnelCore.STATE_STOPPED)
+            broadcastStatus(TunnelCore.STATE_STOPPED)
         }
     }
 
-    private fun changeState(state: Int) {
-        this.state = state
-        listeners.values.forEach { it.onStateChanged(state) }
-    }
-
     private suspend fun startProcesses() {
+        worker = ProtectWorker().apply { start() }
         processes = GuardedProcessPool {
             Timber.w(it)
             stopRunner()
         }
 
-        worker = ProtectWorker().apply { start() }
         localDns = LocalDnsWorker(this::rawResolver).apply { start() }
 
         startShadowsocks()
@@ -284,7 +287,11 @@ class SSService : VpnService() {
         conn = null
     }
 
-    // shadowsocks-android. com/github/shadowsocks/bg/ProxyInstance.kt
+    /* shadowsocks-android v5.2.6
+     * shadowsocks-android. com/github/shadowsocks/bg/ProxyInstance.kt
+     *
+     * top, command line, libsslocal.so
+     */
     private fun startShadowsocks() {
         val cmd = arrayListOf(
             File(TunnelCore.instance().nativeLibraryDir, Executable.SS_LOCAL).absolutePath,
@@ -329,6 +336,9 @@ class SSService : VpnService() {
         val conn = builder.establish() ?: throw Exception("Null Connection")
         this.conn = conn
 
+        /* shadowsocks-android v5.2.6
+         * top, command line, libtun2socks.so
+         */
         val cmd = arrayListOf(
             File(applicationInfo.nativeLibraryDir, Executable.TUN2SOCKS).absolutePath,
             "--netif-ipaddr", PRIVATE_VLAN4_ROUTER,

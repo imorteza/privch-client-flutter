@@ -1,12 +1,9 @@
 package xinlake.tunnel.aidl;
-import xinlake.tunnel.aidl.ITunnelEvent;
 
 // ITunnelMethod.aidl
 // int, long, boolean, float, double, String
 
 interface ITunnelMethod {
-    void addListener(in String key, in ITunnelEvent listener);
-    void removeListener(in String key);
     int getState();
 
     void setSocksPort(in int port);

@@ -1,20 +1,24 @@
+/*
+  Xinlake Liu
+  2022-04
+ */
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import 'package:hive/hive.dart';
 import 'package:window_interface/window_placement.dart';
 import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
-import 'package:privch/models/shadowsocks.dart';
-import 'package:privch/models/server_manager.dart';
-import 'package:privch/models/setting.dart';
-import 'package:privch/models/server_state.dart';
+import '../models/server_manager.dart';
+import '../models/setting.dart';
+import '../models/shadowsocks.dart';
+import 'status.dart';
 
 class SettingManager {
   // TODO: multi stream?
   /// indicate that server count or current server or sort mode has been changed.
-  final ServerState serverState;
+  final Status status;
 
   final Setting _settings;
 
@@ -47,23 +51,29 @@ class SettingManager {
     int? dnsLocalPort,
     String? dnsRemoteAddress,
   }) async {
+    var save = false;
+
     if (httpPort != null) {
       _settings.httpPort = httpPort;
+      save = true;
     }
 
     if (socksPort != null) {
       _settings.socksPort = socksPort;
+      save = true;
     }
 
     if (dnsLocalPort != null) {
       _settings.dnsLocalPort = dnsLocalPort;
+      save = true;
     }
 
     if (dnsRemoteAddress != null) {
       _settings.dnsRemoteAddress = dnsRemoteAddress;
+      save = true;
     }
 
-    if (httpPort != null || socksPort != null || dnsLocalPort != null || dnsRemoteAddress != null) {
+    if (save) {
       await XinlakeTunnel.updateSettings(
         httpPort: httpPort,
         socksPort: socksPort,
@@ -75,14 +85,14 @@ class SettingManager {
   }
 
   Future<void> _saveServerState() async {
-    bool save = false;
+    var save = false;
 
-    if (_settings.serverSelId != serverState.currentServer?.id) {
-      _settings.serverSelId = serverState.currentServer?.id;
+    if (_settings.serverSelId != status.currentServer?.id) {
+      _settings.serverSelId = status.currentServer?.id;
       save = true;
 
       // update vpn server
-      final shadowsocks = serverState.currentServer;
+      final shadowsocks = status.currentServer;
       if (shadowsocks != null) {
         await XinlakeTunnel.connectTunnel(
           shadowsocks.hashCode,
@@ -94,8 +104,8 @@ class SettingManager {
       }
     }
 
-    if (_settings.sortModeIndex != serverState.sortMode.index) {
-      _settings.sortModeIndex = serverState.sortMode.index;
+    if (_settings.sortModeIndex != status.sortMode.index) {
+      _settings.sortModeIndex = status.sortMode.index;
       save = true;
     }
 
@@ -115,7 +125,7 @@ class SettingManager {
     required Setting setting,
     required Shadowsocks? currentServer,
   })  : _settings = setting,
-        serverState = ServerState(
+        status = Status(
           currentServer: currentServer,
           serverCount: ServerManager.instance.servers.length,
           sortMode: ServerSortMode.values[setting.sortModeIndex],
@@ -123,7 +133,7 @@ class SettingManager {
         onThemeMode = ValueNotifier(
           ThemeMode.values[setting.themeModeIndex],
         ) {
-    serverState.addListener(() async => await _saveServerState());
+    status.addListener(() async => await _saveServerState());
     onThemeMode.addListener(() async => await _saveTheme());
   }
 

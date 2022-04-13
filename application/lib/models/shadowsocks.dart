@@ -1,16 +1,24 @@
+/*
+  Xinlake Liu
+  2022-01
+
+  - onSaved is not a good practice
+ */
+
 import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:xinlake_text/generator.dart';
+import 'package:xinlake_text/validator.dart';
 
-import 'package:privch/global.dart';
+import '../global.dart';
 
 part 'shadowsocks.g.dart';
 
 /// `flutter packages pub run build_runner build --delete-conflicting-outputs`
-/// * 2022-01
+///
 @HiveType(typeId: 1)
 class Shadowsocks extends HiveObject {
   // server
@@ -41,8 +49,8 @@ class Shadowsocks extends HiveObject {
   String get id => "$address:$port";
 
   // change callback
-  VoidCallback? _onChange;
-  set onChange(VoidCallback? value) => _onChange = value;
+  VoidCallback? _onSaved;
+  set onSaved(VoidCallback? value) => _onSaved = value;
 
   //shadowsocks 1.9.0
   static final RegExp _regUrl = RegExp(r'^(.+?):(.*)@(.+?):(\d+?)$');
@@ -60,7 +68,7 @@ class Shadowsocks extends HiveObject {
     String? geoLocation,
     int? responseTime,
   })  : name = name ?? "$address-$port",
-        modified = dateFormat.format(DateTime.now()),
+        modified = gDateFormat.format(DateTime.now()),
         order = order ?? 0,
         responseTime = responseTime ?? 0,
         geoLocation = geoLocation ?? "";
@@ -100,7 +108,7 @@ class Shadowsocks extends HiveObject {
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, Object> toMap() {
     return {
       // server
       "port": port,
@@ -117,6 +125,15 @@ class Shadowsocks extends HiveObject {
       "responseTime": responseTime,
       "geoLocation": geoLocation,
     };
+  }
+
+  bool get isValid {
+    return (port > 0 && port < 65536) &&
+        password.isNotEmpty &&
+        encrypt.isNotEmpty &&
+        name.isNotEmpty &&
+        modified.isNotEmpty &&
+        Validator.isURL(address);
   }
 
   /// batter?
@@ -233,7 +250,7 @@ class Shadowsocks extends HiveObject {
   @override
   Future<void> save() async {
     await super.save();
-    _onChange?.call(); // TODO: batter?
+    _onSaved?.call(); // TODO: batter?
   }
 
   @override

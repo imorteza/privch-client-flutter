@@ -10,9 +10,7 @@
 .svn/
 
 # Xinlake
-/.apk
 /binary
-desktop.ini
 
 # IntelliJ related
 *.iml

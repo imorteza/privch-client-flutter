@@ -11,9 +11,3 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
-
-# Xinlake
-.idea
-/.aar
-/.apk
-desktop.ini

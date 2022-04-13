@@ -1,16 +1,16 @@
 /*
   Xinlake Liu
-  2022-03-03
+  2022-04-12
  */
 
 import 'package:flutter/material.dart';
 
-import 'package:privch/models/shadowsocks.dart';
+import '../models/shadowsocks.dart';
 
 class EncryptListPage extends StatefulWidget {
   const EncryptListPage({
-    required this.encrypt,
     Key? key,
+    required this.encrypt,
   }) : super(key: key);
 
   static const route = "/home/shadowsocks/encrypt";
@@ -24,21 +24,51 @@ class _EncryptListState extends State<EncryptListPage> {
   late String _encrypt;
 
   Widget _buildList() {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
+    final dividerColor = Theme.of(context).dividerColor;
+
     return Wrap(
       spacing: 10,
       runSpacing: 10,
       children: ssEncryptMethods.map((item) {
-        // item pressed
-        void pressed() => setState(() => _encrypt = item);
-        // item child
-        final child = Padding(
-          padding: const EdgeInsets.all(10),
-          child: Text(item), // opt: uppercase text
+        // selected item
+        if (_encrypt == item) {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              border: Border.all(color: dividerColor),
+              borderRadius: BorderRadius.circular(8),
+              color: primaryColor,
+            ),
+            child: Text(
+              item,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontSize: 16,
+              ),
+            ),
+          );
+        }
+
+        // not selected items
+        return InkWell(
+          onTap: () => setState(() => _encrypt = item),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              border: Border.all(color: dividerColor),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              item,
+              style: TextStyle(
+                color: secondaryColor,
+                fontSize: 16,
+              ),
+            ),
+          ),
         );
-        // item widget
-        return (_encrypt == item)
-            ? ElevatedButton(onPressed: pressed, child: child)
-            : OutlinedButton(onPressed: pressed, child: child);
       }).toList(),
     );
   }

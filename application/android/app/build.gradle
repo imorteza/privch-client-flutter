@@ -8,17 +8,19 @@ if (localPropertiesFile.exists()) {
 
 def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
-    throw new Exception("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+    throw new Exception("flutter.sdk not found in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionCode == null || flutterVersionName == null) {
+    throw new GradleException("flutter.versionCode or flutter.versionName not found in local.properties file.")
 }
 
 def isXinlake = System.getProperty("user.name").toLowerCase().contentEquals("xinlake")
 if (isXinlake) {
-    apply from: "../scripts/signing.gradle"
+    apply from: "xinlake.gradle"
 }
-
-def versionMajor = 0 //12bit
-def versionMinor = 4 //10bit
-def versionRevision = 0 //10bit
 
 apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
@@ -34,12 +36,12 @@ android {
     }
 
     defaultConfig {
-        applicationId "dev.xinlake.privch"
-        minSdkVersion 26
+        applicationId "xinlake.privch"
         targetSdkVersion 32
+        minSdkVersion 26
 
-        versionCode = (versionMajor << 20) | (versionMinor << 10) | versionRevision
-        versionName "$versionMajor.$versionMinor.$versionRevision"
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
 
         resValue "string", "gradle_build_host", "${InetAddress.localHost.hostName}"
         resValue "string", "gradle_build_user", "${System.getProperty('user.name')}"
@@ -68,32 +70,22 @@ android {
 
     buildTypes {
         debug {
-            if (isXinlake) {
-                signingConfig signingConfigs.xinlake
-            } else {
-                // Signing with the debug keys for now, so `flutter run --release` works.
-                signingConfig signingConfigs.debug
-            }
+            signingConfig isXinlake ? signingConfigs.xinlake : signingConfigs.debug
         }
         release {
-            if (isXinlake) {
-                signingConfig signingConfigs.xinlake
-            } else {
-                // Signing with the debug keys for now, so `flutter run --release` works.
-                signingConfig signingConfigs.debug
-            }
+            signingConfig isXinlake ? signingConfigs.xinlake : signingConfigs.debug
         }
     }
 
     // custom apk name and copy apk
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
-            if (output.outputFileName != null && output.outputFileName.endsWith('.apk')) {
+            if (output.outputFileName?.endsWith('.apk')) {
                 // copy apk
                 variant.assembleProvider.get().doLast {
                     copy {
                         from output.outputFile
-                        into "../../.apk"
+                        into "../../../.apk"
                     }
                 }
             }

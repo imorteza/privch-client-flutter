@@ -1,6 +1,5 @@
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dev.xinlake.privch">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="xinlake.privch">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
