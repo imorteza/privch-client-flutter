@@ -47,10 +47,10 @@ function TestServer {
         --max-time 7 `
         -x socks5h://localhost:17029 `
         --head -w "%{http_code}" `
-        https://google.com
+        https://www.google.com
 
     switch ($statusCode) {
-        { $_ -in 204, 200, 429 } {
+        { $_ -in 200, 204, 301, 429 } {
             Write-Host "Passed"
             return $ssProcess
         }
