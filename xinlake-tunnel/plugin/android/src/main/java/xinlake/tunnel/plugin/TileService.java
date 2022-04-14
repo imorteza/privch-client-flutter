@@ -6,12 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Handler;
+import android.graphics.drawable.Icon;
 import android.os.IBinder;
-import android.os.Looper;
 import android.service.quicksettings.Tile;
-import android.widget.Toast;
 
+import xinlake.tunnel.R;
 import xinlake.tunnel.aidl.ITunnelMethod;
 import xinlake.tunnel.core.TunnelCore;
 import xinlake.tunnel.core.shadowsocks.SSService;
@@ -24,7 +23,7 @@ import xinlake.tunnel.core.shadowsocks.SSService;
  */
 
 public class TileService extends android.service.quicksettings.TileService {
-    // service
+    // tunnel service
     private ITunnelMethod tunnelMethod;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -32,50 +31,38 @@ public class TileService extends android.service.quicksettings.TileService {
             tunnelMethod = ITunnelMethod.Stub.asInterface(service);
 
             TileService.this.registerReceiver(tunnelReceiver,
-                new IntentFilter("xinlake.tunnel.broadcast"));
+                new IntentFilter(TunnelCore.ACTION_EVENT_BROADCAST));
 
-            // put a message to the main looper
-            new Handler(Looper.getMainLooper()).post(() -> updateState());
+            // refresh tile
+            updateState();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             TileService.this.unregisterReceiver(tunnelReceiver);
             tunnelMethod = null;
+
+            // disable tile
+            updateState(-1);
         }
 
         @Override
         public void onBindingDied(ComponentName name) {
             TileService.this.unregisterReceiver(tunnelReceiver);
             tunnelMethod = null;
+
+            // disable tile
+            updateState(-1);
         }
     };
 
     private final BroadcastReceiver tunnelReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int status = intent.getIntExtra("status", 0);
-            new Handler(Looper.getMainLooper()).post(() -> updateState(status));
+            int status = intent.getIntExtra("status", -1);
+            updateState(status);
         }
     };
-
-    private void bindTunnel() {
-        // bind service
-        final Context context = getApplicationContext();
-        context.bindService(
-            new Intent(context, SSService.class),
-            serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    private void unbindTunnel() {
-        // unbind and stop service
-        final Context context = getApplicationContext();
-        try {
-            context.unbindService(serviceConnection);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
 
     private void updateState() {
         final int tunnelState;
@@ -92,35 +79,48 @@ public class TileService extends android.service.quicksettings.TileService {
         final Tile tile = getQsTile();
         if (tunnelState == TunnelCore.STATE_CONNECTED) {
             tile.setState(Tile.STATE_ACTIVE);
+            tile.setIcon(Icon.createWithResource(this, R.drawable.sharp_gpp_good_24));
         } else if (tunnelState == TunnelCore.STATE_STOPPED) {
             tile.setState(Tile.STATE_INACTIVE);
+            tile.setIcon(Icon.createWithResource(this, R.drawable.sharp_security_24));
         } else {
             tile.setState(Tile.STATE_UNAVAILABLE);
+            tile.setIcon(Icon.createWithResource(this, R.drawable.sharp_gpp_maybe_24));
         }
 
         // update tile
         tile.updateTile();
     }
 
+    // bind tunnel service
+    private void bindTunnel() {
+        final Context context = getApplicationContext();
+        context.bindService(
+            new Intent(context, SSService.class),
+            serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    // unbind tunnel service
+    private void unbindTunnel() {
+        final Context context = getApplicationContext();
+        try {
+            context.unbindService(serviceConnection);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
     @Override
     public void onClick() {
         if (tunnelMethod != null) {
-            boolean toggled;
             try {
-                toggled = tunnelMethod.toggleService();
+                tunnelMethod.toggleService();
             } catch (Exception exception) {
-                toggled = false;
                 exception.printStackTrace();
             }
-
-            if (toggled) {
-                //new Handler(Looper.getMainLooper()).postDelayed(this::updateState, 300);
-                return;
-            }
+        } else {
+            updateState(-1);
         }
-
-        Toast.makeText(this, "Unable to perform action", Toast.LENGTH_LONG)
-            .show();
     }
 
     // pull down status bar

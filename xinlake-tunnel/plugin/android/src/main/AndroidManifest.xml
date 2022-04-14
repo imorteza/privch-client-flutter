@@ -14,7 +14,7 @@
         <service
             android:name="xinlake.tunnel.plugin.TileService"
             android:exported="true"
-            android:icon="@drawable/baseline_security_24"
+            android:icon="@drawable/sharp_security_24"
             android:label="@string/tile_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:process=":tunnel">

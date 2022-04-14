@@ -72,6 +72,9 @@ android {
         debug {
             signingConfig isXinlake ? signingConfigs.xinlake : signingConfigs.debug
         }
+        profile {
+            signingConfig isXinlake ? signingConfigs.xinlake : signingConfigs.debug
+        }
         release {
             signingConfig isXinlake ? signingConfigs.xinlake : signingConfigs.debug
         }

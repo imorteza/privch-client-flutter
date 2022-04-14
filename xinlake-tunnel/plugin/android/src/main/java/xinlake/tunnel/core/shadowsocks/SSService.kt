@@ -142,14 +142,14 @@ class SSService : VpnService() {
     */
 
     private fun broadcastMessage(message: String) {
-        Intent("xinlake.tunnel.broadcast").also { intent ->
+        Intent(TunnelCore.ACTION_EVENT_BROADCAST).also { intent ->
             intent.putExtra("message", message)
             sendBroadcast(intent)
         }
     }
 
     private fun broadcastServer(serverId: Int) {
-        Intent("xinlake.tunnel.broadcast").also { intent ->
+        Intent(TunnelCore.ACTION_EVENT_BROADCAST).also { intent ->
             intent.putExtra("serverId", serverId)
             sendBroadcast(intent)
         }
@@ -158,7 +158,7 @@ class SSService : VpnService() {
     private fun broadcastStatus(status: Int) {
         this.status = status
 
-        Intent("xinlake.tunnel.broadcast").also { intent ->
+        Intent(TunnelCore.ACTION_EVENT_BROADCAST).also { intent ->
             intent.putExtra("status", status)
             sendBroadcast(intent)
         }

@@ -12,10 +12,12 @@ import java.io.File;
 
 /**
  * Construct and initialized in the tunnel process
+ *
  * @author Xinlake Liu
  * @version 2021-11
  */
 public final class TunnelCore {
+    public static final String ACTION_EVENT_BROADCAST = "xinlake.tunnel.broadcast";
     public static final int STATE_CONNECTING = 1;
     public static final int STATE_CONNECTED = 2;
     public static final int STATE_STOPPING = 3;
