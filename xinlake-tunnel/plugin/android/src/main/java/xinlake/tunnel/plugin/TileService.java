@@ -113,14 +113,20 @@ public class TileService extends android.service.quicksettings.TileService {
     @Override
     public void onClick() {
         if (tunnelMethod != null) {
+            boolean toggleable;
             try {
-                tunnelMethod.toggleService();
+                toggleable = tunnelMethod.toggleService();
             } catch (Exception exception) {
+                toggleable = false;
                 exception.printStackTrace();
             }
-        } else {
-            updateState(-1);
+
+            if (toggleable) {
+                return;
+            }
         }
+
+        updateState(-1);
     }
 
     // pull down status bar

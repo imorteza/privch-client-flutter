@@ -106,7 +106,7 @@ class SSService : VpnService() {
         }
     }
 
-    private var status: Int = TunnelCore.STATE_STOPPED
+    private var status: Int = TunnelCore.STATE_IDLE
     private var processes: GuardedProcessPool? = null
     private var localDns: LocalDnsWorker? = null
     private var connectingJob: Job? = null
@@ -221,6 +221,9 @@ class SSService : VpnService() {
             try {
                 Executable.killAll()    // clean up old processes
                 preInit()
+
+                // TODO. not necessary
+                Thread.sleep(100)
 
                 startProcesses()
                 broadcastStatus(TunnelCore.STATE_CONNECTED)

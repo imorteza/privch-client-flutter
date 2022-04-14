@@ -18,6 +18,7 @@ import java.io.File;
  */
 public final class TunnelCore {
     public static final String ACTION_EVENT_BROADCAST = "xinlake.tunnel.broadcast";
+    public static final int STATE_IDLE = 0;
     public static final int STATE_CONNECTING = 1;
     public static final int STATE_CONNECTED = 2;
     public static final int STATE_STOPPING = 3;
