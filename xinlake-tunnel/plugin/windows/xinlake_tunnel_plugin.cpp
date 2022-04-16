@@ -57,6 +57,8 @@ namespace {
             },
             [](const flutter::EncodableValue* arguments)
                 -> std::unique_ptr<flutter::StreamHandlerError<>> {
+                std::unique_ptr<flutter::EventSink<>> events = nullptr;
+                setEventSink(events);
                 return nullptr;
             });
 

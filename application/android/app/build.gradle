@@ -88,7 +88,7 @@ android {
                 variant.assembleProvider.get().doLast {
                     copy {
                         from output.outputFile
-                        into "../../../.apk"
+                        into "../../../.app"
                     }
                 }
             }

@@ -2,6 +2,7 @@ flutter/ephemeral/
 
 .vs
 out
+runner/RC*
 
 # Visual Studio user-specific files.
 *.suo
