@@ -24,7 +24,6 @@ function LoadServers {
 
 function TestServer {
     param (
-        [String]$ssLocal,
         [String]$shadowsocks
     )
     
@@ -32,7 +31,7 @@ function TestServer {
     $address, $port, $password, $encrypt = -Split $shadowsocks;
     Write-Host -ForegroundColor Magenta "`r`nCheck server: $address-$port ..."
 
-    $ssProcess = Start-Process -FilePath $ssLocal -ArgumentList `
+    $ssProcess = Start-Process -FilePath $Global:exeShadowsocksLocal -ArgumentList `
         '-s', $address, '-p', $port, `
         '-k', $password, '-m', $encrypt, `
         '-l', $localSocksPort, "-u", `
@@ -42,7 +41,7 @@ function TestServer {
     # make sure socks5 proxy is ready
     Start-Sleep -Milliseconds 100
 
-    $statusCode = & $exeCurl -s -o NUL `
+    $statusCode = & $Global:exeCurl -s -o NUL `
         --connect-timeout 5 `
         --max-time 7 `
         -x socks5h://localhost:17029 `
