@@ -1,4 +1,4 @@
-$version = "0.8.0"
+$version = "0.8.1"
 $ErrorActionPreference = "Stop"
 
 # configurations
@@ -86,7 +86,7 @@ $ssProcess = RandomValidServer
 $message = 
 "`r`nSELECT" +
 "`r`nR  - [R]econnect to a random server" +
-"`r`nBS  - open [B]rowser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
+"`r`nBS - open [B]rowser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
 "`r`nCS - open [C]md with http(s)_proxy=socks5h://127.0.0.1:$localSocksPort" +
 "`r`nCH - open [C]md with http(s)_proxy=127.0.0.1:$localHttpPort" +
 "`r`nO  - [O]pen server list file" +

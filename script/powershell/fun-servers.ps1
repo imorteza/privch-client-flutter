@@ -50,12 +50,12 @@ function TestServer {
 
     switch ($statusCode) {
         { $_ -in 200, 204, 301, 429 } {
-            Write-Host "Passed"
+            Write-Host "Passed: $statusCode"
             return $ssProcess
         }
         Default {
             Stop-Process $ssProcess
-            Write-Host "Failed"
+            Write-Host "Failed: $statusCode"
             return $null
         }
     }
