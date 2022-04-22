@@ -6,7 +6,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:window_interface/window_interface.dart';
 import 'package:xinlake_platform/xinlake_platform.dart';
 import 'package:xinlake_qrcode/xinlake_qrcode.dart';
 
@@ -361,33 +360,5 @@ class _HomeState extends State<ServersPage> {
         ],
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    initWindow();
-  }
-
-  @override
-  void dispose() {
-    // dispose window interface
-    WindowInterface.stopListen();
-    super.dispose();
-  }
-
-  Future<void> initWindow() async {
-    // init window
-    if (Platform.isWindows) {
-      await WindowInterface.setWindowMinSize(400, 600);
-      final placement = _settings.windowPlacement;
-      if (placement.isValid) {
-        await WindowInterface.setWindowPlacement(placement);
-      }
-      // listen window update
-      WindowInterface.startListen(
-        onPlacement: (value) async => await _settings.updateWindowPlacement(value),
-      );
-    }
   }
 }

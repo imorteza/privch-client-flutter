@@ -118,6 +118,19 @@ public class MethodHandler implements
         result.success(trafficBytes);
     }
 
+    private void getState(MethodChannel.Result result) {
+        final int state;
+        try {
+            state = tunnelMethod.getState();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            result.error("Invalid parameters", null, null);
+            return;
+        }
+
+        result.success(state);
+    }
+
     private void connectTunnel(MethodCall call, MethodChannel.Result result) {
         final Integer serverId;
         final Integer port;
@@ -221,6 +234,9 @@ public class MethodHandler implements
         switch (call.method) {
             case "getTrafficBytes":
                 getTrafficBytes(result);
+                break;
+            case "getState":
+                getState(result);
                 break;
 
             case "connectTunnel":

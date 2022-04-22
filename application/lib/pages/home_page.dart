@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:window_interface/window_interface.dart';
 import 'package:xinlake_text/readable.dart';
 import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
@@ -31,7 +32,8 @@ Future<bool> _checkConnection(Object? object) async {
   var statusCode = 404;
 
   try {
-    HttpClientRequest request = await client.getUrl(Uri.parse("https://google.com"));
+    final uri = Uri.parse("https://google.com");
+    HttpClientRequest request = await client.getUrl(uri);
     // Optionally set up headers...
     // Optionally write to the request object...
     HttpClientResponse response = await request.close();
@@ -62,17 +64,12 @@ class _AutoState extends State<HomePage> {
   final _rxTrace = List.generate(30, (index) => 0);
   final _txTrace = List.generate(30, (index) => 0);
   final _onTrafficTxRxBytesPerSecond = ValueNotifier<List<int>?>(null);
-  var _updateTrafficBytes = true;
 
   var _processing = false;
-  var _serverReady = false;
-  late var _connectStatus = _settings.status.currentServer?.name ?? "";
+  var _updateTrafficBytes = true;
 
   Future<void> _smartConnect() async {
-    setState(() {
-      _processing = true;
-      _serverReady = false;
-    });
+    setState(() => _processing = true);
 
     // check current server
     final currentServer = _settings.status.currentServer;
@@ -89,11 +86,7 @@ class _AutoState extends State<HomePage> {
       // check connection in a isolate
       final ready = await compute(_checkConnection, null);
       if (ready) {
-        setState(() {
-          _serverReady = true;
-          _processing = false;
-        });
-
+        setState(() => _processing = false);
         return;
       }
     }
@@ -102,8 +95,6 @@ class _AutoState extends State<HomePage> {
     var connected = false;
     for (final shadowsocks in _servers.servers) {
       _settings.status.currentServer = shadowsocks;
-
-      setState(() => _connectStatus = shadowsocks.name);
       await Future.delayed(const Duration(milliseconds: 150));
 
       // check connection in a isolate
@@ -113,13 +104,7 @@ class _AutoState extends State<HomePage> {
       }
     }
 
-    setState(() {
-      _serverReady = connected;
-      if (!_serverReady) {
-        _connectStatus = "";
-      }
-      _processing = false;
-    });
+    setState(() => _processing = false);
   }
 
   Future<void> _syncTrafficBytes() async {
@@ -184,20 +169,6 @@ class _AutoState extends State<HomePage> {
       );
     }
 
-    // server not ready
-    if (!_serverReady) {
-      return RippleAnimation(
-        color: colorBackground,
-        minRadius: rippleRadius,
-        duration: const Duration(seconds: 3),
-        child: IconButton(
-          onPressed: _smartConnect,
-          iconSize: buttonSize,
-          icon: const Icon(Icons.security),
-        ),
-      );
-    }
-
     // button
     return ValueListenableBuilder<int>(
       valueListenable: XinlakeTunnel.onState,
@@ -211,8 +182,8 @@ class _AutoState extends State<HomePage> {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              onPressed: () async {
-                await XinlakeTunnel.stopTunnel();
+              onPressed: () {
+                XinlakeTunnel.stopTunnel();
               },
               iconSize: buttonSize,
               icon: Icon(
@@ -223,12 +194,14 @@ class _AutoState extends State<HomePage> {
           );
         } else if (tunState == XinlakeTunnel.stateStopped) {
           // stopped, small icon
-          return IconButton(
-            onPressed: _smartConnect,
-            iconSize: buttonSize,
-            icon: Icon(
-              Icons.security,
-              color: Theme.of(context).errorColor,
+          return RippleAnimation(
+            color: colorBackground,
+            minRadius: rippleRadius,
+            duration: const Duration(seconds: 3),
+            child: IconButton(
+              onPressed: _smartConnect,
+              iconSize: buttonSize,
+              icon: const Icon(Icons.security),
             ),
           );
         } else {
@@ -351,36 +324,52 @@ class _AutoState extends State<HomePage> {
 
   Widget _buildStatus() {
     return InkWell(
-      onTap: () => Navigator.pushNamed(context, ServersPage.route),
+      onTap: _processing
+          ? null
+          : () {
+              Navigator.pushNamed(context, ServersPage.route);
+            },
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Row(
           children: [
-            const Icon(Icons.storage, color: Colors.grey),
-            const SizedBox(width: 10),
-            AnimatedBuilder(
-              animation: _settings.status,
-              builder: (context, child) {
-                return Text(
-                  "${_servers.servers.length}",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.background,
-                    fontWeight: FontWeight.bold,
-                  ),
-                );
-              },
+            Icon(
+              Icons.storage,
+              color: Theme.of(context).hintColor,
             ),
+            const SizedBox(width: 10),
             Expanded(
-              child: Center(
-                child: Text(
-                  _connectStatus,
-                  style: TextStyle(
-                    color: _serverReady ? Theme.of(context).colorScheme.primary : Colors.grey,
-                  ),
-                ),
+              child: AnimatedBuilder(
+                animation: _settings.status,
+                builder: (context, child) {
+                  return Row(
+                    children: [
+                      Text(
+                        "${_servers.servers.length}",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.background,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            _settings.status.currentServer?.name ?? "Server Not Set",
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.background,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
-            const Icon(Icons.arrow_forward, color: Colors.grey),
+            Icon(
+              Icons.arrow_forward,
+              color: _processing ? Colors.grey : Theme.of(context).colorScheme.primary,
+            ),
           ],
         ),
       ),
@@ -522,7 +511,12 @@ class _AutoState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    initWindow();
+
     XinlakeTunnel.startListen();
+    // restore state when reattached to engine
+    XinlakeTunnel.updateState();
+
     if (Platform.isAndroid) {
       _syncTrafficBytes();
     }
@@ -532,6 +526,24 @@ class _AutoState extends State<HomePage> {
   void dispose() {
     _updateTrafficBytes = false;
     XinlakeTunnel.stopListen();
+
+    // dispose window interface
+    WindowInterface.stopListen();
     super.dispose();
+  }
+
+  Future<void> initWindow() async {
+    // init window
+    if (Platform.isWindows) {
+      await WindowInterface.setWindowMinSize(400, 600);
+      final placement = _settings.windowPlacement;
+      if (placement.isValid) {
+        await WindowInterface.setWindowPlacement(placement);
+      }
+      // listen window update
+      WindowInterface.startListen(
+        onPlacement: (value) async => await _settings.updateWindowPlacement(value),
+      );
+    }
   }
 }

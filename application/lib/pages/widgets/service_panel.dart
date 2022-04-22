@@ -301,7 +301,6 @@ class _ServiceState extends State<ServicePanel> {
   @override
   void initState() {
     super.initState();
-    // XinlakeTunnel.startListen();
     if (Platform.isAndroid) {
       _syncTrafficBytes();
     }
@@ -310,7 +309,6 @@ class _ServiceState extends State<ServicePanel> {
   @override
   void dispose() {
     _updateTrafficBytes = false;
-    // XinlakeTunnel.stopListen();
     super.dispose();
   }
 }

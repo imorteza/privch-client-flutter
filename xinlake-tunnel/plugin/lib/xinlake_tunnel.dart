@@ -18,7 +18,7 @@ class XinlakeTunnel {
 
   /// subscript to tunnel events
   static void startListen() {
-    _tunnelSubscription = _eventChannel.receiveBroadcastStream().listen((event) {
+    _tunnelSubscription ??= _eventChannel.receiveBroadcastStream().listen((event) {
       if (event is! Map) {
         return;
       }
@@ -51,18 +51,17 @@ class XinlakeTunnel {
     _tunnelSubscription = null;
   }
 
-  // method channel --------------------------------------------------------------------------------
-  static const _methodChannel = MethodChannel('xinlake_tunnel_method');
+  /// except idle
+  static void updateState() async {
+    final state = await getState();
 
-  /// element 0: tx bytes, element 1: rx bytes
-  static Future<List<int>?> getTrafficBytes() async {
-    try {
-      final trafficTxRx = await _methodChannel.invokeListMethod<int>("getTrafficBytes");
-      return trafficTxRx;
-    } catch (exception) {
-      return null;
+    if (state != null && state > 0) {
+      onState.value = state;
     }
   }
+
+  // method channel --------------------------------------------------------------------------------
+  static const _methodChannel = MethodChannel('xinlake_tunnel_method');
 
   static Future<void> connectTunnel(
     int serverId,
@@ -82,6 +81,25 @@ class XinlakeTunnel {
 
   static Future<void> stopTunnel() async {
     await _methodChannel.invokeMethod("stopTunnel");
+  }
+
+  static Future<int?> getState() async {
+    try {
+      final state = await _methodChannel.invokeMethod<int>("getState");
+      return state;
+    } catch (exception) {
+      return null;
+    }
+  }
+
+  /// element 0: tx bytes, element 1: rx bytes
+  static Future<List<int>?> getTrafficBytes() async {
+    try {
+      final trafficTxRx = await _methodChannel.invokeListMethod<int>("getTrafficBytes");
+      return trafficTxRx;
+    } catch (exception) {
+      return null;
+    }
   }
 
   /// This must be called once before connectTunnel
