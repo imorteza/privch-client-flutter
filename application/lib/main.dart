@@ -19,6 +19,7 @@ import 'models/shadowsocks.dart';
 import 'pages/about_page.dart';
 import 'pages/encrypt_list.dart';
 import 'pages/home_page.dart';
+import 'pages/servers_page.dart';
 import 'pages/setting_page.dart';
 import 'pages/shadowsocks_detail.dart';
 import 'pages/sorry_page.dart';
@@ -59,35 +60,44 @@ Future<void> main() async {
 }
 
 class PrivChApp extends StatelessWidget {
-  const PrivChApp(this.initSuccess, {Key? key}) : super(key: key);
-
   static const title = "Private Channel";
+
+  const PrivChApp(
+    this.initSuccess, {
+    Key? key,
+  }) : super(key: key);
+
   final bool initSuccess;
 
   @override
   Widget build(BuildContext context) {
-    final _setting = SettingManager.instance;
-
     return ValueListenableBuilder(
-      valueListenable: _setting.onThemeMode,
+      valueListenable: SettingManager.instance.onThemeMode,
       builder: (BuildContext context, ThemeMode value, Widget? child) {
         return MaterialApp(
           title: title,
           // themes
           theme: ThemeData(
-            primarySwatch: Colors.purple,
+            primarySwatch: Colors.deepPurple,
             brightness: Brightness.light,
+            materialTapTargetSize: MaterialTapTargetSize.padded,
           ),
           darkTheme: ThemeData(
             primarySwatch: Colors.teal,
             brightness: Brightness.dark,
+            materialTapTargetSize: MaterialTapTargetSize.padded,
           ),
           themeMode: value,
           // routers
-          initialRoute: initSuccess ? HomePage.route : SorryPage.route,
+          initialRoute: initSuccess
+              ? ServerManager.instance.servers.isNotEmpty
+                  ? HomePage.route
+                  : ServersPage.route
+              : SorryPage.route,
           routes: {
             SorryPage.route: (context) => const SorryPage(),
             HomePage.route: (context) => const HomePage(),
+            ServersPage.route: (context) => const ServersPage(),
             AboutPage.route: (context) => const AboutPage(),
             SettingPage.route: (context) => const SettingPage(),
           },

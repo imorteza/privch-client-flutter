@@ -2,7 +2,7 @@
 A modern VPN client built with Flutter supports Android and Windows but does not provide international communication services.
 
 ## Downloads
-* [PrivCh Android v0.4.2](.lfs/binary/xinlake.privch-v0.4.2-release.apk?raw=1)
+* [PrivCh Android v0.5.0](.lfs/binary/xinlake.privch-v0.5.0-release.apk?raw=1)
 * [PrivCh Windows v0.4.2](.lfs/binary/privch-windows-0.4.2.rar?raw=1)
 
 ## Screen
@@ -10,9 +10,9 @@ A modern VPN client built with Flutter supports Android and Windows but does not
 <p>
 <table>
     <tr>
-        <td><img src=".lfs/screen/0.2/android1-dark.png"/></td>
-        <td><img src=".lfs/screen/0.2/android2-light.png"/></td>
-        <td><img src=".lfs/screen/0.2/android3-light.png"/></td>
+        <td><img src=".lfs/screen/android/auto-light.png"/></td>
+        <td><img src=".lfs/screen/android/list-light.png"/></td>
+        <td><img src=".lfs/screen/android/settings-light.png"/></td>
     </tr>
 </table>
 </p>
@@ -21,9 +21,9 @@ A modern VPN client built with Flutter supports Android and Windows but does not
 <p>
 <table>
     <tr>
-        <td><img src=".lfs/screen/0.2/windows1-light.png"/></td>
-        <td><img src=".lfs/screen/0.2/windows2-light.png"/></td>
-        <td><img src=".lfs/screen/0.2/windows3-dark.png"/></td>
+        <td><img src=".lfs/screen/windows/empty-light.png"/></td>
+        <td><img src=".lfs/screen/windows/server-light.png"/></td>
+        <td><img src=".lfs/screen/windows/settings-dark.png"/></td>
     </tr>
 </table>
 </p>

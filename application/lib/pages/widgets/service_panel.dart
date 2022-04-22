@@ -13,7 +13,12 @@ import '../../models/setting_manager.dart';
 import '../../pages/widgets/traffic_charts.dart';
 
 class ServicePanel extends StatefulWidget {
-  const ServicePanel({Key? key}) : super(key: key);
+  const ServicePanel({
+    required this.onLongPress,
+    Key? key,
+  }) : super(key: key);
+
+  final void Function() onLongPress;
 
   @override
   State<StatefulWidget> createState() => _ServiceState();
@@ -28,7 +33,7 @@ class _ServiceState extends State<ServicePanel> {
   final _txTrace = List.generate(_maxTrace, (index) => 0);
 
   final _onTrafficTxRxBytesPerSecond = ValueNotifier<List<int>?>(null);
-  bool _updateTrafficBytes = true;
+  var _updateTrafficBytes = true;
 
   Future<void> _onServiceButton() async {
     if (XinlakeTunnel.onState.value == XinlakeTunnel.stateConnected) {
@@ -115,28 +120,29 @@ class _ServiceState extends State<ServicePanel> {
           builder: (BuildContext context, int tunState, Widget? child) {
             if (tunState == XinlakeTunnel.stateConnected) {
               // connected, icon
-              return IconButton(
-                onPressed: _onServiceButton,
-                iconSize: tunIconBig,
-                icon: const Icon(Icons.gpp_good),
-                color: Theme.of(context).colorScheme.secondary,
+              return InkWell(
+                onLongPress: widget.onLongPress,
+                onTap: _onServiceButton,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.gpp_good,
+                    size: tunIconBig,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
               );
             } else if (tunState == XinlakeTunnel.stateStopped) {
               // stopped, small icon
-              return OutlinedButton(
-                onPressed: _onServiceButton,
-                style: ButtonStyle(
-                  side: MaterialStateProperty.resolveWith<BorderSide?>((states) {
-                    return BorderSide.none;
-                  }),
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-                    return Colors.grey.withAlpha(33);
-                  }),
-                ),
-                child: Icon(
-                  Icons.security,
-                  size: tunIconSmall,
-                  color: Theme.of(context).hintColor,
+              return InkWell(
+                onLongPress: widget.onLongPress,
+                onTap: _onServiceButton,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Icon(
+                    Icons.security,
+                    size: tunIconSmall,
+                  ),
                 ),
               );
             } else {
@@ -179,7 +185,14 @@ class _ServiceState extends State<ServicePanel> {
               height: panelHeight,
               child: Padding(
                 padding: const EdgeInsets.only(top: 15),
-                child: TrafficChart(_rxTrace, rxMax, _txTrace, txMax),
+                child: TrafficChart(
+                  rxMax: rxMax,
+                  txMax: txMax,
+                  rxTrace: _rxTrace,
+                  txTrace: _txTrace,
+                  rxColors: [Theme.of(context).colorScheme.primary.withOpacity(0.6)],
+                  txColors: [Colors.grey.withOpacity(0.6)],
+                ),
               ),
             ),
             Row(
@@ -288,7 +301,7 @@ class _ServiceState extends State<ServicePanel> {
   @override
   void initState() {
     super.initState();
-    XinlakeTunnel.startListen();
+    // XinlakeTunnel.startListen();
     if (Platform.isAndroid) {
       _syncTrafficBytes();
     }
@@ -297,7 +310,7 @@ class _ServiceState extends State<ServicePanel> {
   @override
   void dispose() {
     _updateTrafficBytes = false;
-    XinlakeTunnel.stopListen();
+    // XinlakeTunnel.stopListen();
     super.dispose();
   }
 }

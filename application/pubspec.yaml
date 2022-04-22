@@ -17,7 +17,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.4.2+42
+version: 0.5.0+50
 
 environment:
   sdk: ">=2.16.2 <3.0.0"
@@ -39,7 +39,7 @@ dependencies:
   xinlake_text: ^0.2.0
   xinlake_qrcode: ^0.1.8
   xinlake_platform: ^0.2.2
-  window_interface: ^0.4.0
+  window_interface: ^0.4.1
 
   xinlake_tunnel:
     path: ../xinlake-tunnel/plugin/
@@ -48,8 +48,8 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
-  hive_generator: ^1.1.1
-  build_runner: ^2.1.5
+  hive_generator: ^1.1.2
+  build_runner: ^2.1.10
 
   flutter_test:
     sdk: flutter
@@ -59,7 +59,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^1.0.0
+  flutter_lints: ^1.0.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

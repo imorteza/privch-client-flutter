@@ -150,6 +150,7 @@ class _AboutState extends State<AboutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0.0,
         title: const Text(AboutPage.title),
       ),
       body: Column(

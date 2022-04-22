@@ -95,6 +95,7 @@ class _EncryptListState extends State<EncryptListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0.0,
         title: _buildTitle(),
         actions: [
           IconButton(

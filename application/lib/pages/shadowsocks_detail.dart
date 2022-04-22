@@ -159,6 +159,7 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0.0,
         title: Text(widget.shadowsocks.name),
       ),
       body: SingleChildScrollView(
