@@ -1,4 +1,4 @@
-$version = "0.8.1"
+$version = "0.8.2"
 $ErrorActionPreference = "Stop"
 
 # configurations
@@ -86,8 +86,8 @@ $ssProcess = RandomValidServer
 $message = 
 "`r`nSELECT" +
 "`r`nR  - [R]econnect to a random server" +
-"`r`nBS - open [B]rowser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
-"`r`nCS - open [C]md with http(s)_proxy=socks5h://127.0.0.1:$localSocksPort" +
+"`r`nB  - open [B]rowser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
+"`r`nC  - open [C]md with http(s)_proxy=socks5h://127.0.0.1:$localSocksPort" +
 "`r`nCH - open [C]md with http(s)_proxy=127.0.0.1:$localHttpPort" +
 "`r`nO  - [O]pen server list file" +
 "`r`nS  - remove invalid server and [S]ave to file" +
@@ -102,10 +102,10 @@ while ($true) {
             }
             $ssProcess = RandomValidServer
         }
-        "bs" {
+        "b" {
             & $exeChrome --proxy-server="socks5://127.0.0.1:$localSocksPort" 
         }
-        "cs" {
+        "c" {
             Start-Process -FilePath "cmd.exe" -ArgumentList "/k", `
                 "set https_proxy=socks5h://127.0.0.1:$localSocksPort&&", `
                 "set http_proxy=socks5h://127.0.0.1:$localSocksPort&&", `

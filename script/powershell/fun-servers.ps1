@@ -31,31 +31,28 @@ function TestServer {
     $address, $port, $password, $encrypt = -Split $shadowsocks;
     Write-Host -ForegroundColor Magenta "`r`nCheck server: $address-$port ..."
 
-    $ssProcess = Start-Process -FilePath $Global:exeShadowsocksLocal -ArgumentList `
-        '-s', $address, '-p', $port, `
-        '-k', $password, '-m', $encrypt, `
-        '-l', $localSocksPort, "-u", `
-        "-t", 4 `
-        -NoNewWindow -PassThru
+    $ssProcess = Start-Process -FilePath $Global:exeShadowsocksLocal `
+        -NoNewWindow -PassThru -ArgumentList `
+        "-s $address -p $port -k $password -m $encrypt", `
+        "-l $Global:localSocksPort -u -t 5"
 
     # make sure socks5 proxy is ready
     Start-Sleep -Milliseconds 100
 
     $statusCode = & $Global:exeCurl -s -o NUL `
-        --connect-timeout 5 `
-        --max-time 7 `
+        --connect-timeout 6 `
         -x socks5h://localhost:17029 `
-        --head -w "%{http_code}" `
-        https://www.google.com
+        --location --insecure --head -w "%{http_code}" `
+        "https://xinlake.dev"
 
     switch ($statusCode) {
         { $_ -in 200, 204, 301, 429 } {
-            Write-Host "Passed: $statusCode"
+            Write-Host  "Passed:" $statusCode
             return $ssProcess
         }
         Default {
             Stop-Process $ssProcess
-            Write-Host "Failed: $statusCode"
+            Write-Host "Failed:" $statusCode
             return $null
         }
     }
