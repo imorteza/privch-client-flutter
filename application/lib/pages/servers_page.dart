@@ -20,7 +20,7 @@ import 'widgets/shadowsocks_list.dart';
 
 class ServersPage extends StatefulWidget {
   static const route = "/home/servers";
-  static const title = "Servers";
+  static const title = "Server List";
 
   const ServersPage({Key? key}) : super(key: key);
 

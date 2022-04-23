@@ -414,7 +414,7 @@ class _AutoState extends State<HomePage> {
                     },
                   ),
                   drawerItem(
-                    Icons.settings,
+                    Icons.list,
                     ServersPage.title,
                     () {
                       Navigator.pop(context);
