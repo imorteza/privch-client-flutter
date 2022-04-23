@@ -88,6 +88,7 @@ class PrivChApp extends StatelessWidget {
             materialTapTargetSize: MaterialTapTargetSize.padded,
           ),
           themeMode: value,
+          debugShowCheckedModeBanner: false,
           // routers
           initialRoute: initSuccess
               ? ServerManager.instance.servers.isNotEmpty
