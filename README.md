@@ -2,7 +2,7 @@
 A modern VPN client built with Flutter supports Android and Windows but does not provide international communication services.
 
 ## Downloads
-* [PrivCh Android v0.5.2](.lfs/binary/xinlake.privch-v0.5.2-release.apk?raw=1)
+* [PrivCh Android v0.6.0](.lfs/binary/xinlake.privch-v0.6.0-release.apk?raw=1)
 * [PrivCh Windows v0.4.2](.lfs/binary/privch-windows-0.4.2.rar?raw=1)
 
 ## Screen
