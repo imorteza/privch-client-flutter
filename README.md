@@ -1,5 +1,11 @@
-## Private Channel
-A modern VPN client built with Flutter supports Android and Windows but does not provide international communication services.
+# Private Channel
+
+<p>
+<a href='https://play.google.com/store/apps/details?id=xinlake.privch'>
+<img alt='Get it on Google Play' height='100px' src='.lfs/google-play-badge-600x200.png'/></a>
+</p>
+
+A modern VPN client built with Flutter supports Android and Windows but does not provide international communication services. The app is also available on [Google Play](https://play.google.com/store/apps/details?id=xinlake.privch).
 
 ## Downloads
 * [PrivCh Android v0.6.0](.lfs/binary/xinlake.privch-v0.6.0-release.apk?raw=1)

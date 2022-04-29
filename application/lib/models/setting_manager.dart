@@ -7,7 +7,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:window_interface/window_placement.dart';
+import 'package:window_interface/window_interface.dart';
 import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
 import '../models/server_manager.dart';
@@ -148,9 +148,8 @@ class SettingManager {
     }
 
     final setting = settingBox.values.first;
-    final Shadowsocks? currentServer = (setting.serverSelId != null)
-        ? ServerManager.instance.getServer(setting.serverSelId!)
-        : null;
+    final Shadowsocks? currentServer =
+        (setting.serverSelId != null) ? ServerManager.instance.getServer(setting.serverSelId!) : null;
 
     _instance = SettingManager._constructor(
       setting: settingBox.values.first,
