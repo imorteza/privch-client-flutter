@@ -1,4 +1,7 @@
-$version = "0.8.2"
+# v0.9.0
+# - Automatically delete nodes that have failed more than 10 consecutive times
+
+$version = "0.9.0"
 $ErrorActionPreference = "Stop"
 
 # configurations
@@ -14,11 +17,39 @@ $localHttpPort = 17039;
 $localSocksPort = 17029;
 
 [System.Collections.ArrayList]$ssList = @()
-[System.Collections.ArrayList]$ssInvalid = @()
 $privoxyProcess = $null
 $ssProcess = $null
 
-Register-EngineEvent -SourceIdentifier PowerShell.Exiting -SupportEvent -Action {
+# source and functions
+Set-Location -Path "E:\PrivateChannel\SourceCode\script\powershell"
+. .\shadowsocks.ps1
+
+function RandomValidServer {
+    while ($true) {
+        $shadowsocks = Get-Random -InputObject $ssList
+        $ssProcess = TestServer -shadowsocks $shadowsocks
+        if ($null -eq $ssProcess) {
+            # silent
+            $shadowsocks.failTimes++
+            if ($shadowsocks.failTimes -ge 10) {
+                $ssList.Remove($shadowsocks)
+                Write-Host $ssList.Count "servers remain"
+
+                if ($ssList.Count -le 1) {
+                    Shutdown
+                    
+                    Write-Host "No server available. Exit"
+                    Exit;
+                }
+            }
+        } else {
+            $shadowsocks.failTimes = 0
+            return $ssProcess
+        }        
+    }
+}
+
+function Shutdown {
     if (-not($null -eq $privoxyProcess)) {
         Stop-Process $privoxyProcess
         $privoxyProcess = $null
@@ -29,20 +60,9 @@ Register-EngineEvent -SourceIdentifier PowerShell.Exiting -SupportEvent -Action 
     }
 }
 
-# source and functions
-Set-Location -Path "E:\PrivateChannel\SourceCode\script\powershell"
-. .\fun-servers.ps1
-
-function RandomValidServer {
-    while ($true) {
-        $shadowsocks = Get-Random -InputObject $Global:ssList
-        $ssProcess = TestServer -shadowsocks $shadowsocks
-        if ($null -eq $ssProcess) {
-            $Global:ssInvalid += $shadowsocks
-        } else {
-            return $ssProcess
-        }        
-    }
+Register-EngineEvent -SourceIdentifier PowerShell.Exiting -SupportEvent -Action {
+    Shutdown
+    SaveServer -path $txtShadowsocksList -ssList $ssList
 }
 
 
@@ -52,13 +72,13 @@ function RandomValidServer {
 
 # load and fix server list
 Write-Host -ForegroundColor Magenta "`r`nLoad servers"
-$ssList += LoadServers -path $txtShadowsocksList
+LoadServer -path $txtShadowsocksList -ssList $ssList
 if ($ssList.Count -le 1) {
     Write-Host "Server not found. Exit"
     Exit;
 } else {
-    Write-Host $ssList.Count "servers available"
-    $ssList | Out-File -FilePath $txtShadowsocksList -Encoding "UTF8"
+    Write-Host $($ssList.Count) "servers available"
+    SaveServer -path $txtShadowsocksList -ssList $ssList
 }
 
 # start privoxy daemon
@@ -85,13 +105,14 @@ $ssProcess = RandomValidServer
 
 $message = 
 "`r`nSELECT" +
-"`r`nR  - [R]econnect to a random server" +
-"`r`nB  - open [B]rowser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
-"`r`nC  - open [C]md with http(s)_proxy=socks5h://127.0.0.1:$localSocksPort" +
-"`r`nCH - open [C]md with http(s)_proxy=127.0.0.1:$localHttpPort" +
-"`r`nO  - [O]pen server list file" +
-"`r`nS  - remove invalid server and [S]ave to file" +
-"`r`nQ  - stop processes and [Q]uit`r`n"
+"`r`nR  - Reconnect to a random server and Remove invalid server" +
+"`r`n----" + 
+"`r`nB  - open Browser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
+"`r`nC  - open Cmd with http(s)_proxy=socks5h://127.0.0.1:$localSocksPort" +
+"`r`nCH - open Cmd with http(s)_proxy=127.0.0.1:$localHttpPort" +
+"`r`n----" + 
+"`r`nO  - Open server list file" +
+"`r`nQ  - stop processes and Quit`r`n"
 while ($true) {
     $option = Read-Host $message
     switch ($option.ToLower()) {
@@ -102,6 +123,7 @@ while ($true) {
             }
             $ssProcess = RandomValidServer
         }
+
         "b" {
             & $exeChrome --proxy-server="socks5://127.0.0.1:$localSocksPort" 
         }
@@ -119,30 +141,13 @@ while ($true) {
                 "set no_proxy=localhost,127.0.0.1,127.0.1.1,192.168.0.1,::1&&", `
                 "cls"
         }
+
         "o" {
             & $txtShadowsocksList
         }
-        "s" {
-            if ($ssInvalid.Count -gt 0) {
-                Write-Host "Remove" $ssInvalid.Count "invalid servers"
-                foreach ($shadowsocks in $ssInvalid) {
-                    $ssList.Remove($shadowsocks)
-                }
-
-                $ssInvalid.Clear()
-                $ssList | Out-File -FilePath $txtShadowsocksList -Encoding "UTF8"
-            }
-            Write-Host $ssList.Count "servers available"
-        }
         "q" {
-            if (-not($null -eq $privoxyProcess)) {
-                Stop-Process $privoxyProcess
-                $privoxyProcess = $null
-            }
-            if (-not($null -eq $ssProcess)) {
-                Stop-Process $ssProcess
-                $ssProcess = $null
-            }
+            Shutdown
+            SaveServer -path $txtShadowsocksList -ssList $ssList
 
             Write-Host "Exit"
             Exit
