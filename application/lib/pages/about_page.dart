@@ -24,7 +24,7 @@ class _AboutState extends State<AboutPage> {
   Widget _buildAbout() {
     final primaryColor = Theme.of(context).colorScheme.primary;
     const iconImage = Image(
-      image: AssetImage('.assets/icon.png'),
+      image: AssetImage('images/icon.png'),
       width: 60,
       height: 60,
       filterQuality: FilterQuality.high,

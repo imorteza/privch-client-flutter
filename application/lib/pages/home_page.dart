@@ -449,7 +449,7 @@ class _AutoState extends State<HomePage> {
         child: Row(
           children: [
             const Image(
-              image: AssetImage('.assets/icon.png'),
+              image: AssetImage('images/icon.png'),
               width: 40,
               height: 40,
               filterQuality: FilterQuality.high,
