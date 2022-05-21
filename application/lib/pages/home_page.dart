@@ -32,7 +32,7 @@ Future<bool> _checkConnection(Object? object) async {
   var statusCode = 404;
 
   try {
-    final uri = Uri.parse("https://google.com");
+    final uri = Uri.parse("https://xinlake.dev");
     HttpClientRequest request = await client.getUrl(uri);
     // Optionally set up headers...
     // Optionally write to the request object...
@@ -143,9 +143,11 @@ class _AutoState extends State<HomePage> {
   }
 
   Widget _buildTunnelButton() {
-    const buttonSize = 100.0;
-    const progressSize = 170.0;
-    const rippleRadius = 50.0;
+    final size = MediaQuery.of(context).size;
+
+    final double buttonSize = (size.shortestSide * 0.2).clamp(20, 100.0);
+    final double boxSize = buttonSize * 1.5;
+    final double rippleRadius = buttonSize * 0.5;
 
     final colorSecondary = Theme.of(context).colorScheme.secondary;
     final colorBackground = Theme.of(context).colorScheme.background;
@@ -155,10 +157,10 @@ class _AutoState extends State<HomePage> {
       return Stack(
         alignment: Alignment.center,
         children: [
-          const SizedBox(
-            width: progressSize,
-            height: progressSize,
-            child: CircularProgressIndicator(),
+          SizedBox(
+            width: boxSize,
+            height: boxSize,
+            child: const CircularProgressIndicator(),
           ),
           Icon(
             Icons.sync,
@@ -176,7 +178,8 @@ class _AutoState extends State<HomePage> {
         if (tunState == XinlakeTunnel.stateConnected) {
           // connected, icon
           return Container(
-            padding: const EdgeInsets.all(22),
+            width: boxSize,
+            height: boxSize,
             decoration: BoxDecoration(
               border: Border.all(color: colorBackground),
               shape: BoxShape.circle,
@@ -194,21 +197,29 @@ class _AutoState extends State<HomePage> {
           );
         } else if (tunState == XinlakeTunnel.stateStopped) {
           // stopped, small icon
-          return RippleAnimation(
-            color: colorBackground,
-            minRadius: rippleRadius,
-            duration: const Duration(seconds: 3),
-            child: IconButton(
-              onPressed: _smartConnect,
-              iconSize: buttonSize,
-              icon: const Icon(Icons.security),
+          return SizedBox(
+            width: boxSize,
+            height: boxSize,
+            child: RippleAnimation(
+              color: colorBackground,
+              minRadius: rippleRadius,
+              duration: const Duration(seconds: 3),
+              child: IconButton(
+                onPressed: _smartConnect,
+                iconSize: buttonSize,
+                icon: const Icon(Icons.security),
+              ),
             ),
           );
         } else {
           // connecting/stopping, middle icon
-          return (tunState == XinlakeTunnel.stateConnecting)
-              ? const Icon(Icons.gpp_good, size: buttonSize)
-              : const Icon(Icons.security, size: buttonSize);
+          return SizedBox(
+            width: boxSize,
+            height: boxSize,
+            child: (tunState == XinlakeTunnel.stateConnecting)
+                ? Icon(Icons.gpp_good, size: buttonSize)
+                : Icon(Icons.security, size: buttonSize),
+          );
         }
       },
     );
@@ -244,8 +255,7 @@ class _AutoState extends State<HomePage> {
 
         return Column(
           children: [
-            AspectRatio(
-              aspectRatio: 2.6,
+            Expanded(
               child: TrafficChart(
                 rxMax: rxMax,
                 txMax: txMax,
@@ -376,6 +386,59 @@ class _AutoState extends State<HomePage> {
     );
   }
 
+  Widget _buildBody() {
+    final size = MediaQuery.of(context).size;
+
+    // landscape
+    if (size.aspectRatio > 1) {
+      return Column(
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: _buildTrafficChart(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: _buildTunnelButton(),
+                ),
+              ],
+            ),
+          ),
+          const Divider(indent: 10, endIndent: 10, height: 1),
+          _buildStatus(),
+        ],
+      );
+    }
+
+    // portia
+    return Column(
+      children: [
+        AspectRatio(
+          aspectRatio: 2,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: _buildTrafficChart(),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: _buildTunnelButton(),
+            ),
+          ),
+        ),
+        const Divider(indent: 10, endIndent: 10, height: 1),
+        _buildStatus(),
+      ],
+    );
+  }
+
   Widget _buildDrawer() {
     Widget drawerItem(IconData iconData, String title, void Function() onTap) => InkWell(
           onTap: onTap,
@@ -492,19 +555,7 @@ class _AutoState extends State<HomePage> {
         title: const Text(HomePage.title),
       ),
       drawer: _buildDrawer(),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          _buildTrafficChart(),
-          Expanded(
-            child: Center(
-              child: _buildTunnelButton(),
-            ),
-          ),
-          const Divider(indent: 10, endIndent: 10, height: 1),
-          _buildStatus(),
-        ],
-      ),
+      body: _buildBody(),
     );
   }
 

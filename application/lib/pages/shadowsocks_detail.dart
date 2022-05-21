@@ -23,7 +23,7 @@ class ShadowsocksDetailPage extends StatefulWidget {
   final Shadowsocks shadowsocks;
 
   @override
-  _ShadowsocksDetailState createState() => _ShadowsocksDetailState();
+  State<StatefulWidget> createState() => _ShadowsocksDetailState();
 }
 
 class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {

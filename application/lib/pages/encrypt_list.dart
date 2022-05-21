@@ -17,7 +17,7 @@ class EncryptListPage extends StatefulWidget {
   final String encrypt;
 
   @override
-  _EncryptListState createState() => _EncryptListState();
+  State<StatefulWidget> createState() => _EncryptListState();
 }
 
 class _EncryptListState extends State<EncryptListPage> {

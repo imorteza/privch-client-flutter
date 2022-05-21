@@ -17,7 +17,7 @@ class AboutPage extends StatefulWidget {
   static const title = "About";
 
   @override
-  _AboutState createState() => _AboutState();
+  State<StatefulWidget> createState() => _AboutState();
 }
 
 class _AboutState extends State<AboutPage> {
@@ -116,9 +116,10 @@ class _AboutState extends State<AboutPage> {
         // privacy
         InkWell(
           onTap: () async {
-            await launch(
-              gPrivacyPolicy,
-              enableJavaScript: true,
+            await launchUrl(
+              Uri.parse(gPrivacyPolicy),
+              mode: LaunchMode.platformDefault,
+              webOnlyWindowName: "_blank",
             );
           },
           child: Padding(

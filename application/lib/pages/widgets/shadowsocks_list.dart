@@ -136,12 +136,12 @@ class ShadowsocksListState extends State<ShadowsocksList> {
       onDismissed: (direction) {
         _onItemRemove(shadowsocks);
       },
+      background: _buildItemBgLeft(colorBg, colorFg),
+      secondaryBackground: _buildItemBgRight(colorBg, colorFg),
       child: ShadowsocksWidget(
         onTap: () => _onItemSelected(shadowsocks),
         shadowsocks: shadowsocks,
       ),
-      background: _buildItemBgLeft(colorBg, colorFg),
-      secondaryBackground: _buildItemBgRight(colorBg, colorFg),
     );
   }
 

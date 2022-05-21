@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// You can use whatever widget as a [child], when you don't need to provide any
-/// [child], just provide an empty Container().
-/// You can set [repeat] to true for making a paulsing effect.
 class RippleAnimation extends StatefulWidget {
   const RippleAnimation({
     Key? key,
@@ -21,7 +18,7 @@ class RippleAnimation extends StatefulWidget {
   final Widget? child;
 
   @override
-  _RippleAnimationState createState() => _RippleAnimationState();
+  State<StatefulWidget> createState() => _RippleAnimationState();
 }
 
 class _RippleAnimationState extends State<RippleAnimation> with TickerProviderStateMixin {

@@ -1,6 +1,6 @@
 /*
   Xinlake Liu
-  2022-02-28
+  2022-05-22
  */
 
 import 'package:flutter/material.dart';
@@ -18,12 +18,32 @@ class SorryPage extends StatefulWidget {
 }
 
 class _SorryState extends State<SorryPage> {
-  Future<void> _launchUrl(String url) async {
-    await launch(
-      url,
-      forceWebView: true,
-      enableJavaScript: true,
-    );
+  Future<void> _launchMail() async {
+    try {
+      await launchUrl(
+        Uri.parse("mailto:$gXinlakeMail"),
+        mode: LaunchMode.platformDefault,
+      );
+    } catch (error) {
+      final size = MediaQuery.of(context).size;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(
+            bottom: size.height * 0.1,
+            left: size.width * 0.1,
+            right: size.width * 0.1,
+          ),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text("Unable to perform email action"),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -42,8 +62,8 @@ class _SorryState extends State<SorryPage> {
               textScaleFactor: 1.2,
             ),
             TextButton(
-              child: const Text(gXinlakeDev),
-              onPressed: () => _launchUrl(gXinlakeDev),
+              onPressed: _launchMail,
+              child: const Text(gXinlakeMail),
             ),
           ],
         ),

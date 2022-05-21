@@ -22,7 +22,7 @@ class SettingPage extends StatefulWidget {
   static const title = "Settings";
 
   @override
-  _SettingState createState() => _SettingState();
+  State<StatefulWidget> createState() => _SettingState();
 }
 
 class _SettingState extends State<SettingPage> {
@@ -208,6 +208,7 @@ class _SettingState extends State<SettingPage> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildDebug() {
     return Row(
       children: [
@@ -237,7 +238,6 @@ class _SettingState extends State<SettingPage> {
             const Divider(height: 20),
             _buildNetworkSettings(),
             const SizedBox(height: 20),
-            _buildDebug(),
           ],
         ),
       ),

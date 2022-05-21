@@ -43,8 +43,8 @@ class TrafficChart extends StatelessWidget {
       return FlSpot(index.toDouble(), txTrace[index].toDouble());
     });
 
-    // max y, at least 1k
-    final maxY = max(max(rxMax, txMax), 1000);
+    // max y, at least 10k
+    final maxY = max(max(rxMax, txMax), 10000);
 
     return LineChart(
       LineChartData(

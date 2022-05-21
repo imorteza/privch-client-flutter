@@ -33,8 +33,8 @@ Future<bool> _initData() async {
 
   // init database
   Hive.init(appDir.endsWith(Platform.pathSeparator)
-      ? appDir + "database"
-      : appDir + Platform.pathSeparator + "database");
+      ? "${appDir}database"
+      : "$appDir${Platform.pathSeparator}database");
   Hive.registerAdapter(ShadowsocksAdapter());
   Hive.registerAdapter(SettingAdapter());
 

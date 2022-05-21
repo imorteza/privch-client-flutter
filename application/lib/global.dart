@@ -6,8 +6,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-const gXinlakeDev = "https://xinlake.dev";
-const gPrivacyPolicy = "https://github.com/xinlake/privch/blob/main/PRIVACY-POLICY.md";
+const gXinlakeMail = "xinlake@outlook.com";
+const gPrivacyPolicy = "https://xinlake.dev/app/privch/privacy-policy/";
 final gDateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
 
 // TODO: Not used

@@ -169,7 +169,8 @@ class _HomeState extends State<ServersPage> {
     final added = ssList.length - updated;
     final servers = added > 1 ? 'servers' : 'server';
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    if (!mounted) return;
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
