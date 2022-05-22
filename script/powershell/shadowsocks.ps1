@@ -49,8 +49,7 @@ function LoadServer {
         $shadowsocks.password = $password
         $shadowsocks.encrypt = $encrypt
         $shadowsocks.failTimes = [convert]::ToInt32($failTimes)
-        # silent
-        $_count = $ssList.Add($shadowsocks)
+        [void]$ssList.Add($shadowsocks)
     }
 }
 
@@ -68,8 +67,7 @@ function SaveServer {
     
     [System.Collections.ArrayList]$fileContent = @()
     ForEach ($shadowsocks in $ssList) {
-        # silent
-        $_count = $fileContent.Add($shadowsocks.ToString())
+        [void]$fileContent.Add($shadowsocks.ToString())
     }
 
     $fileContent | Out-File -FilePath $txtShadowsocksList -Encoding "UTF8"
