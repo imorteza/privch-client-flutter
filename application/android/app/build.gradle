@@ -29,7 +29,7 @@ android {
     namespace 'xinlake.privch'
 
     buildToolsVersion "32.0.0"
-    ndkVersion "23.1.7779620"
+    ndkVersion '24.0.8215888'
     compileSdkVersion 32
 
     compileOptions {
