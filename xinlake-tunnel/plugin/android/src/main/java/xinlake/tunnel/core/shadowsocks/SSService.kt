@@ -290,7 +290,7 @@ class SSService : VpnService() {
         conn = null
     }
 
-    /* shadowsocks-android v5.2.6
+    /* shadowsocks-rust v1.11.2
      * shadowsocks-android. com/github/shadowsocks/bg/ProxyInstance.kt
      *
      * top, command line, libsslocal.so

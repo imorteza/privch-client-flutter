@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath 'com.android.tools.build:gradle:7.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
     }
 }
@@ -28,6 +28,7 @@ apply plugin: 'kotlin-android'
 
 android {
     buildToolsVersion "32.0.0"
+    ndkVersion '24.0.8215888'
     compileSdkVersion 32
 
     compileOptions {
@@ -40,6 +41,19 @@ android {
 
     defaultConfig {
         minSdkVersion 24
+
+        externalNativeBuild {
+            cmake {
+                abiFilters 'armeabi-v7a', 'arm64-v8a'
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            version "3.18.1"
+            path "src/main/cpp/CMakeLists.txt"
+        }
     }
 
     /* Build fail:
