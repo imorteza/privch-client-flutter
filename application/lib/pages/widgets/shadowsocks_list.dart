@@ -113,9 +113,10 @@ class ShadowsocksListState extends State<ShadowsocksList> {
     );
   }
 
-  Widget _buildItem(bool odd, Shadowsocks shadowsocks) {
+  Widget _buildItem(bool even, Shadowsocks shadowsocks) {
+    final colorPrimary = Theme.of(context).colorScheme.primary;
+    final colorSecondary = Theme.of(context).colorScheme.secondary;
     final colorBg = Theme.of(context).hoverColor;
-    final colorFg = Theme.of(context).colorScheme.secondary;
 
     return Dismissible(
       key: Key("${shadowsocks.hashCode}"),
@@ -136,11 +137,11 @@ class ShadowsocksListState extends State<ShadowsocksList> {
       onDismissed: (direction) {
         _onItemRemove(shadowsocks);
       },
-      background: _buildItemBgLeft(colorBg, colorFg),
-      secondaryBackground: _buildItemBgRight(colorBg, colorFg),
+      background: _buildItemBgLeft(colorBg, colorSecondary),
+      secondaryBackground: _buildItemBgRight(colorBg, colorSecondary),
       child: ShadowsocksWidget(
         onTap: () => _onItemSelected(shadowsocks),
-        bg: odd ? colorFg.withOpacity(0.05) : null,
+        bg: even ? null : colorPrimary.withOpacity(0.05),
         shadowsocks: shadowsocks,
       ),
     );
@@ -166,17 +167,17 @@ class ShadowsocksListState extends State<ShadowsocksList> {
         ssList.sort((ss1, ss2) => ss1.name.compareTo(ss2.name));
         break;
       case ServerSortMode.encrypt:
-        ssList.sort((ss1, ss2) => ss1.address.compareTo(ss2.encrypt));
+        ssList.sort((ss1, ss2) => ss1.encrypt.compareTo(ss2.encrypt));
         break;
     }
 
-    var odd = false;
+    var even = false;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
         children: ssList.map<Widget>((shadowsocks) {
-          odd = !odd;
-          return _buildItem(odd, shadowsocks);
+          even = !even;
+          return _buildItem(even, shadowsocks);
         }).toList(),
       ),
     );
