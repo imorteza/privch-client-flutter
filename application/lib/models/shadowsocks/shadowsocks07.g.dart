@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'shadowsocks.dart';
+part of 'shadowsocks07.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator

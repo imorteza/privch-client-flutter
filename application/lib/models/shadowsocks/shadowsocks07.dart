@@ -13,11 +13,11 @@ import 'package:hive/hive.dart';
 import 'package:xinlake_text/generator.dart';
 import 'package:xinlake_text/validator.dart';
 
-import '../global.dart';
+import '../../global.dart';
 
-part 'shadowsocks.g.dart';
+part 'shadowsocks07.g.dart';
 
-/// `flutter packages pub run build_runner build --delete-conflicting-outputs`
+/// flutter packages pub run build_runner build --delete-conflicting-outputs
 ///
 @HiveType(typeId: 1)
 class Shadowsocks extends HiveObject {

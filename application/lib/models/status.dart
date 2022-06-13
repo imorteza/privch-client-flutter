@@ -5,7 +5,7 @@
 
 import 'package:flutter/foundation.dart';
 
-import '../models/shadowsocks.dart';
+import 'shadowsocks/shadowsocks07.dart';
 
 /// shadowsocks sort methods
 enum ServerSortMode { modified, address, name }

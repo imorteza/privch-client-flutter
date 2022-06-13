@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/server_manager.dart';
 import '../../models/setting_manager.dart';
-import '../../models/shadowsocks.dart';
+import '../../models/shadowsocks/shadowsocks07.dart';
 import '../../models/status.dart';
 import '../../pages/shadowsocks_detail.dart';
 import '../../pages/widgets/shadowsocks_widget.dart';

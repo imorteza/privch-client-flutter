@@ -10,7 +10,7 @@ import 'dart:async';
 import 'package:hive/hive.dart';
 
 import '../models/setting_manager.dart';
-import '../models/shadowsocks.dart';
+import 'shadowsocks/shadowsocks07.dart';
 
 /// server data manager
 class ServerManager {

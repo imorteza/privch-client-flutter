@@ -12,7 +12,7 @@ import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 
 import '../models/server_manager.dart';
 import '../models/setting.dart';
-import '../models/shadowsocks.dart';
+import 'shadowsocks/shadowsocks07.dart';
 import 'status.dart';
 
 class SettingManager {

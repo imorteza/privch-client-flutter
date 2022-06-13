@@ -12,7 +12,7 @@ import 'package:xinlake_qrcode/xinlake_qrcode.dart';
 import '../models/content.dart';
 import '../models/server_manager.dart';
 import '../models/setting_manager.dart';
-import '../models/shadowsocks.dart';
+import '../models/shadowsocks/shadowsocks07.dart';
 import '../models/status.dart';
 import 'shadowsocks_detail.dart';
 import 'widgets/service_panel.dart';

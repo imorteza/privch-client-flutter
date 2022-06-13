@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:xinlake_text/validator.dart';
 
-import '../models/shadowsocks.dart';
+import '../models/shadowsocks/shadowsocks07.dart';
 import '../pages/encrypt_list.dart';
 
 class ShadowsocksDetailPage extends StatefulWidget {

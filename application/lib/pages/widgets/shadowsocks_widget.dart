@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/setting_manager.dart';
-import '../../models/shadowsocks.dart';
+import '../../models/shadowsocks/shadowsocks07.dart';
 
 class ShadowsocksWidget extends StatefulWidget {
   const ShadowsocksWidget({

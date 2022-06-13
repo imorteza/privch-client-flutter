@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../models/shadowsocks.dart';
+import '../models/shadowsocks/shadowsocks07.dart';
 
 class EncryptListPage extends StatefulWidget {
   const EncryptListPage({
