@@ -113,7 +113,7 @@ class ShadowsocksListState extends State<ShadowsocksList> {
     );
   }
 
-  Widget _buildItem(Shadowsocks shadowsocks) {
+  Widget _buildItem(bool odd, Shadowsocks shadowsocks) {
     final colorBg = Theme.of(context).hoverColor;
     final colorFg = Theme.of(context).colorScheme.secondary;
 
@@ -140,6 +140,7 @@ class ShadowsocksListState extends State<ShadowsocksList> {
       secondaryBackground: _buildItemBgRight(colorBg, colorFg),
       child: ShadowsocksWidget(
         onTap: () => _onItemSelected(shadowsocks),
+        bg: odd ? colorFg.withOpacity(0.05) : null,
         shadowsocks: shadowsocks,
       ),
     );
@@ -158,22 +159,24 @@ class ShadowsocksListState extends State<ShadowsocksList> {
 
     final ssList = _servers.servers.toList();
     switch (_settings.status.sortMode) {
-      case ServerSortMode.modified:
+      case ServerSortMode.updated:
         ssList.sort((ss1, ss2) => -ss1.modified.compareTo(ss2.modified));
-        break;
-      case ServerSortMode.address:
-        ssList.sort((ss1, ss2) => ss1.address.compareTo(ss2.address));
         break;
       case ServerSortMode.name:
         ssList.sort((ss1, ss2) => ss1.name.compareTo(ss2.name));
         break;
+      case ServerSortMode.encrypt:
+        ssList.sort((ss1, ss2) => ss1.address.compareTo(ss2.encrypt));
+        break;
     }
 
+    var odd = false;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
         children: ssList.map<Widget>((shadowsocks) {
-          return _buildItem(shadowsocks);
+          odd = !odd;
+          return _buildItem(odd, shadowsocks);
         }).toList(),
       ),
     );

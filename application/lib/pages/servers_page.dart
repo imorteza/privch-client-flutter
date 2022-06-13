@@ -211,14 +211,14 @@ class _HomeState extends State<ServersPage> {
           final bool selected = (item == _settings.status.sortMode);
           final String sortBy;
           switch (item) {
-            case ServerSortMode.modified:
-              sortBy = "Modified";
-              break;
-            case ServerSortMode.address:
-              sortBy = "Address";
+            case ServerSortMode.updated:
+              sortBy = "Updated";
               break;
             case ServerSortMode.name:
               sortBy = "Name";
+              break;
+            case ServerSortMode.encrypt:
+              sortBy = "Encrypt";
               break;
           }
 

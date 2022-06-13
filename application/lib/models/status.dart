@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'shadowsocks/shadowsocks07.dart';
 
 /// shadowsocks sort methods
-enum ServerSortMode { modified, address, name }
+enum ServerSortMode { updated, name, encrypt }
 
 class Status extends ChangeNotifier {
   Shadowsocks? _currentServer;

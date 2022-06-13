@@ -12,13 +12,15 @@ import '../../models/shadowsocks/shadowsocks07.dart';
 
 class ShadowsocksWidget extends StatefulWidget {
   const ShadowsocksWidget({
-    required this.onTap,
+    required this.bg,
     required this.shadowsocks,
+    required this.onTap,
     Key? key,
   }) : super(key: key);
 
-  final void Function() onTap;
+  final Color? bg;
   final Shadowsocks shadowsocks;
+  final void Function() onTap;
 
   @override
   State<StatefulWidget> createState() => _ShadowsocksState();
@@ -34,7 +36,7 @@ class _ShadowsocksState extends State<ShadowsocksWidget> {
     final themeData = Theme.of(context);
 
     return Container(
-      color: selected ? themeData.secondaryHeaderColor : null,
+      color: selected ? themeData.secondaryHeaderColor : widget.bg,
       child: InkWell(
         onTap: widget.onTap,
         child: Row(
@@ -63,15 +65,18 @@ class _ShadowsocksState extends State<ShadowsocksWidget> {
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: Text(
-                            shadowsocks.modified,
-                            style: themeData.textTheme.caption,
-                            softWrap: false,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        Text(
+                          shadowsocks.encrypt.toUpperCase(),
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
+                          style: themeData.textTheme.caption,
                         ),
-                        // TODO: "${ss.responseTime.value}ms",
+                        Text(
+                          shadowsocks.modified,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
+                          style: themeData.textTheme.caption,
+                        ),
                       ],
                     ),
                   ],
