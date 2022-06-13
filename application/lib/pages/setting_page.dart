@@ -29,8 +29,7 @@ class _SettingState extends State<SettingPage> {
   final _servers = ServerManager.instance;
   final _setting = SettingManager.instance;
 
-  int? _httpPort;
-  int? _socksPort;
+  int? _proxyPort;
   int? _dnsLocalPort;
   String? _dnsRemoteAddress;
 
@@ -42,8 +41,7 @@ class _SettingState extends State<SettingPage> {
     return Form(
       onWillPop: () async {
         await _setting.updateTunnelSetting(
-          httpPort: _httpPort,
-          socksPort: _socksPort,
+          proxyPort: _proxyPort,
           dnsLocalPort: _dnsLocalPort,
           dnsRemoteAddress: _dnsRemoteAddress,
         );
@@ -62,14 +60,14 @@ class _SettingState extends State<SettingPage> {
                     flex: 1,
                     child: TextFormField(
                       autovalidateMode: AutovalidateMode.always,
-                      decoration: inputDecoration.copyWith(labelText: "Socks Port"),
+                      decoration: inputDecoration.copyWith(labelText: "Proxy Port"),
                       keyboardType: TextInputType.number,
-                      initialValue: "${_setting.socksPort}",
+                      initialValue: "${_setting.proxyPort}",
                       validator: (value) {
                         if (value != null) {
                           final port = Validator.getPortNumber(value);
                           if (port != null) {
-                            _socksPort = port;
+                            _proxyPort = port;
                             return null;
                           }
                         }
@@ -119,53 +117,21 @@ class _SettingState extends State<SettingPage> {
         }
 
         // settings for Windows
-        return Column(
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: TextFormField(
-                    autovalidateMode: AutovalidateMode.always,
-                    decoration: inputDecoration.copyWith(labelText: "Http Proxy Port"),
-                    keyboardType: TextInputType.number,
-                    initialValue: "${_setting.httpPort}",
-                    validator: (value) {
-                      if (value != null) {
-                        final port = Validator.getPortNumber(value);
-                        if (port != null) {
-                          _httpPort = port;
-                          return null;
-                        }
-                      }
-                      return "Invalid port number";
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  flex: 1,
-                  child: TextFormField(
-                    autovalidateMode: AutovalidateMode.always,
-                    decoration: inputDecoration.copyWith(labelText: "Socks Port"),
-                    keyboardType: TextInputType.number,
-                    initialValue: "${_setting.socksPort}",
-                    validator: (value) {
-                      if (value != null) {
-                        final port = Validator.getPortNumber(value);
-                        if (port != null) {
-                          _socksPort = port;
-                          return null;
-                        }
-                      }
-                      return "Invalid port number";
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
+        return TextFormField(
+          autovalidateMode: AutovalidateMode.always,
+          decoration: inputDecoration.copyWith(labelText: "Proxy Port"),
+          keyboardType: TextInputType.number,
+          initialValue: "${_setting.proxyPort}",
+          validator: (value) {
+            if (value != null) {
+              final port = Validator.getPortNumber(value);
+              if (port != null) {
+                _proxyPort = port;
+                return null;
+              }
+            }
+            return "Invalid port number";
+          },
         );
       }),
     );

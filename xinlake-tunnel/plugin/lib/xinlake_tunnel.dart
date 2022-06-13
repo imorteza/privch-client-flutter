@@ -109,18 +109,16 @@ class XinlakeTunnel {
   /// * [dnsLocalPort], [dnsRemoteAddress] dns settings
   ///
   /// Windows
-  /// * [httpPort] local http proxy listen port
+  /// * [proxyPort] local http proxy listen port
   ///
-  /// [httpPort] parameter used on Windows only
+  /// [proxyPort] parameter used on Windows only
   static Future<void> updateSettings({
-    int? httpPort,
-    int? socksPort,
+    int? proxyPort,
     int? dnsLocalPort,
     String? dnsRemoteAddress,
   }) async {
     await _methodChannel.invokeMethod("updateSettings", {
-      "httpPort": httpPort,
-      "socksPort": socksPort,
+      "proxyPort": proxyPort,
       "dnsLocalPort": dnsLocalPort,
       "dnsRemoteAddress": dnsRemoteAddress,
     });

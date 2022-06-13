@@ -2,18 +2,7 @@
 //
 #include "resource.h"
 
-EXE_PRIVOXY  RCDATA  "properties\\privoxy-x64\\privoxy.exe"
-
-DLL_LIBBLOOM        RCDATA  "properties\\shadowsocks-libev-x64\\libbloom.dll"
-DLL_LIBCORK         RCDATA  "properties\\shadowsocks-libev-x64\\libcork.dll"
-DLL_LIBEV_4         RCDATA  "properties\\shadowsocks-libev-x64\\libev-4.dll"
-DLL_LIBGCC_S_SEH_1  RCDATA  "properties\\shadowsocks-libev-x64\\libgcc_s_seh-1.dll"
-DLL_LIBIPSET        RCDATA  "properties\\shadowsocks-libev-x64\\libipset.dll"
-DLL_LIBMBEDCRYPTO   RCDATA  "properties\\shadowsocks-libev-x64\\libmbedcrypto.dll"
-DLL_LIBPCRE_1       RCDATA  "properties\\shadowsocks-libev-x64\\libpcre-1.dll"
-DLL_LIBSODIUM_23    RCDATA  "properties\\shadowsocks-libev-x64\\libsodium-23.dll"
-DLL_LIBWINPTHREAD_1 RCDATA  "properties\\shadowsocks-libev-x64\\libwinpthread-1.dll"
-EXE_SS_LOCAL        RCDATA  "properties\\shadowsocks-libev-x64\\ss-local.exe"
+EXE_SS_LOCAL        RCDATA  "properties\\shadowsocks-rust-x64\\sslocal.exe"
 
 
 #define APSTUDIO_READONLY_SYMBOLS

@@ -7,6 +7,8 @@
 #include <string>
 #include <thread>
 
+extern int localProxyPort;
+
 // event 
 extern void notifyMessage(std::string message);
 extern void notifyServerChanged(int serverId);
@@ -16,10 +18,10 @@ extern void notifyStateChanged(int state);
 extern void startShadowsocks(
     int port, std::string& address, std::string& password, std::string& encrypt);
 extern BOOL stopShadowsocks();
-extern void updateSettings(int localHttpPort, int localSocksPort);
+extern void restartShadowsocks(int proxyPort);
 
 // proxy control
-extern BOOL EnableProxy();
+extern BOOL EnableProxy(int port);
 extern BOOL DisableProxy();
 
 
@@ -89,7 +91,7 @@ void connectTunnel(const flutter::MethodCall<flutter::EncodableValue>& method_ca
     startShadowsocks(port, address, password, encrypt);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    EnableProxy();
+    EnableProxy(localProxyPort);
 
     notifyServerChanged(serverId);
     _setState(STATE_CONNECTED);
@@ -119,24 +121,18 @@ void stopTunnel(const flutter::MethodCall<flutter::EncodableValue>& method_call,
 
 void updateSettings(const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-    int httpPort = -1;
-    int socksPort = -1;
+    int proxyPort = -1;
 
     // check arguments
     const auto* arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
     if (arguments) {
-        auto httpPortValue = arguments->find(flutter::EncodableValue("httpPort"));
-        if (httpPortValue != arguments->end()) {
-            httpPort = std::get<int>(httpPortValue->second);
-        }
-
-        auto socksPortValue = arguments->find(flutter::EncodableValue("socksPort"));
-        if (socksPortValue != arguments->end()) {
-            socksPort = std::get<int>(socksPortValue->second);
+        auto proxyPortValue = arguments->find(flutter::EncodableValue("proxyPort"));
+        if (proxyPortValue != arguments->end()) {
+            proxyPort = std::get<int>(proxyPortValue->second);
         }
     }
 
-    updateSettings(httpPort, socksPort);
+    restartShadowsocks(proxyPort);
     result->Success(flutter::EncodableValue(nullptr));
 }
 

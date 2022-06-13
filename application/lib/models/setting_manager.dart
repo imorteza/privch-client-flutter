@@ -25,8 +25,8 @@ class SettingManager {
   /// indicate theme mode has been changed
   final ValueNotifier<ThemeMode> onThemeMode;
 
-  int get httpPort => _settings.httpPort;
-  int get socksPort => _settings.socksPort;
+  // int get httpPort => _settings.httpPort;
+  int get proxyPort => _settings.socksPort;
   int get dnsLocalPort => _settings.dnsLocalPort;
   String get dnsRemoteAddress => _settings.dnsRemoteAddress;
 
@@ -46,20 +46,14 @@ class SettingManager {
   }
 
   Future<void> updateTunnelSetting({
-    int? httpPort,
-    int? socksPort,
+    int? proxyPort,
     int? dnsLocalPort,
     String? dnsRemoteAddress,
   }) async {
     var save = false;
 
-    if (httpPort != null) {
-      _settings.httpPort = httpPort;
-      save = true;
-    }
-
-    if (socksPort != null) {
-      _settings.socksPort = socksPort;
+    if (proxyPort != null) {
+      _settings.socksPort = proxyPort;
       save = true;
     }
 
@@ -75,8 +69,7 @@ class SettingManager {
 
     if (save) {
       await XinlakeTunnel.updateSettings(
-        httpPort: httpPort,
-        socksPort: socksPort,
+        proxyPort: proxyPort,
         dnsLocalPort: dnsLocalPort,
         dnsRemoteAddress: dnsRemoteAddress,
       );

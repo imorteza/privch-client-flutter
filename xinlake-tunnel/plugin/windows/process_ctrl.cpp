@@ -11,105 +11,25 @@
 #include <fstream>
 #include <filesystem>
 
-extern BOOL EnableProxy();
+// proxy control
+extern BOOL EnableProxy(int port);
 extern BOOL DisableProxy();
 
-const std::string privoxyDir = "binary\\privoxy-x64";
-const std::string privoxyExe = "privoxy.exe";
-const std::string privoxyConfig = "config.txt";
-const std::vector<std::pair<int, std::string>> privoxyFiles{
-    std::pair<int, std::string>{EXE_PRIVOXY,"privoxy.exe"},
-};
-
-const std::string ssDir = "binary\\shadowsocks-libev-x64";
-const std::string ssLocalExe = "ss-local.exe";
+// resource files
+const std::string ssDir = "binary\\shadowsocks-rust-x64";
+const std::string ssLocalExe = "sslocal.exe";
 const std::vector<std::pair<int, std::string>> ssFiles{
-    std::pair<int, std::string>{DLL_LIBBLOOM,"libbloom.dll"},
-    std::pair<int, std::string>{DLL_LIBCORK,"libcork.dll"},
-    std::pair<int, std::string>{DLL_LIBEV_4,"libev-4.dll"},
-    std::pair<int, std::string>{DLL_LIBGCC_S_SEH_1,"libgcc_s_seh-1.dll"},
-    std::pair<int, std::string>{DLL_LIBIPSET,"libipset.dll"},
-    std::pair<int, std::string>{DLL_LIBMBEDCRYPTO,"libmbedcrypto.dll"},
-    std::pair<int, std::string>{DLL_LIBPCRE_1,"libpcre-1.dll"},
-    std::pair<int, std::string>{DLL_LIBSODIUM_23,"libsodium-23.dll"},
-    std::pair<int, std::string>{DLL_LIBWINPTHREAD_1,"libwinpthread-1.dll"},
-    std::pair<int, std::string>{EXE_SS_LOCAL,"ss-local.exe"},
+    std::pair<int, std::string>{EXE_SS_LOCAL,"sslocal.exe"},
 };
 
-// settings
-int localHttpPort = 1080;
-int localSocksPort = 7039;
+// shadowsocks-rust have http proxy
+int localProxyPort = 7039;
 
-static DWORD _privoxyProcessId = 0;
+static int _port;
+static std::string _address;
+static std::string _password;
+static std::string _encrypt;
 static DWORD _ssProcessId = 0;
-
-void writePrivoxyConfig() {
-    std::vector<std::string> configuration{
-        "listen-address 127.0.0.1:" + std::to_string(localHttpPort),
-        "toggle 0",
-        "forward-socks5 / 127.0.0.1:" + std::to_string(localSocksPort) + " .",
-        "max-client-connections 2048",
-        "activity-animation 0",
-        "show-on-task-bar 0",
-        "hide-console",
-    };
-
-    std::filesystem::path exePath = std::filesystem::current_path() / privoxyDir;
-    std::ofstream configFile(exePath / privoxyConfig, std::ios::binary);
-
-    for (std::string configLine : configuration) {
-        configFile << configLine << "\r\n";
-    }
-
-    configFile.close();
-}
-
-void startPrivoxy() {
-    if (_privoxyProcessId != 0) {
-        // running
-        return;
-    }
-
-    // start privoxy process. 
-    STARTUPINFO startInfo{ sizeof(startInfo), 0 }; // set cb (first element) and others
-    PROCESS_INFORMATION processInfo{ 0 };
-
-    std::filesystem::path exePath = std::filesystem::current_path() / privoxyDir;
-    std::wstring privoxy = exePath / privoxyExe;
-    std::wstring command = exePath / privoxyConfig;
-    std::wstring working = exePath;
-
-    if (CreateProcess(privoxy.data(), command.data(),
-        NULL, NULL, FALSE, CREATE_NO_WINDOW | CREATE_NEW_PROCESS_GROUP, NULL,
-        working.data(), &startInfo, &processInfo)) {
-
-        _privoxyProcessId = processInfo.dwProcessId;
-
-        // Close process and thread handles. 
-        CloseHandle(processInfo.hProcess);
-        CloseHandle(processInfo.hThread);
-    }
-}
-
-BOOL stopPrivoxy() {
-    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, _privoxyProcessId);
-    if (hProcess != NULL) {
-        TerminateProcess(hProcess, 0);
-
-        DWORD waitResult = WaitForSingleObject(hProcess, 3000);
-        if (waitResult == WAIT_OBJECT_0) {
-            _privoxyProcessId = 0;
-        } else {
-            // TODO: (sorry) tell user terminate process manually
-        }
-
-        CloseHandle(hProcess);
-        return waitResult == WAIT_OBJECT_0;
-    }
-
-    // not running
-    return TRUE;
-}
 
 std::wstring WStringFromString(const std::string& string) {
     std::vector<wchar_t> buff(
@@ -122,8 +42,8 @@ std::wstring WStringFromString(const std::string& string) {
 }
 
 void startShadowsocks(int port, std::string& address, std::string& password, std::string& encrypt) {
+    // running
     if (_ssProcessId != 0) {
-        // running
         return;
     }
 
@@ -131,14 +51,18 @@ void startShadowsocks(int port, std::string& address, std::string& password, std
     STARTUPINFO startInfo{ sizeof(startInfo), 0 }; // set cb (first element) and others
     PROCESS_INFORMATION processInfo{ 0 };
 
+    _port = port;
+    _address = address;
+    _password = password;
+    _encrypt = encrypt;
+
     std::filesystem::path exePath = std::filesystem::current_path() / ssDir;
     std::wstring ssLocal = exePath / ssLocalExe;
     std::wstring working = exePath;
-    std::string command =
-        " -s " + address + " -p " + std::to_string(port) +
-        " -k " + password + " -m " + encrypt +
-        " -l " + std::to_string(localSocksPort) +
-        " -u -t 3";
+    std::string command = " -s " + _address + ":" + std::to_string(port) +
+        " -k " + _password + " -m " + _encrypt +
+        " -b 127.0.0.1:" + std::to_string(localProxyPort) +
+        " --protocol http -U --timeout 5";
 
     // convert to wstring, the codecvt header are deprecated in C++17
     std::wstring wCommand = WStringFromString(command);
@@ -171,25 +95,24 @@ BOOL stopShadowsocks() {
         return waitResult == WAIT_OBJECT_0;
     }
 
-    // not running
+    // sslocal may stop itself on some internal reason
+    _ssProcessId = 0;
     return TRUE;
 }
 
-void updateSettings(int httpPort, int socksPort) {
-    if (socksPort > 0) {
-        localSocksPort = socksPort;
-    }
+void restartShadowsocks(int proxyPort) {
+    if (proxyPort > 0 && localProxyPort != proxyPort) {
+        // update config
+        localProxyPort = proxyPort;
 
-    if (httpPort > 0 && localHttpPort != httpPort) {
-        localHttpPort = httpPort;
+        if (_ssProcessId != 0) {
+            DisableProxy();
+            stopShadowsocks();
 
-        DisableProxy();
-        stopPrivoxy();
-
-        // update privoxy config
-        writePrivoxyConfig();
-        startPrivoxy();
-        EnableProxy();
+            // apply config
+            startShadowsocks(_port, _address, _password, _encrypt);
+            EnableProxy(localProxyPort);
+        }
     }
 }
 
@@ -201,7 +124,6 @@ void cacheBinaries() {
 
     // privoxy, shadowsocks
     std::map<std::string, std::vector<std::pair<int, std::string>>> dirs{
-        {privoxyDir, privoxyFiles},
         {ssDir, ssFiles},
     };
 

@@ -15,7 +15,7 @@ import 'package:xinlake_tunnel/xinlake_tunnel.dart';
 import 'models/server_manager.dart';
 import 'models/setting.dart';
 import 'models/setting_manager.dart';
-import 'models/shadowsocks.dart';
+import 'models/shadowsocks/shadowsocks07.dart';
 import 'pages/about_page.dart';
 import 'pages/encrypt_list.dart';
 import 'pages/home_page.dart';
@@ -44,8 +44,7 @@ Future<bool> _initData() async {
 
   // init tunnel
   await XinlakeTunnel.updateSettings(
-    httpPort: settings.httpPort,
-    socksPort: settings.socksPort,
+    proxyPort: settings.proxyPort,
     dnsLocalPort: settings.dnsLocalPort,
     dnsRemoteAddress: settings.dnsRemoteAddress,
   );

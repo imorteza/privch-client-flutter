@@ -45,8 +45,15 @@ localhost;\
 172.31.*;\
 192.168.*";
 
+BOOL EnableProxy(WCHAR* pServer, WCHAR* pBypass);
+BOOL DisableProxy();
 static int _refreshSetting();
 
+
+BOOL EnableProxy(int port) {
+    std::wstring server = L"127.0.0.1:" + std::to_wstring(port);
+    return EnableProxy(server.data(), _bypass);
+}
 
 /*
     Turn on system proxy. Reference code:
@@ -91,12 +98,6 @@ BOOL EnableProxy(WCHAR* pServer, WCHAR* pBypass) {
     // Free the allocated memory.
     delete[] list.pOptions;
     return bReturn;
-}
-
-BOOL EnableProxy() {
-    extern int localHttpPort;
-    std::wstring server = L"127.0.0.1:" + std::to_wstring(localHttpPort);
-    return EnableProxy(server.data(), _bypass);
 }
 
 

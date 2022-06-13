@@ -82,22 +82,15 @@ namespace {
     // initialize plugin
     XinlakeTunnelPlugin::XinlakeTunnelPlugin() {
         extern void cacheBinaries();
-        extern void writePrivoxyConfig();
-        extern void startPrivoxy();
-
-        cacheBinaries();      // cache binary files 
-        writePrivoxyConfig(); // write configurations
-        startPrivoxy();
+        cacheBinaries();      // cache binary files
     }
 
     // dispose plugin
     XinlakeTunnelPlugin::~XinlakeTunnelPlugin() {
-        extern BOOL stopPrivoxy();
-        extern BOOL stopShadowsocks();
         extern BOOL DisableProxy();
+        extern BOOL stopShadowsocks();
 
         DisableProxy();
-        stopPrivoxy();
         stopShadowsocks();
     }
 
@@ -109,6 +102,8 @@ namespace {
 
         if (method_name == "getTrafficBytes") {
             // not implement. use clr or win32
+            result->NotImplemented();
+        } else if (method_name == "getState") {
             result->NotImplemented();
         } else if (method_name == "connectTunnel") {
             connectTunnel(method_call, std::move(result));
