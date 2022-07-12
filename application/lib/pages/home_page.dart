@@ -23,10 +23,14 @@ class HomePage extends StatefulWidget {
   State<StatefulWidget> createState() => _AutoState();
 }
 
-Future<bool> _checkConnection(Object? object) async {
+Future<bool> _checkConnection(String proxy) async {
   final client = HttpClient()
     ..connectionTimeout = const Duration(seconds: 7)
     ..badCertificateCallback = (certificate, host, port) => true;
+
+  if (Platform.isWindows) {
+    client.findProxy = (uri) => "PROXY $proxy";
+  }
 
   // http status
   var statusCode = 404;
@@ -84,7 +88,7 @@ class _AutoState extends State<HomePage> {
       await Future.delayed(const Duration(milliseconds: 150));
 
       // check connection in a isolate
-      final ready = await compute(_checkConnection, null);
+      final ready = await compute(_checkConnection, "127.0.0.1:${_settings.proxyPort}");
       if (ready) {
         setState(() => _processing = false);
         return;
@@ -98,7 +102,7 @@ class _AutoState extends State<HomePage> {
       await Future.delayed(const Duration(milliseconds: 150));
 
       // check connection in a isolate
-      connected = await compute(_checkConnection, null);
+      connected = await compute(_checkConnection, "127.0.0.1:${_settings.proxyPort}");
       if (connected) {
         break;
       }
