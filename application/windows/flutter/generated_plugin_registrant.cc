@@ -10,7 +10,7 @@
 #include <window_interface/window_interface_plugin.h>
 #include <xinlake_platform/xinlake_platform_plugin.h>
 #include <xinlake_qrcode/xinlake_qrcode_plugin.h>
-#include <xinlake_tunnel/xinlake_tunnel_plugin.h>
+#include <xinlake_tunnel/xinlake_tunnel_plugin_c_api.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   UrlLauncherWindowsRegisterWithRegistrar(
@@ -21,6 +21,6 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("XinlakePlatformPlugin"));
   XinlakeQrcodePluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("XinlakeQrcodePlugin"));
-  XinlakeTunnelPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("XinlakeTunnelPlugin"));
+  XinlakeTunnelPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("XinlakeTunnelPluginCApi"));
 }

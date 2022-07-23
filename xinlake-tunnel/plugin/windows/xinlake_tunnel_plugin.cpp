@@ -1,4 +1,4 @@
-#include "include/xinlake_tunnel/xinlake_tunnel_plugin.h"
+#include "xinlake_tunnel_plugin.h"
 
 // This must be included before many other Windows headers.
 #include <windows.h>
@@ -27,21 +27,7 @@ extern void updateSettings(const flutter::MethodCall<flutter::EncodableValue>& m
 extern void setEventSink(std::unique_ptr<flutter::EventSink<>>& eventSink);
 
 
-namespace {
-    class XinlakeTunnelPlugin : public flutter::Plugin {
-    public:
-        static void RegisterWithRegistrar(flutter::PluginRegistrarWindows* registrar);
-
-        XinlakeTunnelPlugin();
-        virtual ~XinlakeTunnelPlugin();
-
-    private:
-        // Called when a method is called on this plugin's channel from Dart.
-        void HandleMethodCall(
-            const flutter::MethodCall<flutter::EncodableValue>& method_call,
-            std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
-    };
-
+namespace xinlake_tunnel {
     // static
     void XinlakeTunnelPlugin::RegisterWithRegistrar(
         flutter::PluginRegistrarWindows* registrar) {
@@ -116,9 +102,3 @@ namespace {
         }
     }
 }  // namespace
-
-void XinlakeTunnelPluginRegisterWithRegistrar(FlutterDesktopPluginRegistrarRef registrar) {
-    XinlakeTunnelPlugin::RegisterWithRegistrar(
-        flutter::PluginRegistrarManager::GetInstance()
-        ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
-}
