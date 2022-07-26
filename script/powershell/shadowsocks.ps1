@@ -87,16 +87,16 @@ function TestServer {
 
     $ssProcess = Start-Process -FilePath $Global:exeShadowsocksLocal `
         -NoNewWindow -PassThru -ArgumentList `
-        "-s $($shadowsocks.address) -p $($shadowsocks.port)", `
+        "-s $($shadowsocks.address):$($shadowsocks.port)", `
         "-k $($shadowsocks.password) -m $($shadowsocks.encrypt)", `
-        "-l $Global:localSocksPort -u -t 5"
+        "-b 127.0.0.1:$Global:localSocksPort -U --timeout 5"
 
     # make sure socks5 proxy is ready
     Start-Sleep -Milliseconds 100
 
     $statusCode = & $Global:exeCurl -s -o NUL `
         --connect-timeout 6 `
-        -x socks5h://localhost:$($Global:localSocksPort) `
+        -x socks5h://127.0.0.1:$($Global:localSocksPort) `
         --location --insecure --head -w "%{http_code}" `
         "https://xinlake.dev"
 

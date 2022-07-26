@@ -1,26 +1,26 @@
+# v0.9.2
+# - update to the sslocal rust implementation
 # v0.9.1
 # - Start the privoxy process when needed
 # - Manually save the server list
 # v0.9.0
 # - Automatically delete nodes that have failed more than 10 consecutive times
 
-$version = "0.9.1"
+$version = "0.9.2"
 $ErrorActionPreference = "Stop"
 
 # configurations
 $Global:exeCurl = "D:\cURL\win64-mingw\bin\curl.exe"
 $exeChrome = "C:\Program Files\Google\Chrome\Application\chrome.exe"
-$exePrivoxy = "D:\PrivChX\privoxy-x64\privoxy.exe"
-$Global:exeShadowsocksLocal = "D:\PrivChX\shadowsocks-libev-x64\ss-local.exe"
-
-$txtPrivoxyConfig = "D:\PrivChX\privoxy-x64\config.txt"
+$Global:exeShadowsocksLocal = "D:\PrivChX\shadowsocks-rust-x64\sslocal.exe"
 $txtShadowsocksList = "D:\PrivChX\server-list.txt"
 
 $localHttpPort = 17039;
 $localSocksPort = 17029;
 
 [System.Collections.ArrayList]$ssList = @()
-$privoxyProcess = $null
+$Global:shadowsocks = $null
+$ssProcessH = $null
 $ssProcess = $null
 
 # source and functions
@@ -28,30 +28,32 @@ Set-Location -Path "E:\PrivateChannel\SourceCode\script\powershell"
 . .\shadowsocks.ps1
 
 function NextValidServer {
-    foreach ($shadowsocks in $ssList) {
-        if ($shadowsocks.failTimes -gt 10) {
+    foreach ($Global:shadowsocks in $ssList) {
+        # $shadowsocks = Get-Random -InputObject $ssList
+        if ($Global:shadowsocks.failTimes -gt 10) {
             continue; 
         }
 
-        $ssProcess = TestServer -shadowsocks $shadowsocks
+        $ssProcess = TestServer -shadowsocks $Global:shadowsocks
         if ($null -eq $ssProcess) {
-            $shadowsocks.failTimes++
+            $Global:shadowsocks.failTimes++
         } else {
-            $shadowsocks.failTimes = 0
+            $Global:shadowsocks.failTimes = 0
             
             SaveServer -path $txtShadowsocksList -ssList $ssList
             return $ssProcess
         }    
     }
     
+    $Global:shadowsocks = $null
     SaveServer -path $txtShadowsocksList -ssList $ssList
     Write-Host -ForegroundColor Red "`r`nNo valid server found"
 }
 
 function Shutdown {
-    if (-not($null -eq $privoxyProcess)) {
-        Stop-Process $privoxyProcess
-        $privoxyProcess = $null
+    if (-not($null -eq $ssProcessH)) {
+        Stop-Process $ssProcessH
+        $ssProcessH = $null
     }
     if (-not($null -eq $ssProcess)) {
         Stop-Process $ssProcess
@@ -87,7 +89,7 @@ $ssProcess = NextValidServer
 
 $message = 
 "`r`nSELECT" +
-"`r`nR  - Reconnect to a random server and Remove invalid server" +
+"`r`nN  - connect to Next server" +
 "`r`n----" + 
 "`r`nB  - open Browser(Chrome) with --socks5-proxy=socks5://127.0.0.1:$localSocksPort" +
 "`r`nC  - open Cmd with http(s)_proxy=socks5h://127.0.0.1:$localSocksPort" +
@@ -98,7 +100,7 @@ $message =
 while ($true) {
     $option = Read-Host $message
     switch ($option.ToLower()) {
-        "r" {
+        "n" {
             if (-not($null -eq $ssProcess)) {
                 Write-Host "`r`nStop socks server"
                 Stop-Process $ssProcess
@@ -117,22 +119,21 @@ while ($true) {
                 "set no_proxy=localhost,127.0.0.1,127.0.1.1,192.168.0.1,::1&&", `
                 "cls"
         }
-        "ch" {            
-            # start privoxy daemon
-            if ($null -eq $privoxyProcess) {
-                Write-Host -ForegroundColor Magenta "`r`nStart privoxy ..."
-                $privoxyConfig = "listen-address 127.0.0.1:$localHttpPort" +
-                "`r`ntoggle 0" +
-                "`r`nforward-socks5 / 127.0.0.1:$localSocksPort ." +
-                "`r`nmax-client-connections 2048" +
-                "`r`nactivity-animation 0" +
-                "`r`nshow-on-task-bar 0" +
-                "`r`nhide-console"
-                $privoxyConfig | Out-File -FilePath $txtPrivoxyConfig -Encoding "ASCII"
-                $privoxyProcess = Start-Process -FilePath $exePrivoxy -ArgumentList $txtPrivoxyConfig `
-                    -NoNewWindow -PassThru
+        "ch" {
+            if ($null -eq $Global:shadowsocks) {
+                break
+            }
 
-                # make sure privoxy is ready
+            # start sslocal with http protocol parameter
+            if ($null -eq $ssProcessH) {
+                Write-Host -ForegroundColor Magenta "`r`nStart sslocal http ..."
+                $ssProcessH = Start-Process -FilePath $Global:exeShadowsocksLocal `
+                    -NoNewWindow -PassThru -ArgumentList `
+                    "-s $($Global:shadowsocks.address):$($Global:shadowsocks.port)", `
+                    "-k $($Global:shadowsocks.password) -m $($Global:shadowsocks.encrypt)", `
+                    "-b 127.0.0.1:$Global:localHttpPort --protocol http -U --timeout 5"
+
+                # make sure process is ready
                 Start-Sleep -Milliseconds 100
             }
 
