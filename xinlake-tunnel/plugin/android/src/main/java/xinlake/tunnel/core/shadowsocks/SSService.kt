@@ -326,7 +326,7 @@ class SSService : VpnService() {
         // acl bypass_private_route
         TunnelCore.BYPASS_PRIVATE_ROUTE.forEach {
             val subnet = Subnet.fromString(it)!!
-            builder.addRoute(subnet.address.hostAddress, subnet.prefixSize)
+            builder.addRoute(subnet.address.hostAddress!!, subnet.prefixSize)
         }
         builder.addRoute(PRIVATE_VLAN4_ROUTER, 32)
         // https://issuetracker.google.com/issues/149636790

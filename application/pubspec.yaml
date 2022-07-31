@@ -39,7 +39,7 @@ dependencies:
   xinlake_text: ^0.2.0
   xinlake_qrcode: ^0.2.0
   xinlake_platform: ^0.2.2
-  window_interface: ^0.5.0
+  window_interface: ^0.5.1
 
   xinlake_tunnel:
     path: ../xinlake-tunnel/plugin/
