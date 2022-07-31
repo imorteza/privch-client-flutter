@@ -80,7 +80,7 @@ class _EncryptListState extends State<EncryptListPage> {
         const Text("Encrypt Method"),
         const SizedBox(height: 5),
         Text(
-          _encrypt.toUpperCase(),
+          _encrypt,
           textScaleFactor: 0.7,
           style: const TextStyle(
             fontStyle: FontStyle.italic,
@@ -100,7 +100,11 @@ class _EncryptListState extends State<EncryptListPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: (_encrypt != widget.encrypt) ? () => Navigator.pop(context, _encrypt) : null,
+            onPressed: (_encrypt != widget.encrypt)
+                ? () {
+                    Navigator.pop(context, _encrypt.toLowerCase());
+                  }
+                : null,
           ),
         ],
       ),

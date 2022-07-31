@@ -263,6 +263,7 @@ class Shadowsocks extends HiveObject {
 }
 
 /// ss-local v1.11.2 (shadowsocks-android)
+/// values will stored in lowercase
 const List<String> ssEncryptMethods = [
   "PLAIN",
   "NONE",
