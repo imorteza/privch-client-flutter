@@ -28,9 +28,9 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 android {
     namespace 'xinlake.privch'
 
-    buildToolsVersion "32.0.0"
-    ndkVersion '24.0.8215888'
-    compileSdkVersion 32
+    buildToolsVersion "33.0.0"
+    ndkVersion '25.1.8937393'
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

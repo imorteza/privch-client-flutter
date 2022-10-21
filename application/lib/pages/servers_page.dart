@@ -29,6 +29,7 @@ class ServersPage extends StatefulWidget {
 }
 
 class _HomeState extends State<ServersPage> {
+  final xPlatform = XinPlatform();
   final _servers = ServerManager.instance;
   final _settings = SettingManager.instance;
 
@@ -112,18 +113,17 @@ class _HomeState extends State<ServersPage> {
   }
 
   Future<void> _importImage() async {
-    final images = await XinPlatform.pickFiles(
+    final images = await xPlatform.pickFile(
       multiSelection: true,
-      mimeType: "image/*",
+      mimeTypes: "image/*",
       cacheDir: XinAndroidAppDir.externalFiles,
-      filterName: "JPEG, PNG Images",
-      filterPattern: "*.jpg; *.jpeg; *.png",
+      typesDescription: "JPEG, PNG Images",
     );
     if (images == null || images.isEmpty) {
       return;
     }
 
-    final codeList = await XinQrcode.readImage(images);
+    final codeList = await XinQrcode.readImage(images.map((file) => file.path!).toList());
     if (codeList == null || codeList.isEmpty) {
       return;
     }
@@ -260,7 +260,7 @@ class _HomeState extends State<ServersPage> {
     );
   }
 
-  // the content when the list is empty
+  // the content when the list is  empty
   Widget _buildEmptyServer() {
     return Column(
       mainAxisSize: MainAxisSize.max,

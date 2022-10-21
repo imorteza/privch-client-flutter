@@ -21,6 +21,8 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutState extends State<AboutPage> {
+  final xPlatform = XinPlatform();
+
   Widget _buildAbout() {
     final primaryColor = Theme.of(context).colorScheme.primary;
     const iconImage = Image(
@@ -65,7 +67,7 @@ class _AboutState extends State<AboutPage> {
                 ),
                 const SizedBox(height: 5),
                 FutureBuilder<XinVersionInfo?>(
-                  future: XinPlatform.getAppVersion(),
+                  future: xPlatform.getAppVersion(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data != null) {
                       return Text(
@@ -91,7 +93,7 @@ class _AboutState extends State<AboutPage> {
         // license
         InkWell(
           onTap: () async {
-            final verInfo = await XinPlatform.getAppVersion();
+            final verInfo = await xPlatform.getAppVersion();
             showLicensePage(
               context: context,
               applicationVersion: verInfo?.version,

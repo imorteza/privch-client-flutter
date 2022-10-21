@@ -25,8 +25,10 @@ import 'pages/shadowsocks_detail.dart';
 import 'pages/sorry_page.dart';
 
 Future<bool> _initData() async {
+  final xPlatform = XinPlatform();
+
   // init directory
-  final appDir = await XinPlatform.getAppDir();
+  final appDir = await xPlatform.getAppDir();
   if (appDir == null) {
     return false;
   }

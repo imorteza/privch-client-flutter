@@ -8,8 +8,8 @@
 
 #include <url_launcher_windows/url_launcher_windows.h>
 #include <window_interface/window_interface_plugin_c_api.h>
-#include <xinlake_platform/xinlake_platform_plugin.h>
-#include <xinlake_qrcode/xinlake_qrcode_plugin.h>
+#include <xinlake_platform/xinlake_platform_plugin_c_api.h>
+#include <xinlake_qrcode/xinlake_qrcode_plugin_c_api.h>
 #include <xinlake_tunnel/xinlake_tunnel_plugin_c_api.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
@@ -17,10 +17,10 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("UrlLauncherWindows"));
   WindowInterfacePluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("WindowInterfacePluginCApi"));
-  XinlakePlatformPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("XinlakePlatformPlugin"));
-  XinlakeQrcodePluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("XinlakeQrcodePlugin"));
+  XinlakePlatformPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("XinlakePlatformPluginCApi"));
+  XinlakeQrcodePluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("XinlakeQrcodePluginCApi"));
   XinlakeTunnelPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("XinlakeTunnelPluginCApi"));
 }
