@@ -117,7 +117,7 @@ class _HomeState extends State<ServersPage> {
       multiSelection: true,
       mimeTypes: "image/*",
       cacheDir: XinAndroidAppDir.externalFiles,
-      typesDescription: "JPEG, PNG Images",
+      typesDescription: "Images",
     );
     if (images == null || images.isEmpty) {
       return;
