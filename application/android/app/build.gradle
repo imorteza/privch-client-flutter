@@ -39,7 +39,7 @@ android {
 
     defaultConfig {
         applicationId "xinlake.privch"
-        targetSdkVersion 32
+        targetSdkVersion 33
         minSdkVersion 26
 
         versionCode flutterVersionCode.toInteger()
