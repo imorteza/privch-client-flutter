@@ -51,28 +51,10 @@ android {
 
     externalNativeBuild {
         cmake {
-            version "3.18.1"
+            version "3.22.1"
             path "src/main/cpp/CMakeLists.txt"
         }
     }
-
-    /* Build fail:
-    The plugin `xinlake_tunnel` doesn't have a main class defined in
-    xinlake-tunnel\android\src\main\java\xinlake\tunnel\XinlakeTunnelPlugin.java
-    or xinlake-tunnel\android\src\main\kotlin\xinlake\tunnel\XinlakeTunnelPlugin.kt.
-    This is likely to due to an incorrect `androidPackage: xinlake.tunnel`
-    or `mainClass` entry in the plugin's pubspec.yaml.
-    sourceSets {
-        main {
-            manifest.srcFile 'main/AndroidManifest.xml'
-            java.srcDirs = ['main/java']
-            res.srcDirs = ['main/res']
-            aidl.srcDirs = ['main/aidl']
-            renderscript.srcDirs = ['main/rs']
-            jniLibs.srcDirs = ['main/jniLibs']
-            assets.srcDirs = ['main/assets']
-        }
-    }*/
 }
 
 dependencies {

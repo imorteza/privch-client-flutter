@@ -7,8 +7,48 @@
 
 A modern VPN client built with Flutter supports Android and Windows but does not provide international communication services. The app is also available on [Google Play](https://play.google.com/store/apps/details?id=xinlake.privch).
 
-## Screen
-**Android**
+# Build
+### Requirements
+* **Git**. Make sure `git.exe` can be called by other build systems
+* **Flutter SDK**. Make sure `flutter doctor -v` doesn't prompt issues after [installing the Flutter SDK](https://docs.flutter.dev/get-started/install/windows), 
+* **Android Studio**, only required to build Android APK.
+    * Android SDK Command-line Tools (last)
+    * CMake
+    * NDK
+* **Visual Studio 2022**, only required to build Windows (native) application.
+    * "Desktop development with C++" workload
+    * C++ CMake tools for Windows
+    * [Optional] Windows 10 SDK v10.0.20348.0
+
+### Clean
+```
+C:\privch\application> flutter clean
+```
+
+### Build Android APK
+* Option 1, using Flutter commands.
+```
+C:\privch\application> flutter pub get
+C:\privch\application> flutter build apk
+```
+
+* Option 2, using Android Studio.
+
+Run the `flutter pub get` command then open `<SOURCE-CODE>/application/android` with Android Studio.
+
+### Build Windows Application
+* Option 1, using Flutter commands.
+```
+C:\privch\application> flutter pub get
+C:\privch\application> flutter build windows
+```
+
+* Option 2, using Visual Studio.
+
+Run the `flutter pub get` command, Open Visual Studio select "Open a local folder" then select `<SOURCE-CODE>/application/windows`.
+
+# Screen
+### Android
 <p>
 <table>
     <tr>
@@ -24,7 +64,7 @@ A modern VPN client built with Flutter supports Android and Windows but does not
 </table>
 </p>
 
-**Windows**
+### Windows
 <p>
 <table>
     <tr>

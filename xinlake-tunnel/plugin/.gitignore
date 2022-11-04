@@ -31,5 +31,4 @@ build/
 
 # Xinlake
 **/.cxx
-**/*.so
 RC*
