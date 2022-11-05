@@ -1,3 +1,6 @@
+# Xinlake
+/binary
+
 # Miscellaneous
 *.class
 *.log
@@ -8,9 +11,7 @@
 .buildlog/
 .history
 .svn/
-
-# Xinlake
-/binary
+migrate_working_dir/
 
 # IntelliJ related
 *.iml
@@ -33,9 +34,6 @@
 .pub-cache/
 .pub/
 /build/
-
-# Web related
-lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols
