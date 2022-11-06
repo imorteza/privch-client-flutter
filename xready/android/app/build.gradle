@@ -1,0 +1,109 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("flutter.sdk not found in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionCode == null || flutterVersionName == null) {
+    throw new GradleException("flutter.versionCode or flutter.versionName not found in local.properties file.")
+}
+
+def isXinlake = System.getProperty("user.name").toLowerCase().contentEquals("xinlake")
+if (isXinlake) {
+    apply from: "xinlake.gradle"
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+    namespace 'xinlake.ready'
+
+    buildToolsVersion "33.0.0"
+    ndkVersion '25.1.8937393'
+    compileSdkVersion 33
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    defaultConfig {
+        applicationId "xinlake.ready"
+        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 26
+
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+
+        setProperty("archivesBaseName", applicationId + "-v" + versionName)
+
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
+        }
+    }
+
+    signingConfigs {
+        if (isXinlake) {
+            xinlake {
+                storeFile file(signingStoreFile)
+                storePassword signingStorePassword
+                keyAlias signingKeyAlias
+                keyPassword signingKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig isXinlake ? signingConfigs.xinlake : signingConfigs.debug
+        }
+        profile {
+            signingConfig isXinlake ? signingConfigs.xinlake : signingConfigs.debug
+        }
+        release {
+            signingConfig isXinlake ? signingConfigs.xinlake : signingConfigs.debug
+        }
+    }
+
+    // custom apk name and copy apk
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            if (output.outputFileName?.endsWith('.apk')) {
+                // copy apk
+                variant.assembleProvider.get().doLast {
+                    copy {
+                        from output.outputFile
+                        into "../../../.app"
+                    }
+                }
+            }
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+}

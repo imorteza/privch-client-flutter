@@ -31,7 +31,7 @@ repositories {
 2. Add dependency
 
 ``` gradle
-implementation "dev.xinlake:armoury:1.1.3-alpha"
+implementation "dev.xinlake:armoury:1.1.6"
 ```
 
 # Demonstration
