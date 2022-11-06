@@ -5,8 +5,8 @@ version: 0.2.0
 publish_to: 'none'
 
 description: A collection of commonly used text functions.
-repository: https://github.com/xinlake/armoury/tree/main/xinlake-text/package
-issue_tracker: https://github.com/xinlake/armoury/issues
+repository: https://github.com/xinlake/privch/tree/main/xinlake-text/package
+issue_tracker: https://github.com/xinlake/privch/issues
 homepage: https://xinlake.dev
 
 environment:

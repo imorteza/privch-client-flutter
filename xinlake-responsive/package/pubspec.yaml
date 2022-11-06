@@ -5,8 +5,8 @@ version: 0.1.6
 publish_to: 'none'
 
 description: Components for responsive design.
-repository: https://github.com/xinlake/armoury/tree/main/xinlake-responsive/package
-issue_tracker: https://github.com/xinlake/armoury/issues
+repository: https://github.com/xinlake/privch/tree/main/xinlake-responsive/package
+issue_tracker: https://github.com/xinlake/privch/issues
 homepage: https://xinlake.dev
 
 environment:

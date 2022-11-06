@@ -5,8 +5,8 @@ version: 0.3.0
 publish_to: 'none'
 
 description: Platform implements collection.
-repository: https://github.com/xinlake/armoury/tree/main/xinlake-platform/plugin
-issue_tracker: https://github.com/xinlake/armoury/issues
+repository: https://github.com/xinlake/privch/tree/main/xinlake-platform/plugin
+issue_tracker: https://github.com/xinlake/privch/issues
 homepage: https://xinlake.dev
 
 environment:

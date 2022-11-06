@@ -25,7 +25,7 @@ A modern VPN client built with Flutter supports Android and Windows but does not
 C:\privch\application> flutter clean
 ```
 
-### Build Android APK
+### Build PrivCh Android APK
 * Option 1, using Flutter commands.
 ```
 C:\privch\application> flutter pub get
@@ -36,7 +36,7 @@ C:\privch\application> flutter build apk
 
 Run the `flutter pub get` command then open `<SOURCE-CODE>/application/android` with Android Studio.
 
-### Build Windows Application
+### Build PrivCh Windows Application
 * Option 1, using Flutter commands.
 ```
 C:\privch\application> flutter pub get

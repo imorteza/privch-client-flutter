@@ -2,7 +2,7 @@
 buildscript {
     def versionMajor = 1 //12bit
     def versionMinor = 1 //10bit
-    def versionRevision = 5 //10bit
+    def versionRevision = 6 //10bit
 
     ext {
         buildHost = "${InetAddress.localHost.hostName}"

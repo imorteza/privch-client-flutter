@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>xinlake.zxing.native</id>
-        <version>1.3.0.1</version>
+        <version>1.4.0</version>
         <authors>Xinlake Liu</authors>
         <license type="expression">MIT</license>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <readme>docs\README.md</readme>
         <description>Zxing c++ static library</description>
-        <summary>Original forked from https://github.com/nu-book/zxing-cpp</summary>
-        <projectUrl>https://github.com/xinlake/armoury/tree/main/xinlake-qrcode/.ready/zxing-windows</projectUrl>
+        <summary>Original forked from https://github.com/zxing-cpp/zxing-cpp</summary>
+        <projectUrl>https://github.com/xinlake/privch/tree/main/xinlake-qrcode/zxing-slib</projectUrl>
         <tags>zxing c++ native</tags>
     </metadata>
     <files>
@@ -18,7 +18,7 @@
         <file src="..\.target\x64.Release\lib-zxing.lib" target="\lib\native\zxing-x64.Release.lib" />
         <file src="..\.target\x86.Debug\lib-zxing.lib" target="\lib\native\zxing-x86.Debug.lib" />
         <file src="..\.target\x86.Release\lib-zxing.lib" target="\lib\native\zxing-x86.Release.lib" />
-        <file src="..\..\..\plugin\windows\lib-zxing\*.h" target="\lib\native\lib-zxing\" />
+        <file src="..\..\plugin\windows\lib-zxing\*.h" target="\lib\native\lib-zxing\" />
         <file src="xinlake.zxing.native.targets" target="\build\native\xinlake.zxing.native.targets" />
     </files>
 </package>

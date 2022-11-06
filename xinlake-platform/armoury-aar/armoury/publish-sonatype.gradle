@@ -46,12 +46,12 @@ publishing {
             pom {
                 name = "Armoury"
                 description = "Xinlake android library for Flutter plugin"
-                url = "https://github.com/xinlake/armoury/tree/main/xinlake-platform/.ready/armoury-android"
+                url = "https://github.com/xinlake/privch/tree/main/xinlake-platform/armoury-aar"
 
                 licenses {
                     license {
                         name = "MIT License"
-                        url = "https://github.com/xinlake/armoury/tree/main/xinlake-platform/.ready/armoury-android/LICENSE"
+                        url = "https://github.com/xinlake/privch/tree/main/xinlake-platform/armoury-aar/LICENSE"
                     }
                 }
 
@@ -64,9 +64,9 @@ publishing {
                 }
 
                 scm {
-                    connection = "scm:git:git://github.com/armoury.git"
-                    developerConnection = "scm:git:ssh://github.com/armoury.git"
-                    url = "https://github.com/xinlake/armoury/tree/main/xinlake-platform/.ready/armoury-android"
+                    connection = "scm:git:git://github.com/xinlake/privch.git"
+                    developerConnection = "scm:git:ssh://github.com/xinlake/privch.git"
+                    url = "https://github.com/xinlake/privch/tree/main/xinlake-platform/armoury-aar"
                 }
             }
 
