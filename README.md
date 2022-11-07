@@ -2,10 +2,21 @@
 
 <p>
 <a href='https://play.google.com/store/apps/details?id=xinlake.privch'>
-<img alt='Get it on Google Play' height='100px' src='.lfs/google-play-badge-600x200.png'/></a>
+<img alt='Get it on Google Play' height='100px' src='.lfs/google-play-badge-600x200.png'/>
+</a>
 </p>
 
 A modern VPN client built with Flutter supports Android and Windows but does not provide international communication services. The app is also available on [Google Play](https://play.google.com/store/apps/details?id=xinlake.privch).
+
+| Directory | Description |
+|---------|---------|
+| [application](./application/) | The privch cross-platform VPN client app |
+| [xinlake-responsive](./xinlake-responsive/) | A Flutter package that contains widgets for responsive design |
+| [xinlake-text](./xinlake-text/) | A Flutter package that supports text processing |
+| [xinlake-qrcode](./xinlake-qrcode/) | A Flutter plugin that read barcode from images, cameras, screens |
+| [xinlake-platform](./xinlake-platform/) | A Flutter plugin that contains platform-side implementations to help Flutter apps interact with the system |
+| [window-interface](./window-interface/) | A Flutter plugin that controls the native window of your flutter app on Windows |
+
 
 # Build
 ### Requirements
