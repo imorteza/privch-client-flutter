@@ -32,31 +32,35 @@ A modern VPN client built with Flutter supports Android and Windows but does not
     * [Optional] Windows 10 SDK v10.0.20348.0
 
 ### Clean
-```
+```powershell
 C:\privch\application> flutter clean
 ```
 
 ### Build PrivCh Android APK
 * Option 1, using Flutter commands.
-```
+```powershell
 C:\privch\application> flutter pub get
+
+# This step is only required when doing a fresh build
+C:\privch\application\android> .\gradlew.bat generateReleaseSources
+
 C:\privch\application> flutter build apk
 ```
 
 * Option 2, using Android Studio.
 
-Run the `flutter pub get` command then open `<SOURCE-CODE>/application/android` with Android Studio.
+Run the `flutter pub get` command then open `<SOURCE-CODE>/application/android` with Android Studio. For fresh builds you need to execute `Build` -> `Run Generate Sources Gradle Tasks` before building APK
 
 ### Build PrivCh Windows Application
 * Option 1, using Flutter commands.
-```
+```powershell
 C:\privch\application> flutter pub get
 C:\privch\application> flutter build windows
 ```
 
 * Option 2, using Visual Studio.
 
-Run the `flutter pub get` command, Open Visual Studio select "Open a local folder" then select `<SOURCE-CODE>/application/windows`.
+Run the `flutter pub get` command, Open Visual Studio select "Open a local folder" then select `<SOURCE-CODE>/application/windows`. 
 
 # Screen
 ### Android
