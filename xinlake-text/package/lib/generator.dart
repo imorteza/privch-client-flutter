@@ -18,19 +18,19 @@ class Generator {
   }) {
     assert(letters || uppercase || specialChar || numbers);
 
-    final String _sourceChars = (letters ? _lettersLowercase : '') +
+    final String sourceChars = (letters ? _lettersLowercase : '') +
         (uppercase ? _lettersUppercase : '') +
         (numbers ? _numbers : '') +
         (specialChar ? _special : '');
 
     // generate random password
-    String _result = "";
-    while (_result.length < passwordLength) {
-      final index = Random.secure().nextInt(_sourceChars.length);
-      _result += _sourceChars[index];
+    String result = "";
+    while (result.length < passwordLength) {
+      final index = Random.secure().nextInt(sourceChars.length);
+      result += sourceChars[index];
     }
 
-    return _result;
+    return result;
   }
 
   /// return random ip address

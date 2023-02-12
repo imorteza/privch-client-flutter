@@ -92,14 +92,16 @@ class _AboutState extends State<AboutPage> {
         InkWell(
           onTap: () async {
             final verInfo = await _xinPlatform.getAppVersion();
-            showLicensePage(
-              context: context,
-              applicationVersion: verInfo?.version,
-              applicationIcon: const Padding(
-                padding: EdgeInsets.all(10),
-                child: iconImage,
-              ),
-            );
+            if (context.mounted) {
+              showLicensePage(
+                context: context,
+                applicationVersion: verInfo?.version,
+                applicationIcon: const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: iconImage,
+                ),
+              );
+            }
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

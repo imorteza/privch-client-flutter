@@ -5,7 +5,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
-import 'dart:typed_data';
 
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:http/http.dart' as http;

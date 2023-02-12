@@ -212,7 +212,7 @@ class _ServiceState extends State<ServicePanel> {
                           ),
                           Text(
                             Readable.formatSize(txMax),
-                            style: Theme.of(context).textTheme.caption,
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       );
@@ -235,7 +235,7 @@ class _ServiceState extends State<ServicePanel> {
                           ),
                           Text(
                             Readable.formatSize(rxMax),
-                            style: Theme.of(context).textTheme.caption,
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       );

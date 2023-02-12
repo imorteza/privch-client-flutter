@@ -75,7 +75,7 @@ class _PickFileState extends State<PickFileDemo> {
   }
 
   Widget _buildResults() {
-    final style = Theme.of(context).textTheme.caption;
+    final style = Theme.of(context).textTheme.bodySmall;
     // empty view
     if (_pathList == null) {
       return Center(

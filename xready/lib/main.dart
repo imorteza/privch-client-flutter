@@ -19,14 +19,18 @@ class ReadyApp extends StatelessWidget {
           title: 'Xinlake Packages',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            brightness: Brightness.light,
-            primarySwatch: Colors.teal,
-            errorColor: Colors.orange,
+            colorScheme: ColorScheme.fromSwatch(
+              brightness: Brightness.light,
+              primarySwatch: Colors.teal,
+              errorColor: Colors.orange,
+            ),
           ),
           darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            primarySwatch: Colors.teal,
-            errorColor: Colors.deepOrange,
+            colorScheme: ColorScheme.fromSwatch(
+              brightness: Brightness.dark,
+              primarySwatch: Colors.teal,
+              errorColor: Colors.deepOrange,
+            ),
           ),
           themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
           home: const HomePage(),

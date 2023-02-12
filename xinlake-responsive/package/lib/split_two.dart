@@ -29,10 +29,10 @@ class SplitTwo extends StatefulWidget {
   final Color? dividerColorActive;
 
   @override
-  _SplitState createState() => _SplitState();
+  SplitState createState() => SplitState();
 }
 
-class _SplitState extends State<SplitTwo> {
+class SplitState extends State<SplitTwo> {
   late double _dividerPos; // 0-1
   Color? _dividerColor;
 
@@ -83,7 +83,7 @@ class _SplitState extends State<SplitTwo> {
               ),
               Container(
                 width: 1,
-                color: widget.dividerColor ?? Theme.of(context).backgroundColor,
+                color: widget.dividerColor ?? Theme.of(context).colorScheme.background,
               ),
               SizedBox(
                 width: widthB,
@@ -149,7 +149,7 @@ class _SplitState extends State<SplitTwo> {
               ),
               Container(
                 height: 1,
-                color: widget.dividerColor ?? Theme.of(context).backgroundColor,
+                color: widget.dividerColor ?? Theme.of(context).colorScheme.background,
               ),
               SizedBox(
                 height: heightB,

@@ -51,17 +51,19 @@ class ShadowsocksListState extends State<ShadowsocksList> {
     // remove the server
     if (await _servers.delete(shadowsocks)) {
       // cancel remove
-      ScaffoldMessenger.of(context).removeCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        duration: const Duration(seconds: 2),
-        content: Text("${shadowsocks.name} removed"),
-        action: SnackBarAction(
-          label: "Undo",
-          onPressed: () async {
-            await _servers.add(shadowsocks);
-          },
-        ),
-      ));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(seconds: 2),
+          content: Text("${shadowsocks.name} removed"),
+          action: SnackBarAction(
+            label: "Undo",
+            onPressed: () async {
+              await _servers.add(shadowsocks);
+            },
+          ),
+        ));
+      }
     }
   }
 

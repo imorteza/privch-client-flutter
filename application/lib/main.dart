@@ -103,14 +103,14 @@ class PrivChApp extends StatelessWidget {
             AboutPage.route: (context) => const AboutPage(),
             SettingPage.route: (context) => const SettingPage(),
           },
-          onGenerateRoute: (settings) {
-            if (settings.name == ShadowsocksDetailPage.route) {
-              final shadowsocks = settings.arguments as Shadowsocks;
+          onGenerateRoute: (route) {
+            if (route.name == ShadowsocksDetailPage.route) {
+              final shadowsocks = route.arguments as Shadowsocks;
               return MaterialPageRoute(
                 builder: (context) => ShadowsocksDetailPage(shadowsocks),
               );
-            } else if (settings.name == EncryptListPage.route) {
-              final encrypt = settings.arguments as String;
+            } else if (route.name == EncryptListPage.route) {
+              final encrypt = route.arguments as String;
               return MaterialPageRoute(
                 builder: (context) => EncryptListPage(encrypt: encrypt),
               );

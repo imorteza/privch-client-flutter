@@ -1,3 +1,5 @@
+//cspell:disable
+
 import 'dart:math';
 
 class Validator {
@@ -13,8 +15,8 @@ class Validator {
 
   static final RegExp _hexadecimal = RegExp(r'^[0-9a-fA-F]+$');
 
-  static final RegExp _base64 = RegExp(
-      r'^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$');
+  static final RegExp _base64 =
+      RegExp(r'^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$');
 
   static final RegExp _creditCard = RegExp(
       r'^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$');
