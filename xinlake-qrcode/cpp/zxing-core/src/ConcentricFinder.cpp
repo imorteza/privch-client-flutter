@@ -7,6 +7,7 @@
 
 #include "LogMatrix.h"
 #include "RegressionLine.h"
+#include "ZXAlgorithms.h"
 
 namespace ZXing {
 
@@ -39,7 +40,8 @@ std::optional<PointF> CenterOfDoubleCross(const BitMatrix& image, PointI center,
 std::optional<PointF> CenterOfRing(const BitMatrix& image, PointI center, int range, int nth, bool requireCircle)
 {
 	BitMatrixCursorI cur(image, center, {0, 1});
-	cur.stepToEdge(nth, range);
+	if (!cur.stepToEdge(nth, range))
+		return {};
 	cur.turnRight(); // move clock wise and keep edge on the right
 
 	uint32_t neighbourMask = 0;
@@ -68,12 +70,12 @@ std::optional<PointF> CenterOfRing(const BitMatrix& image, PointI center, int ra
 	return sum / n;
 }
 
-std::optional<PointF> CenterOfRings(const BitMatrix& image, PointI center, int range, int numOfRings)
+std::optional<PointF> CenterOfRings(const BitMatrix& image, PointF center, int range, int numOfRings)
 {
-	PointF sum = {};
-	int n = 0;
-	for (int i = 0; i < numOfRings; ++i) {
-		auto c = CenterOfRing(image, center, range, i + 1);
+	int n = numOfRings;
+	PointF sum = numOfRings * center;
+	for (int i = 1; i < numOfRings; ++i) {
+		auto c = CenterOfRing(image, PointI(center), range, i + 1);
 		if (!c)
 			return {};
 		// TODO: decide whether this wheighting depending on distance to the center is worth it
@@ -87,10 +89,12 @@ std::optional<PointF> CenterOfRings(const BitMatrix& image, PointI center, int r
 std::optional<PointF> FinetuneConcentricPatternCenter(const BitMatrix& image, PointF center, int range, int finderPatternSize)
 {
 	// make sure we have at least one path of white around the center
-	if (!CenterOfRing(image, PointI(center), range, 1))
+	auto res = CenterOfRing(image, PointI(center), range, 1);
+	if (!res)
 		return {};
 
-	auto res = CenterOfRings(image, PointI(center), range, finderPatternSize / 2);
+	center = *res;
+	res = CenterOfRings(image, center, range, finderPatternSize / 2);
 	if (!res || !image.get(*res))
 		res = CenterOfDoubleCross(image, PointI(center), range, finderPatternSize / 2 + 1);
 	if (!res || !image.get(*res))
@@ -168,11 +172,8 @@ static bool QuadrilateralIsPlausibleSquare(const QuadrilateralF q, int lineIndex
 {
 	double m, M;
 	m = M = distance(q[0], q[3]);
-	for (int i = 1; i < 4; ++i) {
-		double d = distance(q[i - 1], q[i]);
-		m = std::min(m, d);
-		M = std::max(M, d);
-	}
+	for (int i = 1; i < 4; ++i)
+		UpdateMinMax(m, M, distance(q[i - 1], q[i]));
 
 	return m >= lineIndex * 2 && m > M / 3;
 }

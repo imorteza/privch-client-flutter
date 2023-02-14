@@ -11,6 +11,7 @@
 #include "MultiFormatReader.h"
 #include "ThresholdBinarizer.h"
 
+#include <climits>
 #include <memory>
 #include <stdexcept>
 
@@ -45,9 +46,9 @@ static LumImage ExtractLum(const ImageView& iv, P projection)
 
 class LumImagePyramid
 {
-	int N = 3;
 	std::vector<LumImage> buffers;
 
+	template<int N>
 	void addLayer()
 	{
 		auto siv = layers.back();
@@ -66,18 +67,27 @@ class LumImagePyramid
 			}
 	}
 
+	void addLayer(int factor)
+	{
+		// help the compiler's auto-vectorizer by hard-coding the scale factor
+		switch (factor) {
+		case 2: addLayer<2>(); break;
+		case 3: addLayer<3>(); break;
+		case 4: addLayer<4>(); break;
+		default: throw std::invalid_argument("Invalid DecodeHints::downscaleFactor"); break;
+		}
+	}
+
 public:
 	std::vector<ImageView> layers;
 
-	LumImagePyramid(const ImageView& iv, int threshold, int factor) : N(factor)
+	LumImagePyramid(const ImageView& iv, int threshold, int factor)
 	{
-		if (factor < 2)
-			throw std::invalid_argument("Invalid DecodeHints::downscaleFactor");
-
 		layers.push_back(iv);
 		// TODO: if only matrix codes were considered, then using std::min would be sufficient (see #425)
-		while (threshold > 0 && std::max(layers.back().width(), layers.back().height()) > threshold)
-			addLayer();
+		while (threshold > 0 && std::max(layers.back().width(), layers.back().height()) > threshold &&
+			   std::min(layers.back().width(), layers.back().height()) >= factor)
+			addLayer(factor);
 #if 0
 		// Reversing the layers means we'd start with the smallest. that can make sense if we are only looking for a
 		// single symbol. If we start with the higher resolution, we get better (high res) position information.
@@ -134,7 +144,7 @@ Results ReadBarcodes(const ImageView& _iv, const DecodeHints& hints)
 	LumImagePyramid pyramid(iv, hints.downscaleThreshold() * hints.tryDownscale(), hints.downscaleFactor());
 
 	Results results;
-	int maxSymbols = hints.maxNumberOfSymbols();
+	int maxSymbols = hints.maxNumberOfSymbols() ? hints.maxNumberOfSymbols() : INT_MAX;
 	for (auto&& iv : pyramid.layers) {
 		auto bitmap = CreateBitmap(hints.binarizer(), iv);
 		for (int invert = 0; invert <= static_cast<int>(hints.tryInvert()); ++invert) {
@@ -147,7 +157,7 @@ Results ReadBarcodes(const ImageView& _iv, const DecodeHints& hints)
 				if (!Contains(results, r)) {
 					r.setDecodeHints(hints);
 					r.setIsInverted(bitmap->inverted());
-					results.push_back(std::move(r)); // TODO: keep the one with no error instead of the first found
+					results.push_back(std::move(r));
 					--maxSymbols;
 				}
 			}

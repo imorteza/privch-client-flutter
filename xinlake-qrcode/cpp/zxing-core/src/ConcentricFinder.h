@@ -27,7 +27,7 @@ static float CenterFromEnd(const std::array<T, N>& pattern, float end)
 		float b = (pattern[2] + pattern[1] + pattern[0]) / 2.f;
 		return end - (2 * a + b) / 3;
 	} else { // aztec
-		auto a = std::accumulate(&pattern[N/2 + 1], &pattern[N], pattern[N/2] / 2.f);
+		auto a = std::accumulate(pattern.begin() + (N/2 + 1), pattern.end(), pattern[N/2] / 2.f);
 		return end - a;
 	}
 }
@@ -35,16 +35,24 @@ static float CenterFromEnd(const std::array<T, N>& pattern, float end)
 template<typename Pattern, typename Cursor>
 std::optional<Pattern> ReadSymmetricPattern(Cursor& cur, int range)
 {
-	if (!cur.stepToEdge(std::tuple_size<Pattern>::value / 2 + 1, range))
-		return std::nullopt;
-
+	Pattern res = {};
+	auto constexpr s_2 = Size(res)/2;
+	auto cuo = cur;
 	cur.turnBack();
-	cur.step();
 
-	auto pattern = cur.template readPattern<Pattern>(range);
-	if (pattern.back() == 0)
-		return std::nullopt;
-	return pattern;
+	auto next = [&](auto& cur, int i) {
+		auto v = cur.stepToEdge(1, range);
+		res[s_2 + i] += v;
+		return v;
+	};
+
+	for (int i = 0; i <= s_2; ++i) {
+		if (!next(cur, i) || !next(cuo, -i))
+			return {};
+	}
+	res[s_2]--; // the starting pixel has been counted twice, fix this
+
+	return res;
 }
 
 template<bool RELAXED_THRESHOLD = false, typename FinderPattern>
@@ -86,8 +94,7 @@ std::optional<ConcentricPattern> LocateConcentricPattern(const BitMatrix& image,
 		int spread = CheckDirection<RELAXED_THRESHOLD>(cur, d, finderPattern, range, !RELAXED_THRESHOLD);
 		if (!spread)
 			return {};
-		minSpread = std::min(spread, minSpread);
-		maxSpread = std::max(spread, maxSpread);
+		UpdateMinMax(minSpread, maxSpread, spread);
 	}
 
 #if 1
@@ -95,8 +102,7 @@ std::optional<ConcentricPattern> LocateConcentricPattern(const BitMatrix& image,
 		int spread = CheckDirection<true>(cur, d, finderPattern, range, false);
 		if (!spread)
 			return {};
-		minSpread = std::min(spread, minSpread);
-		maxSpread = std::max(spread, maxSpread);
+		UpdateMinMax(minSpread, maxSpread, spread);
 	}
 #endif
 
