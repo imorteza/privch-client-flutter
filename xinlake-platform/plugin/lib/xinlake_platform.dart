@@ -54,6 +54,7 @@ class XinPlatform {
     );
   }
 
+  // TODO. This interface is not necessary, use setNavbarColor (for Android) instead.
   Future<void> setUiMode(
     XinUiMode mode, {
     int darkColor = 0xff101010,

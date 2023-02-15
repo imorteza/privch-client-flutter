@@ -38,7 +38,8 @@ add_library(
 
 target_include_directories(xinlake-qrcode
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cpp/stb"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cpp/zxing-core/src")
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cpp/zxing-core/src"
+)
 
 target_link_libraries(
     xinlake-qrcode PRIVATE
