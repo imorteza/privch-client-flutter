@@ -48,7 +48,7 @@ dependencies:
     path: ../xinlake-platform/plugin/
 
   window_interface:
-    path: ../window-interface/plugin/
+    path: ../window-interface
 
   xinlake_tunnel:
     path: ../xinlake-tunnel/plugin/

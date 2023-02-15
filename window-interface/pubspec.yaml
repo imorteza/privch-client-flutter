@@ -5,7 +5,7 @@ version: 0.5.2
 publish_to: 'none'
 
 description: Interface for controlling native windows.
-repository: https://github.com/xinlake/privch/tree/main/window-interface/plugin
+repository: https://github.com/xinlake/privch/tree/main/window-interface
 issue_tracker: https://github.com/xinlake/privch/issues
 homepage: https://xinlake.dev
 

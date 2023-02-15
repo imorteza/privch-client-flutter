@@ -288,7 +288,7 @@ packages:
   window_interface:
     dependency: "direct main"
     description:
-      path: "../window-interface/plugin"
+      path: "../window-interface"
       relative: true
     source: path
     version: "0.5.2"

@@ -45,7 +45,7 @@ dependencies:
   xinlake_platform:
     path: ../xinlake-platform/plugin
   window_interface:
-    path: ../window-interface/plugin
+    path: ../window-interface
 
 dev_dependencies:
   flutter_test:
