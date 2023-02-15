@@ -154,6 +154,7 @@ public class XinlakePlatformPlugin implements FlutterPlugin, MethodCallHandler, 
         }
     }
 
+    // UI is rendered by Flutter, just modify the color of the navigate bar color here
     private void setUiMode(MethodCall call, Result result) {
         final int nightMode;
         final int darkColor;
@@ -210,17 +211,17 @@ public class XinlakePlatformPlugin implements FlutterPlugin, MethodCallHandler, 
         final Activity activity = binding.getActivity();
         final UiModeManager uiModeManager = (UiModeManager) activity.getSystemService(Context.UI_MODE_SERVICE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            uiModeManager.setApplicationNightMode(nightMode);
-        } else {
-            final boolean isDark = (nightMode == UiModeManager.MODE_NIGHT_AUTO)
-                ? XinMobile.getNightMode(activity)
-                : (nightMode == UiModeManager.MODE_NIGHT_YES);
+        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        //     uiModeManager.setApplicationNightMode(nightMode);
+        // } else {
+        final boolean isDark = (nightMode == UiModeManager.MODE_NIGHT_AUTO)
+            ? XinMobile.getNightMode(activity)
+            : (nightMode == UiModeManager.MODE_NIGHT_YES);
 
-            XinMobile.setNavigationBar(activity,
-                isDark ? darkColor : lightColor,
-                dividerColor, animateMs);
-        }
+        XinMobile.setNavigationBar(activity,
+            isDark ? darkColor : lightColor,
+            dividerColor, animateMs);
+        // }
 
         result.success(null);
     }

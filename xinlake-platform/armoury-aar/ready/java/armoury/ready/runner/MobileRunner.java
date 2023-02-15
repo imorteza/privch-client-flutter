@@ -24,7 +24,7 @@ public class MobileRunner implements View.OnClickListener {
             })
             .setNegativeButton("DARK", (dialogInterface, i) -> {
                 // set to dark mode
-                XinMobile.setNavigationBar(activity, 0, null, 300);
+                XinMobile.setNavigationBar(activity, 0xFF000000, null, 300);
             })
             .show();
     }
