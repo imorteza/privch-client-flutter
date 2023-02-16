@@ -46,7 +46,7 @@ target_compile_definitions(${PLUGIN_NAME}
 # dependencies here.
 target_include_directories(${PLUGIN_NAME}
   INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include"
-  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../cpp/stb" # for compile plugin cpp files
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../cpp/stb" # to compile plugin cpp files
 # PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../cpp/zxing-core/src"
 )
 

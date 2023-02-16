@@ -1,4 +1,4 @@
-## 0.3.0 - 0.1.5
+## 0.4.0 - 0.1.5
 * Improvements for reliability.
 
 ## 0.1.4

@@ -35,7 +35,7 @@ final _demoList = <String, List<DemoItem>>{
     DemoItem("Read Screen", () => const ReadScreenDemo(), ReadScreenDemo.supported),
   ],
   "Platform": [
-    DemoItem("UI Mode", () => const UiModeDemo(), UiModeDemo.supported),
+    DemoItem("Native UI Mode", () => const UiModeDemo(), UiModeDemo.supported),
     DemoItem("Pick File", () => const PickFileDemo(), PickFileDemo.supported),
     DemoItem("App Info", () => const AppInfoDemo(), AppInfoDemo.supported),
   ],

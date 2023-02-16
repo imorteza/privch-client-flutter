@@ -8,7 +8,7 @@ class UiModeDemo extends StatefulWidget {
 
   static bool get supported {
     try {
-      return Platform.isAndroid;
+      return Platform.isAndroid || Platform.isWindows;
     } catch (exception) {
       return false;
     }
@@ -98,9 +98,9 @@ class _UiModeState extends State<UiModeDemo> {
             ),
             const SizedBox(height: 10),
             ElevatedButton(
-              child: const Text("setUiMode"),
+              child: const Text("setNativeUiMode"),
               onPressed: () async {
-                await _xinPlatform.setUiMode(_uiMode, animateMs: _animateMs.toInt());
+                await _xinPlatform.setNativeUiMode(_uiMode, animateMs: _animateMs.toInt());
               },
             ),
           ],
