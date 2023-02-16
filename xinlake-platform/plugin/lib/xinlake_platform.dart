@@ -54,14 +54,13 @@ class XinPlatform {
     );
   }
 
-  // TODO. This interface is not necessary, use setNavbarColor (for Android) instead.
-  Future<void> setUiMode(
+  Future<void> setNativeUiMode(
     XinUiMode mode, {
     int darkColor = 0xff101010,
     int lightColor = 0xffffffff,
     int animateMs = 100,
   }) {
-    return XinlakePlatformInterface.instance.setUiMode(
+    return XinlakePlatformInterface.instance.setNativeUiMode(
       mode,
       darkColor,
       lightColor,

@@ -1,3 +1,6 @@
+## 0.4.1
+* Change `setUiMode` to `setNativeUiMode`
+
 ## 0.3.0
 * Add support for web platform
 

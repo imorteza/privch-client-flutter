@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.UiModeManager;
 import android.content.ClipData;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -154,8 +153,8 @@ public class XinlakePlatformPlugin implements FlutterPlugin, MethodCallHandler, 
         }
     }
 
-    // UI is rendered by Flutter, just modify the color of the navigate bar color here
-    private void setUiMode(MethodCall call, Result result) {
+    // UI is rendered by Flutter, just modify the color of the navigate bar here
+    private void setNativeUiMode(MethodCall call, Result result) {
         final int nightMode;
         final int darkColor;
         final int lightColor;
@@ -209,11 +208,6 @@ public class XinlakePlatformPlugin implements FlutterPlugin, MethodCallHandler, 
         }
 
         final Activity activity = binding.getActivity();
-        final UiModeManager uiModeManager = (UiModeManager) activity.getSystemService(Context.UI_MODE_SERVICE);
-
-        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        //     uiModeManager.setApplicationNightMode(nightMode);
-        // } else {
         final boolean isDark = (nightMode == UiModeManager.MODE_NIGHT_AUTO)
             ? XinMobile.getNightMode(activity)
             : (nightMode == UiModeManager.MODE_NIGHT_YES);
@@ -221,7 +215,6 @@ public class XinlakePlatformPlugin implements FlutterPlugin, MethodCallHandler, 
         XinMobile.setNavigationBar(activity,
             isDark ? darkColor : lightColor,
             dividerColor, animateMs);
-        // }
 
         result.success(null);
     }
@@ -366,8 +359,8 @@ public class XinlakePlatformPlugin implements FlutterPlugin, MethodCallHandler, 
                     }
                 });
                 break;
-            case "setUiMode":
-                setUiMode(call, result);
+            case "setNativeUiMode":
+                setNativeUiMode(call, result);
                 break;
             case "getAppDir":
                 getAppDir(call, result);

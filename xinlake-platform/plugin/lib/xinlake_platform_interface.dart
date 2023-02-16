@@ -37,7 +37,7 @@ abstract class XinlakePlatformInterface extends PlatformInterface {
     throw UnimplementedError('not implemented');
   }
 
-  Future<void> setUiMode(
+  Future<void> setNativeUiMode(
     XinUiMode mode,
     int darkColor,
     int lightColor,

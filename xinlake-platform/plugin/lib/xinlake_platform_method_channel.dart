@@ -52,14 +52,14 @@ class MethodChannelXinlakePlatform extends XinlakePlatformInterface {
   }
 
   @override
-  Future<void> setUiMode(
+  Future<void> setNativeUiMode(
     XinUiMode mode,
     int darkColor,
     int lightColor,
     int animateMs,
   ) async {
     try {
-      return await methodChannel.invokeMethod('setUiMode', {
+      return await methodChannel.invokeMethod('setNativeUiMode', {
         'modeIndex': mode.index,
         'darkColor': darkColor,
         'lightColor': lightColor,

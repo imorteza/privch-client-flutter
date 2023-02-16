@@ -17,7 +17,7 @@
 extern void pickFile(const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
 
-extern void setUiMode(const flutter::MethodCall<flutter::EncodableValue>& method_call,
+extern void setNativeUiMode(const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
 
 extern void getAppDir(const flutter::MethodCall<flutter::EncodableValue>& method_call,
@@ -66,8 +66,8 @@ namespace XinlakePlatform {
             result->Success(flutter::EncodableValue(version_stream.str()));
         } else if (method_name == "pickFile") {
             pickFile(method_call, std::move(result));
-        } else if (method_name == "setUiMode") {
-            setUiMode(method_call, std::move(result));
+        } else if (method_name == "setNativeUiMode") {
+            setNativeUiMode(method_call, std::move(result));
         } else if (method_name == "getAppDir") {
             getAppDir(method_call, std::move(result));
         } else if (method_name == "getAppVersion") {

@@ -16,7 +16,7 @@
 bool _setDarkMode(HWND hwnd, BOOL isDarkMode);
 
 
-void setUiMode(const flutter::MethodCall<flutter::EncodableValue>& method_call,
+void setNativeUiMode(const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
 
     int isDarkMode = -1;
