@@ -305,7 +305,7 @@ packages:
       path: "../xinlake-qrcode"
       relative: true
     source: path
-    version: "0.4.0"
+    version: "0.5.0"
   xinlake_responsive:
     dependency: "direct main"
     description:

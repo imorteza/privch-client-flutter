@@ -1,4 +1,4 @@
-// rootProject.name = "Xinlake Ready"
+rootProject.name = "Xinlake Ready"
 include ':app'
 
 def localPropertiesFile = new File(rootProject.projectDir, "local.properties")

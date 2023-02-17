@@ -49,6 +49,9 @@ public class BarcodeScannerProcessor extends VisionProcessor<List<String>> {
 
     private final List<String> resultList = new LinkedList<>();
 
+    // Whether this processor is already shut down
+    private boolean isShutdown;
+
     public BarcodeScannerProcessor(Context context,
                                    @Nullable String codePrefix, boolean playBeep) {
         super(context);
@@ -71,6 +74,11 @@ public class BarcodeScannerProcessor extends VisionProcessor<List<String>> {
     @ExperimentalGetImage
     public void detect(ImageProxy imageProxy, @NonNull GraphicOverlay graphicOverlay,
                        @NonNull Consumer<List<String>> onDetected) {
+        if (isShutdown) {
+            imageProxy.close();
+            return;
+        }
+
         final InputImage inputImage = VisionProcessor.getImage(imageProxy);
         if (inputImage == null) {
             return;
@@ -155,5 +163,7 @@ public class BarcodeScannerProcessor extends VisionProcessor<List<String>> {
     public void dispose() {
         executor.shutdown();
         barcodeScanner.close();
+
+        isShutdown = true;
     }
 }

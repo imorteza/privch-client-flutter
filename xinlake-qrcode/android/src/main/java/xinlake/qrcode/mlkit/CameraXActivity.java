@@ -37,7 +37,7 @@ import xinlake.qrcode.mlkit.processer.VisionProcessor;
 
 /**
  * Live preview demo app for ML Kit APIs using CameraX.
- * https://github.com/googlesamples/mlkit/tree/master/android/vision-quickstart.
+ * <a href="https://github.com/googlesamples/mlkit/tree/master/android/vision-quickstart">vision-quickstart</a>.
  * <p>
  * 2021-12
  */
@@ -90,7 +90,6 @@ public final class CameraXActivity extends ComponentActivity {
         finish();
     }
 
-    @SuppressWarnings("deprecation")
     private void bindAllCameraUseCases() {
         if (cameraProvider == null) {
             return;
@@ -247,7 +246,7 @@ public final class CameraXActivity extends ComponentActivity {
                 this,
                 provider -> {
                     cameraProvider = provider;
-                    // TODO, necessary?
+                    // TODO: necessary? this check has been removed form the mlkit demo
                     if (checkSelfPermission(Manifest.permission.CAMERA)
                         == PackageManager.PERMISSION_GRANTED) {
                         bindAllCameraUseCases();
