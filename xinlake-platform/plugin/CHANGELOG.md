@@ -1,3 +1,6 @@
+## 0.5.0
+* Fix an issue with pickFile
+
 ## 0.4.1
 * Change `setUiMode` to `setNativeUiMode`
 

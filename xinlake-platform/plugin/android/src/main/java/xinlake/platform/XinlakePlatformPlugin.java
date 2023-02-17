@@ -117,12 +117,18 @@ public class XinlakePlatformPlugin implements FlutterPlugin, MethodCallHandler, 
             // get path and send results
             if (cacheDir != null) {
                 new Thread(() -> {
-                    final ArrayList<String> pathList = new ArrayList<>();
+                    final ArrayList<HashMap<String, Object>> pathList = new ArrayList<>();
                     final boolean overwrite = (cacheOverwrite != null && cacheOverwrite);
                     for (Uri uri : uriList) {
                         final String filePath = XinFile.cacheFromUri(activity, uri, cacheDir, overwrite);
                         if (filePath != null) {
-                            pathList.add(filePath);
+                            final File file = new File(filePath);
+                            final HashMap<String, Object> map = new HashMap<>();
+                            map.put("name", XinFile.getName(filePath));
+                            map.put("path", filePath);
+                            map.put("length", file.length());
+                            map.put("modified-ms", file.lastModified());
+                            pathList.add(map);
                         }
                     }
                     // send results when files has been copied
