@@ -97,7 +97,6 @@ public class XinlakeQrcodePlugin implements FlutterPlugin, MethodCallHandler, Ac
             final ArrayList<String> codeList = new ArrayList<>();
             processCount = imageList.size();
 
-
             for (String image : imageList) {
                 processor.detect(Uri.fromFile(new File(image)), barcodes -> {
                     if (barcodes.size() > 0) {
