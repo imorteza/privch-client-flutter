@@ -72,6 +72,7 @@ class SSService : VpnService() {
             try {
                 Os.close(this)
             } catch (exception: ErrnoException) {
+                // ignore
             }
         }
     }
@@ -290,20 +291,21 @@ class SSService : VpnService() {
         conn = null
     }
 
-    /* shadowsocks-rust v1.11.2
+    /* shadowsocks-rust v1.15.2
      * shadowsocks-android. com/github/shadowsocks/bg/ProxyInstance.kt
      *
      * top, command line, libsslocal.so
+     * TODO //"--local-dns-addr", "local_dns_path",
      */
     private fun startShadowsocks() {
         val cmd = arrayListOf(
             File(TunnelCore.instance().nativeLibraryDir, Executable.SS_LOCAL).absolutePath,
             //"--stat-path", stat.absolutePath,
             "--local-addr", "127.0.0.1:${TunnelCore.instance().socksPort}",
-            "--server-addr", "${server!!.address}:${server!!.port}",
-            "-k", server!!.password,
-            "-m", server!!.encrypt,
             "--udp-bind-addr", "127.0.0.1:${TunnelCore.instance().socksPort}",
+            "--server-addr", "${server!!.address}:${server!!.port}",
+            "--password", server!!.password,
+            "--encrypt-method", server!!.encrypt,
             "--dns-addr", "127.0.0.1:${TunnelCore.instance().dnsLocalPort}",
             "--local-dns-addr", "local_dns_path",
             "--remote-dns-addr", "${TunnelCore.instance().dnsRemoteAddress}:53",
@@ -339,9 +341,7 @@ class SSService : VpnService() {
         val conn = builder.establish() ?: throw Exception("Null Connection")
         this.conn = conn
 
-        /* shadowsocks-android v5.2.6
-         * top, command line, libtun2socks.so
-         */
+        // shadowsocks-android v5.3.3. top libtun2socks.so
         val cmd = arrayListOf(
             File(applicationInfo.nativeLibraryDir, Executable.TUN2SOCKS).absolutePath,
             "--netif-ipaddr", PRIVATE_VLAN4_ROUTER,
