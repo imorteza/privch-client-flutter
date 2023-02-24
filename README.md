@@ -6,7 +6,7 @@
 </a>
 </p>
 
-A modern VPN client built with Flutter supports Android and Windows but does not provide international communication services. The app is also available on [Google Play](https://play.google.com/store/apps/details?id=xinlake.privch).
+PrivCh is a modern VPN client built with Flutter that supports Android and Windows, but does not offer international communication services. The app is also available on [Google Play](https://play.google.com/store/apps/details?id=xinlake.privch).
 
 | Directory | Description |
 |---------|---------|
