@@ -34,10 +34,8 @@ import android.system.Os
 import android.system.OsConstants
 import com.github.shadowsocks.bg.Executable
 import com.github.shadowsocks.bg.GuardedProcessPool
-import com.github.shadowsocks.bg.LocalDnsWorker
 import com.github.shadowsocks.net.ConcurrentLocalSocketListener
 import com.github.shadowsocks.net.DefaultNetworkListener
-import com.github.shadowsocks.net.DnsResolverCompat
 import com.github.shadowsocks.net.Subnet
 import com.github.shadowsocks.utils.int
 import kotlinx.coroutines.*
@@ -109,7 +107,6 @@ class SSService : VpnService() {
 
     private var status: Int = TunnelCore.STATE_IDLE
     private var processes: GuardedProcessPool? = null
-    private var localDns: LocalDnsWorker? = null
     private var connectingJob: Job? = null
     private var conn: ParcelFileDescriptor? = null
     private var worker: ProtectWorker? = null
@@ -132,15 +129,6 @@ class SSService : VpnService() {
         }
 
     private suspend fun preInit() = DefaultNetworkListener.start(this) { underlyingNetwork = it }
-    private suspend fun rawResolver(query: ByteArray) =
-        DnsResolverCompat.resolveRawOnActiveNetwork(query)
-
-    /* overwrite rawResolver
-    // need to listen for network here as this is only used for forwarding local DNS queries.
-    // retries should be attempted by client.
-    private suspend fun rawResolver(query: ByteArray) =
-        DnsResolverCompat.resolveRaw(underlyingNetwork ?: throw IOException("no network"), query)
-    */
 
     private fun broadcastMessage(message: String) {
         Intent(TunnelCore.ACTION_EVENT_BROADCAST).also { intent ->
@@ -266,8 +254,6 @@ class SSService : VpnService() {
             stopRunner()
         }
 
-        localDns = LocalDnsWorker(this::rawResolver).apply { start() }
-
         startShadowsocks()
         sendFd(startVpn())
     }
@@ -277,9 +263,6 @@ class SSService : VpnService() {
             close(scope)
             processes = null
         }
-
-        localDns?.shutdown(scope)
-        localDns = null
 
         active = false
         scope.launch { DefaultNetworkListener.stop(this) }
@@ -295,19 +278,16 @@ class SSService : VpnService() {
      * shadowsocks-android. com/github/shadowsocks/bg/ProxyInstance.kt
      *
      * top, command line, libsslocal.so
-     * TODO //"--local-dns-addr", "local_dns_path",
      */
     private fun startShadowsocks() {
         val cmd = arrayListOf(
             File(TunnelCore.instance().nativeLibraryDir, Executable.SS_LOCAL).absolutePath,
-            //"--stat-path", stat.absolutePath,
             "--local-addr", "127.0.0.1:${TunnelCore.instance().socksPort}",
-            "--udp-bind-addr", "127.0.0.1:${TunnelCore.instance().socksPort}",
             "--server-addr", "${server!!.address}:${server!!.port}",
-            "--password", server!!.password,
             "--encrypt-method", server!!.encrypt,
+            "--password", server!!.password,
             "--dns-addr", "127.0.0.1:${TunnelCore.instance().dnsLocalPort}",
-            "--local-dns-addr", "local_dns_path",
+            "--local-dns-addr", "${TunnelCore.instance().dnsRemoteAddress}:53",
             "--remote-dns-addr", "${TunnelCore.instance().dnsRemoteAddress}:53",
             "--vpn", "-U",
         )
