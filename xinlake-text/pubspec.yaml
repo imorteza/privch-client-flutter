@@ -5,12 +5,12 @@ version: 0.2.0
 publish_to: 'none'
 
 description: A collection of commonly used text functions.
-repository: https://github.com/xinlake/privch/tree/main/xinlake-text/package
+repository: https://github.com/xinlake/privch/tree/main/xinlake-text
 issue_tracker: https://github.com/xinlake/privch/issues
 homepage: https://xinlake.dev
 
 environment:
-  sdk: '>=2.19.2 <3.0.0'
+  sdk: '>=2.19.3 <3.0.0'
   flutter: '>=2.10.0'
 
 dependencies:

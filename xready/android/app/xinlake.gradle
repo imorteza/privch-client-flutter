@@ -1,5 +1,5 @@
 // check signing config file
-def privatePropertiesFile = new File("$rootDir/../../../../../.SourceConfig/signing.properties")
+def privatePropertiesFile = new File("$rootDir/../../../../../../.SourceConfig/signing.properties")
 if (!privatePropertiesFile.exists()) {
     throw new FileNotFoundException("signing.properties file not found.")
 }
