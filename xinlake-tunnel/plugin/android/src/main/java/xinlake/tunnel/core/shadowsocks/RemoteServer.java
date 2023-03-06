@@ -30,10 +30,12 @@ public class RemoteServer {
             && (isIpAddress(address) || Patterns.WEB_URL.matcher(address).matches());
     }
 
+    @SuppressWarnings("deprecation")
     private boolean isIpAddress(String address) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return InetAddresses.isNumericAddress(address);
         }
+
         return Patterns.IP_ADDRESS.matcher(address).matches();
     }
 

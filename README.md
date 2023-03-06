@@ -67,6 +67,17 @@ Run the `flutter pub get` command, Open Visual Studio select "Open a local folde
 <p>
 <table>
     <tr>
+        <td><img src=".lfs/screen/life-2.jpg"/></td>
+        <td><img src=".lfs/screen/life-3.jpg"/></td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td><img src=".lfs/screen/life-1.jpg"/></td>
+    </tr>
+</table>
+<table>
+    <tr>
         <td><img src=".lfs/screen/al-auto3.png"/></td>
         <td><img src=".lfs/screen/al-setting.png"/></td>
         <td><img src=".lfs/screen/al-about.png"/></td>
