@@ -70,10 +70,8 @@ Run the `flutter pub get` command, Open Visual Studio select "Open a local folde
         <td><img src=".lfs/screen/life-2.jpg"/></td>
         <td><img src=".lfs/screen/life-3.jpg"/></td>
     </tr>
-</table>
-<table>
     <tr>
-        <td><img src=".lfs/screen/life-1.jpg"/></td>
+        <td colspan=2><img src=".lfs/screen/life-1.jpg"/></td>
     </tr>
 </table>
 <table>
