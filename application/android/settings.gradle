@@ -1,4 +1,4 @@
-rootProject.name = "Private Channel"
+rootProject.name = "PrivCh"
 include ':app'
 
 def localPropertiesFile = new File(rootProject.projectDir, "local.properties")

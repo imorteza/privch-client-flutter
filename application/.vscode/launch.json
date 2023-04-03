@@ -7,13 +7,7 @@
         {
             "name": "application",
             "request": "launch",
-            "type": "dart"
+            "type": "node"
         },
-        {
-            "name": "application (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        }
     ]
 }
