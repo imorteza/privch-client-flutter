@@ -1,1 +1,0 @@
-Native libraries in this folder and subfolder are currently from the [shadowsocks-android](https://github.com/shadowsocks/shadowsocks-android) project, and these library files will be compiled from source code in the future
