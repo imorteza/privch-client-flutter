@@ -20,13 +20,17 @@ PrivCh is a modern VPN client built with Flutter that supports Android and Windo
 
 # Build
 ### Requirements
-* **Git**. Make sure `git.exe` can be called by other build systems
-* **Flutter SDK**. Make sure `flutter doctor -v` doesn't prompt issues after [installing the Flutter SDK](https://docs.flutter.dev/get-started/install/windows), 
-* **Android Studio**, only required to build Android APK.
+* [**Git**](https://git-scm.com). Make sure `git.exe` can be called by other build systems
+* [**Flutter SDK**](https://flutter.dev). Make sure `flutter doctor -v` doesn't prompt issues after [installing the Flutter SDK](https://docs.flutter.dev/get-started/install/windows)
+* [**Rust**](https://www.rust-lang.org), only required to build Android APK. After [installing Rust](https://www.rust-lang.org/tools/install), you also need to install Android targets.
+    * `rustup target add armv7-linux-androideabi aarch64-linux-android`
+    * [Optional] `rustup target add i686-linux-android x86_64-linux-android`
+* [**Python**](https://www.python.org), only required to build Android APK.
+* [**Android Studio**](https://developer.android.com/studio), only required to build Android APK.
     * Android SDK Command-line Tools (last)
     * CMake
     * NDK
-* **Visual Studio 2022**, only required to build Windows (native) application.
+* [**Visual Studio 2022**](https://visualstudio.microsoft.com), only required to build Windows (native) application.
     * "Desktop development with C++" workload
     * C++ CMake tools for Windows
     * [Optional] Windows 10 SDK v10.0.20348.0
