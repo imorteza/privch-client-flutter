@@ -207,7 +207,7 @@ class Shadowsocks extends HiveObject {
     String ssEncryptBase64, ssAddressInfo;
     try {
       final info = ssInfo.split("@");
-      ssEncryptBase64 = info[0];
+      ssEncryptBase64 = base64.normalize(info[0]);
       ssAddressInfo = info[1];
     } catch (exception) {
       return null;
