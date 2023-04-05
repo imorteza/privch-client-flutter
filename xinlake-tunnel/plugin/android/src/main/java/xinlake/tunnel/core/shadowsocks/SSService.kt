@@ -292,6 +292,7 @@ class SSService : VpnService() {
             "--vpn", "-U",
         )
 
+        // android.util.Log.i("Xinlake", cmd.toString())
         processes!!.start(cmd)
     }
 
