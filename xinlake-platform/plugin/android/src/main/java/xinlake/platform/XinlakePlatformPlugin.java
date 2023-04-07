@@ -269,7 +269,11 @@ public class XinlakePlatformPlugin implements FlutterPlugin, MethodCallHandler, 
         final PackageInfo packageInfo;
         try {
             String packageName = activity.getPackageName();
-            packageInfo = activity.getPackageManager().getPackageInfo(packageName, 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageInfo = activity.getPackageManager().getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0));
+            } else {
+                packageInfo = activity.getPackageManager().getPackageInfo(packageName, 0);
+            }
         } catch (Exception exception) {
             result.error("getPackageInfo", null, null);
             return;

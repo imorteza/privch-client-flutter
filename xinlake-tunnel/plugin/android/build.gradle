@@ -81,8 +81,8 @@ cargo {
     profile = findProperty("CARGO_PROFILE")?.toString() ?: getCurrentBuildType()
     extraCargoBuildArguments = ["--bin", libname]
     featureSpec.noDefaultBut(
-        "stream-cipher",
-        "aead-cipher-extra",
+        // "stream-cipher",
+        // "aead-cipher-extra",
         "logging",
         "local-flow-stat",
         "local-dns",
