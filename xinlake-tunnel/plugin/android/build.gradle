@@ -90,15 +90,21 @@ cargo {
     )
 
     exec = { spec, toolchain ->
+        def hasPython = false
         def pythonList = ["python3", "python"]
         for (python in pythonList) {
             try {
                 Runtime.getRuntime().exec("$python -V >/dev/null 2>&1")
                 spec.environment("RUST_ANDROID_GRADLE_PYTHON_COMMAND", "$python")
+                hasPython = true
+
                 project.logger.lifecycle("$python detected.")
                 break
             } catch (Exception ignored) {
             }
+        }
+        if (!hasPython) {
+            throw new GradleException("Python not found")
         }
 
         spec.environment("RUST_ANDROID_GRADLE_LINKER_WRAPPER_PY", "$projectDir/$module/../linker-wrapper.py")
