@@ -90,8 +90,8 @@ cargo {
     )
 
     exec = { spec, toolchain ->
-        def hasPython = false
         def pythonList = ["python3", "python"]
+        def hasPython = false
         for (python in pythonList) {
             try {
                 Runtime.getRuntime().exec("$python -V >/dev/null 2>&1")

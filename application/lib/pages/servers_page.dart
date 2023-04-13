@@ -190,7 +190,7 @@ class _HomeState extends State<ServersPage> {
     await Navigator.pushNamed(
       context,
       ShadowsocksDetailPage.route,
-      arguments: shadowsocks,
+      arguments: ShadowsocksDetailArguments(true, shadowsocks),
     );
 
     if (shadowsocks.isValid) {
@@ -261,7 +261,7 @@ class _HomeState extends State<ServersPage> {
   }
 
   // the content when the list is  empty
-  Widget _buildEmptyServer() {
+  Widget _buildEmptyList() {
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -341,7 +341,7 @@ class _HomeState extends State<ServersPage> {
         children: [
           Expanded(
             child: ShadowsocksList(
-              empty: _buildEmptyServer(),
+              empty: _buildEmptyList(),
             ),
           ),
           AnimatedBuilder(

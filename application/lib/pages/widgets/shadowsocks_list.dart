@@ -1,8 +1,5 @@
 /*
   Xinlake Liu
-  2022-04-10
-
-  - "setState(() {});" is not a good practice
  */
 
 import 'package:flutter/material.dart';
@@ -35,7 +32,7 @@ class ShadowsocksListState extends State<ShadowsocksList> {
     await Navigator.pushNamed(
       context,
       ShadowsocksDetailPage.route,
-      arguments: shadowsocks,
+      arguments: ShadowsocksDetailArguments(false, shadowsocks),
     );
     // not have to, the editor page will validate data
     if (shadowsocks.isValid) {
@@ -78,13 +75,13 @@ class ShadowsocksListState extends State<ShadowsocksList> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Icon(
-            Icons.delete,
+            Icons.edit,
             color: colorFg,
           ),
           const SizedBox(width: 8),
-          Text(
-            "Delete",
-            style: TextStyle(color: colorFg),
+          Icon(
+            Icons.arrow_forward,
+            color: colorFg,
           ),
         ],
       ),
@@ -101,13 +98,13 @@ class ShadowsocksListState extends State<ShadowsocksList> {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text(
-            "Edit",
-            style: TextStyle(color: colorFg),
+          Icon(
+            Icons.arrow_back,
+            color: colorFg,
           ),
           const SizedBox(width: 8),
           Icon(
-            Icons.arrow_back,
+            Icons.delete,
             color: colorFg,
           ),
         ],
@@ -123,16 +120,16 @@ class ShadowsocksListState extends State<ShadowsocksList> {
     return Dismissible(
       key: Key("${shadowsocks.hashCode}"),
       dismissThresholds: const {
-        DismissDirection.startToEnd: 0.6,
-        DismissDirection.endToStart: 0.2,
+        DismissDirection.startToEnd: 0.3,
+        DismissDirection.endToStart: 0.7,
       },
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.endToStart) {
-          _onItemDetail(shadowsocks);
-          return false;
-        } else if (direction == DismissDirection.startToEnd) {
           // delete server
           return true;
+        } else if (direction == DismissDirection.startToEnd) {
+          _onItemDetail(shadowsocks);
+          return false;
         }
         return false;
       },

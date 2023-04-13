@@ -15,12 +15,19 @@ import 'package:xinlake_text/validator.dart';
 import '../models/shadowsocks/shadowsocks07.dart';
 import '../pages/encrypt_list.dart';
 
-class ShadowsocksDetailPage extends StatefulWidget {
-  const ShadowsocksDetailPage(this.shadowsocks, {Key? key}) : super(key: key);
-  static const route = "/home/shadowsocks";
-
-  // Fields in a Widget subclass are always marked "final".
+class ShadowsocksDetailArguments {
+  final bool isCreate;
   final Shadowsocks shadowsocks;
+
+  ShadowsocksDetailArguments(this.isCreate, this.shadowsocks);
+}
+
+/// arguments: 0, Shadowsocks; 1, isCreate.
+class ShadowsocksDetailPage extends StatefulWidget {
+  static const route = "/home/shadowsocks";
+  final ShadowsocksDetailArguments arguments;
+
+  const ShadowsocksDetailPage(this.arguments, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ShadowsocksDetailState();
@@ -41,11 +48,11 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
           // display name
           TextFormField(
             autovalidateMode: AutovalidateMode.always,
-            initialValue: widget.shadowsocks.name,
+            initialValue: widget.arguments.shadowsocks.name,
             decoration: inputDecoration.copyWith(labelText: "Display name"),
             validator: (value) {
               if ((value != null && value.isNotEmpty)) {
-                widget.shadowsocks.name = value;
+                widget.arguments.shadowsocks.name = value;
                 return null;
               }
               return "Display name can't be empty";
@@ -60,11 +67,14 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
                 flex: 1,
                 child: TextFormField(
                   autovalidateMode: AutovalidateMode.always,
-                  initialValue: widget.shadowsocks.address,
-                  decoration: inputDecoration.copyWith(labelText: "Host address"),
+                  initialValue: widget.arguments.shadowsocks.address,
+                  decoration: inputDecoration.copyWith(
+                    labelText: "Host address",
+                    enabled: widget.arguments.isCreate,
+                  ),
                   validator: (value) {
                     if ((value != null && Validator.isURL(value))) {
-                      widget.shadowsocks.address = value;
+                      widget.arguments.shadowsocks.address = value;
                       return null;
                     }
                     return "Invalid host address";
@@ -77,13 +87,16 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
                 child: TextFormField(
                   autovalidateMode: AutovalidateMode.always,
                   keyboardType: TextInputType.number,
-                  initialValue: "${widget.shadowsocks.port}",
-                  decoration: inputDecoration.copyWith(labelText: "Host port"),
+                  initialValue: "${widget.arguments.shadowsocks.port}",
+                  decoration: inputDecoration.copyWith(
+                    labelText: "Host port",
+                    enabled: widget.arguments.isCreate,
+                  ),
                   validator: (value) {
                     if (value != null) {
                       final port = Validator.getPortNumber(value);
                       if (port != null) {
-                        widget.shadowsocks.port = port;
+                        widget.arguments.shadowsocks.port = port;
                         return null;
                       }
                     }
@@ -98,7 +111,7 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
           TextFormField(
             autovalidateMode: AutovalidateMode.always,
             obscureText: _obscureText,
-            initialValue: widget.shadowsocks.password,
+            initialValue: widget.arguments.shadowsocks.password,
             decoration: inputDecoration.copyWith(
               labelText: "Password",
               suffixIcon: IconButton(
@@ -112,7 +125,7 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
             ),
             validator: (value) {
               if ((value != null && value.isNotEmpty)) {
-                widget.shadowsocks.password = value;
+                widget.arguments.shadowsocks.password = value;
                 return null;
               }
               return "Password can't be empty";
@@ -129,11 +142,11 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
         final encrypt = await Navigator.pushNamed(
           context,
           EncryptListPage.route,
-          arguments: widget.shadowsocks.encrypt,
+          arguments: widget.arguments.shadowsocks.encrypt,
         ) as String?;
-        if (encrypt != null && widget.shadowsocks.encrypt != encrypt) {
+        if (encrypt != null && widget.arguments.shadowsocks.encrypt != encrypt) {
           setState(() {
-            widget.shadowsocks.encrypt = encrypt;
+            widget.arguments.shadowsocks.encrypt = encrypt;
           });
         }
       },
@@ -147,7 +160,7 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
           ),
           Expanded(
             child: Center(
-              child: Text(widget.shadowsocks.encrypt.toUpperCase()),
+              child: Text(widget.arguments.shadowsocks.encrypt.toUpperCase()),
             ),
           ),
         ],
@@ -160,7 +173,7 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        title: Text(widget.shadowsocks.name),
+        title: Text(widget.arguments.shadowsocks.name),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
@@ -172,7 +185,7 @@ class _ShadowsocksDetailState extends State<ShadowsocksDetailPage> {
               alignment: Alignment.center,
               child: QrImage(
                 padding: const EdgeInsets.all(20),
-                data: widget.shadowsocks.encodeBase64(),
+                data: widget.arguments.shadowsocks.encodeBase64(),
                 version: QrVersions.auto,
                 size: 200.0,
               ),
